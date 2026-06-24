@@ -8,7 +8,7 @@ O projeto implementa uma abordagem comparativa dividida em uma **Tríade Metodol
 
 ## 🧬 A Tríade Metodológica
 
-A validação dos reparos gerados pelas LLMs é sustentada por três representações distintas de inteligência:
+A validação dos reparos gerados pelas LLMs é sustentada por três representações instruídas de inteligência:
 
 1. **Abordagem Léxica (Texto):** Representação por frequência de termos via **TF-IDF** combinada com o classificador *Random Forest*. Serve como a linha de base (*Baseline*) do projeto.
 2. **Abordagem Estrutural (Regras):** Extração e conversão da Árvore de Sintaxe Abstrata (**AST**) via parser compilador `javalang`. Mapeia o esqueleto lógico da gerência de recursos (blocos try-catch-finally e métodos de ciclo de vida Android como `release()`, `recycle()`, `close()`).
@@ -63,7 +63,7 @@ Meu_Mestrado_DroidLeaks/
     ├── 07_b_treinar_validador_ast.py            # Extração de features sintáticas e treino RF AST
     ├── 07_c_extrair_embeddings_gcbert.py        # Conversor Neural de código para 768 dimensões
     │
-    ├── 08_a_orquestrar_torneio_llms.py          # Envio automático e tolerante a falhas para as APIs
+    ├── 08_a_orquestrar_torneio_llms.py          # Envio automático e tolerant a falhas para as APIs
     ├── 08_b_alinhar_split_ast.py                # Sincronizador de IDs para evitar vazamento de dados
     ├── 08_c_mesclar_resultados_ast.py           # Auditor de histórico para evitar re-chamadas pagas
     ├── 08_d_converter_respostas_ast.py          # Tradutor das correções das LLMs para texto AST
@@ -71,3 +71,78 @@ Meu_Mestrado_DroidLeaks/
     ├── 09_a_oraculo_torneio_tfidf.py            # Apuração de notas e placar final via TF-IDF
     ├── 09_b_oraculo_torneio_ast.py              # Apuração e geração de gráfico em 300 DPI via AST
     └── 09_c_oraculo_torneio_gcbert.py           # Apuração de notas e placar via Deep Learning
+```
+
+---
+
+## ⚙️ Pré-requisitos
+
+Certifique-se de ter o Python 3.10+ instalado. Instale as dependências executando:
+
+```bash
+pip install pandas numpy torch transformers javalang scikit-learn openai anthropic google-generativeai matplotlib seaborn python-dotenv joblib
+```
+
+Configure um arquivo `.env` na raiz do projeto com as suas credenciais de API:
+```env
+OPENAI_API_KEY="sua_chave_aqui"
+ANTHROPIC_API_KEY="sua_chave_aqui"
+GEMINI_API_KEY="sua_chave_aqui"
+```
+
+---
+
+## 🚀 Esteira de Execução (Passo a Passo)
+
+Para reproduzir os experimentos da dissertação na íntegra, execute os scripts seguindo a ordem lógica do pipeline de dados:
+
+### Fase 1: Engenharia e Preparação Sintética
+1. Execute a preparação e balanceamento dos dados (`01` ao `04`).
+2. Gere o aumento de dados e valide a qualidade sintática do que a IA cuspiu:
+   ```bash
+   python scripts/05_aumento_dados_openai.py
+   python scripts/05_b_auditor_sintaxe_javalang.py
+   ```
+   *O script `05_b` gerará o relatório técnico `erros_inspecao.txt` mapeando as limitações gramaticais da LLM.*
+
+### Fase 2: Treinamento dos Oráculos (Os Juízes)
+1. Treine a Baseline do TF-IDF usando o script `07_a`.
+2. Realize a conversão estrutural completa e balanceada da AST:
+   ```bash
+   python scripts/07_b_treinar_validador_ast.py
+   ```
+3. Extraia as matrizes matemáticas de 768 dimensões com o GraphCodeBERT utilizando aceleração por GPU (CUDA):
+   ```bash
+   python scripts/07_c_extrair_embeddings_gcbert.py
+   ```
+
+### Fase 3: O Torneio e Alinhamento Científico
+1. Rode o alinhamento de Split para garantir que a AST herde os mesmos grupos de teste das outras frentes, blindando a pesquisa contra *Data Leakage*:
+   ```bash
+   python scripts/08_b_alinhar_split_ast.py
+   ```
+2. Realize a mescla inteligente para auditar quais respostas das LLMs já existem no disco e quais precisam ser disparadas nas APIs:
+   ```bash
+   python scripts/08_c_mesclar_resultados_ast.py
+   ```
+3. Execute o orquestrador da arena para coletar as correções pendentes do GPT, Claude e Gemini:
+   ```bash
+   python scripts/08_a_orquestrar_torneio_llms.py
+   ```
+
+### Fase 4: Apuração de Resultados e Gráficos
+1. Converta as respostas de código Java puro geradas pelas LLMs em assinaturas sintáticas legíveis:
+   ```bash
+   python scripts/08_d_converter_respostas_ast.py
+   ```
+2. Execute o juiz supremo para computar os acertos e gerar o ativo visual oficial da dissertação:
+   ```bash
+   python scripts/09_b_oraculo_torneio_ast.py
+   ```
+   *Este comando exibirá o desempenho comparativo no console e salvará a imagem `Figura_Placar_Torneio_AST.png` pronta para publicação em alta resolução (300 DPI).*
+
+---
+
+## 📝 Nota de Rigor Acadêmico
+
+> ⚠️ **Aviso de Replicação:** Devido ao filtro rígido imposto pelo compilador sintático `javalang`, exemplos gerados por LLMs com cortes de contexto ou formatações inválidas são preservados no ambiente de teste com a flag `"ERRO_SINTAXE"`, penalizando os modelos geradores de forma justa e automatizada, refletindo com precisão as taxas empíricas de alucinação de código monitoradas no estudo.
