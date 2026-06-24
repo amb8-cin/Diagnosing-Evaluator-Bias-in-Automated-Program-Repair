@@ -130,9 +130,9 @@ def processar_respostas_torneio(caminho_csv_entrada, caminho_csv_saida):
 # =====================================================================
 if __name__ == "__main__":
     # Arquivo original com os códigos em Java puro
-    ARQUIVO_ENTRADA = "C:/Dissertacao/data_bases/ast/resultados_torneio_llms_FILTRADO_AST.csv" 
+    ARQUIVO_ENTRADA = "C:/Dissertacao/data_bases/05_results/resultados_torneio_llms_FILTRADO_AST.csv" 
     
     # Arquivo novo que será consumido pelo validador oráculo
-    ARQUIVO_SAIDA = "C:/Dissertacao/data_bases/ast/respostas_llms_ast.csv"
+    ARQUIVO_SAIDA = "C:/Dissertacao/data_bases/05_results/respostas_llms_ast.csv"
     
     processar_respostas_torneio(ARQUIVO_ENTRADA, ARQUIVO_SAIDA)

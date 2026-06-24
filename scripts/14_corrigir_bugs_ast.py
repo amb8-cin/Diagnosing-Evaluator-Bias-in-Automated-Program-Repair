@@ -67,8 +67,8 @@ def main():
     print("🚀 Retomando o Torneio das LLMs para os casos pendentes...")
     
     # Lendo e salvando no mesmo arquivo unificado
-    arquivo_csv = 'C:/Dissertacao/data_bases/ast/resultados_torneio_llms_FILTRADO_AST.csv'
-    arquivo_final = 'C:/Dissertacao/data_bases/ast/resultados_torneio_llms_ast.csv'
+    arquivo_csv = 'C:/Dissertacao/data_bases/05_results/resultados_torneio_llms_FILTRADO_AST.csv'
+    arquivo_final = 'C:/Dissertacao/data_bases/05_results/resultados_torneio_llms_ast.csv'
     
     if not os.path.exists(arquivo_csv):
         print(f"❌ Erro: O arquivo {arquivo_csv} não foi encontrado!")

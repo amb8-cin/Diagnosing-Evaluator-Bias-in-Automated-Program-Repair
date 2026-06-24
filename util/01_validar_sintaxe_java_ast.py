@@ -105,7 +105,7 @@ def inspecionar_falhas(caminho_csv_entrada, caminho_txt_saida, coluna_codigo):
 # =====================================================================
 if __name__ == "__main__":
     ARQUIVO_ENTRADA = "C:/Dissertacao/data_bases/04_final/dataset_sintetico_chatgpt.csv" 
-    ARQUIVO_TXT_SAIDA = "C:/Dissertacao/erros_inspecao.txt"
+    ARQUIVO_TXT_SAIDA = "C:/Dissertacao/artifacts/erros_inspecao.txt"
     COLUNA_CODIGO = 'Codigo_Snippet' 
     
     inspecionar_falhas(ARQUIVO_ENTRADA, ARQUIVO_TXT_SAIDA, COLUNA_CODIGO)

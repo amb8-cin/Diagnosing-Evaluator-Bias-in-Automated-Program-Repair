@@ -53,7 +53,7 @@ def main():
     # ==========================================
     # 3. AVALIAR AS LLMs
     # ==========================================
-    caminho_torneio = 'C:/Dissertacao/data_bases/resultados_torneio_llms.csv'
+    caminho_torneio = 'C:/Dissertacao/data_bases/05_results/resultados_torneio_llms.csv'
     print(f"\n📂 Lendo os resultados do torneio: {caminho_torneio}")
     df_llms = pd.read_csv(caminho_torneio)
     

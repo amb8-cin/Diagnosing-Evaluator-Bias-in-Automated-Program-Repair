@@ -16,7 +16,7 @@ def main():
     vectorizer = joblib.load('./trained_models/vectorizer.pkl')
 
     # Carregar os resultados do torneio
-    df = pd.read_csv('./data_bases/resultados_torneio_llms.csv') # ou o nome da sua planilha
+    df = pd.read_csv('./data_bases/05_results/resultados_torneio_llms.csv') # ou o nome da sua planilha
     
     modelos_llm = ['fix_gpt', 'fix_claude', 'fix_gemini']
     vitorias = {model: 0 for model in modelos_llm}
@@ -51,7 +51,7 @@ def main():
     print("="*30)
 
     # Salvar planilha final com os vereditos
-    df.to_csv('./data_bases/relatorio_final_dissertacao.csv', index=False, sep=';')
+    df.to_csv('./data_bases/05_results/relatorio_final_dissertacao.csv', index=False, sep=';')
     print("\n✅ Relatório detalhado salvo em 'relatorio_final_dissertacao.csv'")
 
 if __name__ == "__main__":
