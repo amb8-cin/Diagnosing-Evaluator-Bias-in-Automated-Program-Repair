@@ -66,9 +66,9 @@ def consolidar_diffs_em_csv(diretorio_base, arquivo_saida):
 # ==========================================
 if __name__ == "__main__":
     # A pasta onde estão os seus casos extraídos
-    PASTA_DATASET = 'C:/Dissertacao/droidleaks_coletado'
+    PASTA_DATASET = 'C:/Dissertacao/data_bases/02_extracted'
     
     # O ficheiro final que será gerado (vai ficar fora da pasta dos repositórios para não misturar)
-    ARQUIVO_CSV_FINAL = 'C:/Dissertacao/data_bases/dataset_treino_droidleaks.csv'
+    ARQUIVO_CSV_FINAL = 'C:/Dissertacao/data_bases/01_raw/dataset_extraido_droidleaks.csv'
     
     consolidar_diffs_em_csv(PASTA_DATASET, ARQUIVO_CSV_FINAL)

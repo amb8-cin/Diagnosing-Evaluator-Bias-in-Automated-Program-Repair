@@ -1,0 +1,1630 @@
+RELATÓRIO DE INSPEÇÃO: 86 SNIPPETS REJEITADOS
+================================================================================
+
+--- ERRO NA LINHA 818 DO CSV original ---
+try {
+    player = new MediaPlayer();
+    player.setDataSource(songPath);
+    player.prepare();
+    player.start();
+    audioWaveView.postDelayed(new Runnable() {
+        @Override
+        public void run() {
+            audioWaveView.setVisibility(View.VISIBLE);
+        }
+    }, 500);
+} catch (Exception e) {
+    fail();
+}
+
+private void fail() {
+    android.util.Log.e("MusicPlayer", "Playback failed");
+}
+
+================================================================================
+
+--- ERRO NA LINHA 819 DO CSV original ---
+try {
+    player = new MediaPlayer();
+    player.setDataSource(songPath);
+    player.prepare();
+    player.start();
+    audioWaveView.postDelayed(new Runnable() {
+        @Override
+        public void run() {
+            audioWaveView.setVisibility(View.VISIBLE);
+        }
+    }, 500);
+} catch (Exception e) {
+    fail();
+}
+
+@Override
+protected void onStop() {
+    super.onStop();
+    if (player != null) {
+        if (player.isPlaying()) {
+            player.stop();
+        }
+        player.release();
+        player = null;
+    }
+}
+
+private void fail() {
+    android.util.Log.e("MusicPlayer", "Playback failed");
+    if (player != null) {
+        player.release();
+        player = null;
+    }
+}
+
+================================================================================
+
+--- ERRO NA LINHA 820 DO CSV original ---
+try {
+    player = new MediaPlayer();
+    player.setDataSource(scanErrorTonePath);
+    player.prepare();
+    player.start();
+    previewSurfaceView.getHolder().addCallback(new SurfaceHolder.Callback() {
+        @Override
+        public void surfaceCreated(SurfaceHolder holder) {
+        }
+        @Override
+        public void surfaceDestroyed(SurfaceHolder holder) {
+        }
+    });
+} catch (IOException e) {
+    onScanFailed();
+}
+
+private void onScanFailed() {
+    statusText.setText("Scan failed");
+}
+
+================================================================================
+
+--- ERRO NA LINHA 821 DO CSV original ---
+try {
+    player = new MediaPlayer();
+    player.setDataSource(scanErrorTonePath);
+    player.prepare();
+    player.start();
+    previewSurfaceView.getHolder().addCallback(new SurfaceHolder.Callback() {
+        @Override
+        public void surfaceCreated(SurfaceHolder holder) {
+        }
+        @Override
+        public void surfaceDestroyed(SurfaceHolder holder) {
+            if (player != null) {
+                player.stop();
+                player.release();
+                player = null;
+            }
+        }
+    });
+} catch (IOException e) {
+    onScanFailed();
+}
+
+@Override
+protected void onDestroy() {
+    super.onDestroy();
+    if (player != null) {
+        player.release();
+        player = null;
+    }
+}
+
+private void onScanFailed() {
+    statusText.setText("Scan failed");
+}
+
+================================================================================
+
+--- ERRO NA LINHA 822 DO CSV original ---
+try {
+    player = new MediaPlayer();
+    player.setDataSource(getPackageName() + "/raw/workout_beep");
+    player.prepare();
+    player.start();
+    timerView.setVisibility(View.VISIBLE);
+} catch (Exception ex) {
+    handleWorkoutError();
+}
+
+private void handleWorkoutError() {
+    android.util.Log.w("FitnessApp", "Workout audio error");
+}
+
+================================================================================
+
+--- ERRO NA LINHA 823 DO CSV original ---
+try {
+    player = new MediaPlayer();
+    player.setDataSource(getPackageName() + "/raw/workout_beep");
+    player.prepare();
+    player.start();
+    timerView.setVisibility(View.VISIBLE);
+} catch (Exception ex) {
+    handleWorkoutError();
+}
+
+@Override
+protected void onPause() {
+    super.onPause();
+    if (player != null) {
+        if (player.isPlaying()) {
+            player.stop();
+        }
+        player.release();
+        player = null;
+    }
+}
+
+private void handleWorkoutError() {
+    android.util.Log.w("FitnessApp", "Workout audio error");
+    if (player != null) {
+        player.release();
+        player = null;
+    }
+}
+
+================================================================================
+
+--- ERRO NA LINHA 824 DO CSV original ---
+try {
+    player = new MediaPlayer();
+    player.setDataSource(episodeUrl);
+    player.setAudioStreamType(AudioManager.STREAM_MUSIC);
+    player.prepareAsync();
+    player.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+        @Override
+        public void onPrepared(MediaPlayer mp) {
+            mp.start();
+        }
+    });
+} catch (Exception e) {
+    showPlaybackError();
+}
+
+private void showPlaybackError() {
+    errorBanner.setVisibility(View.VISIBLE);
+}
+
+================================================================================
+
+--- ERRO NA LINHA 825 DO CSV original ---
+try {
+    player = new MediaPlayer();
+    player.setDataSource(episodeUrl);
+    player.setAudioStreamType(AudioManager.STREAM_MUSIC);
+    player.prepareAsync();
+    player.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+        @Override
+        public void onPrepared(MediaPlayer mp) {
+            mp.start();
+        }
+    });
+} catch (Exception e) {
+    showPlaybackError();
+}
+
+@Override
+protected void onStop() {
+    super.onStop();
+    if (player != null) {
+        if (player.isPlaying()) {
+            player.stop();
+        }
+        player.release();
+        player = null;
+    }
+}
+
+private void showPlaybackError() {
+    errorBanner.setVisibility(View.VISIBLE);
+    if (player != null) {
+        player.release();
+        player = null;
+    }
+}
+
+================================================================================
+
+--- ERRO NA LINHA 826 DO CSV original ---
+try {
+    player = new MediaPlayer();
+    player.setDataSource(alertToneFile);
+    player.prepare();
+    player.start();
+    mapView.getHolder().addCallback(new SurfaceHolder.Callback() {
+        @Override
+        public void surfaceCreated(SurfaceHolder holder) {
+        }
+        @Override
+        public void surfaceDestroyed(SurfaceHolder holder) {
+        }
+    });
+} catch (Throwable t) {
+    onGpsFailure();
+}
+
+private void onGpsFailure() {
+    routeInfo.setText("GPS unavailable");
+}
+
+================================================================================
+
+--- ERRO NA LINHA 827 DO CSV original ---
+try {
+    player = new MediaPlayer();
+    player.setDataSource(alertToneFile);
+    player.prepare();
+    player.start();
+    mapView.getHolder().addCallback(new SurfaceHolder.Callback() {
+        @Override
+        public void surfaceCreated(SurfaceHolder holder) {
+        }
+        @Override
+        public void surfaceDestroyed(SurfaceHolder holder) {
+            if (player != null) {
+                player.stop();
+                player.release();
+                player = null;
+            }
+        }
+    });
+} catch (Throwable t) {
+    onGpsFailure();
+}
+
+@Override
+protected void onDestroy() {
+    super.onDestroy();
+    if (player != null) {
+        player.release();
+        player = null;
+    }
+}
+
+private void onGpsFailure() {
+    routeInfo.setText("GPS unavailable");
+}
+
+================================================================================
+
+--- ERRO NA LINHA 828 DO CSV original ---
+try {
+    player = new MediaPlayer();
+    player.setDataSource(notificationTone);
+    player.prepare();
+    player.start();
+    localPreview.setVisibility(View.VISIBLE);
+} catch (IOException e) {
+    reportConnectionIssue();
+}
+
+private void reportConnectionIssue() {
+    connectionState.setText("Reconnecting...");
+}
+
+================================================================================
+
+--- ERRO NA LINHA 829 DO CSV original ---
+try {
+    player = new MediaPlayer();
+    player.setDataSource(notificationTone);
+    player.prepare();
+    player.start();
+    localPreview.setVisibility(View.VISIBLE);
+} catch (IOException e) {
+    reportConnectionIssue();
+}
+
+@Override
+protected void onPause() {
+    super.onPause();
+    if (player != null) {
+        if (player.isPlaying()) {
+            player.stop();
+        }
+        player.release();
+        player = null;
+    }
+}
+
+private void reportConnectionIssue() {
+    connectionState.setText("Reconnecting...");
+    if (player != null) {
+        player.release();
+        player = null;
+    }
+}
+
+================================================================================
+
+--- ERRO NA LINHA 830 DO CSV original ---
+try {
+    player = new MediaPlayer();
+    player.setDataSource(pronunciationSample);
+    player.prepare();
+    player.start();
+    lessonSurface.getHolder().addCallback(new SurfaceHolder.Callback() {
+        @Override
+        public void surfaceCreated(SurfaceHolder holder) {
+        }
+        @Override
+        public void surfaceDestroyed(SurfaceHolder holder) {
+        }
+    });
+} catch (Exception e) {
+    showLessonError();
+}
+
+private void showLessonError() {
+    lessonStatus.setText("Unable to load sample");
+}
+
+================================================================================
+
+--- ERRO NA LINHA 831 DO CSV original ---
+try {
+    player = new MediaPlayer();
+    player.setDataSource(pronunciationSample);
+    player.prepare();
+    player.start();
+    lessonSurface.getHolder().addCallback(new SurfaceHolder.Callback() {
+        @Override
+        public void surfaceCreated(SurfaceHolder holder) {
+        }
+        @Override
+        public void surfaceDestroyed(SurfaceHolder holder) {
+            if (player != null) {
+                player.stop();
+                player.release();
+                player = null;
+            }
+        }
+    });
+} catch (Exception e) {
+    showLessonError();
+}
+
+@Override
+protected void onDestroy() {
+    super.onDestroy();
+    if (player != null) {
+        player.release();
+        player = null;
+    }
+}
+
+private void showLessonError() {
+    lessonStatus.setText("Unable to load sample");
+}
+
+================================================================================
+
+--- ERRO NA LINHA 832 DO CSV original ---
+try {
+    player = new MediaPlayer();
+    player.setDataSource(alarmTone);
+    player.prepare();
+    player.start();
+    snoozeButton.setEnabled(true);
+} catch (Exception e) {
+    onAlarmSetupFailed();
+}
+
+private void onAlarmSetupFailed() {
+    android.util.Log.e("AlarmApp", "Failed to start alarm");
+}
+
+================================================================================
+
+--- ERRO NA LINHA 833 DO CSV original ---
+try {
+    player = new MediaPlayer();
+    player.setDataSource(alarmTone);
+    player.prepare();
+    player.start();
+    snoozeButton.setEnabled(true);
+} catch (Exception e) {
+    onAlarmSetupFailed();
+}
+
+@Override
+protected void onStop() {
+    super.onStop();
+    if (player != null) {
+        if (player.isPlaying()) {
+            player.stop();
+        }
+        player.release();
+        player = null;
+    }
+}
+
+private void onAlarmSetupFailed() {
+    android.util.Log.e("AlarmApp", "Failed to start alarm");
+    if (player != null) {
+        player.release();
+        player = null;
+    }
+}
+
+================================================================================
+
+--- ERRO NA LINHA 834 DO CSV original ---
+try {
+    player = new MediaPlayer();
+    player.setDataSource(lectureAudio);
+    player.prepare();
+    player.start();
+    courseVideoView.setVisibility(View.VISIBLE);
+} catch (IOException ioe) {
+    displayPlaybackProblem();
+}
+
+private void displayPlaybackProblem() {
+    toastView.setText("Audio unavailable");
+}
+
+================================================================================
+
+--- ERRO NA LINHA 835 DO CSV original ---
+try {
+    player = new MediaPlayer();
+    player.setDataSource(lectureAudio);
+    player.prepare();
+    player.start();
+    courseVideoView.setVisibility(View.VISIBLE);
+} catch (IOException ioe) {
+    displayPlaybackProblem();
+}
+
+@Override
+protected void onPause() {
+    super.onPause();
+    if (player != null) {
+        if (player.isPlaying()) {
+            player.stop();
+        }
+        player.release();
+        player = null;
+    }
+}
+
+private void displayPlaybackProblem() {
+    toastView.setText("Audio unavailable");
+    if (player != null) {
+        player.release();
+        player = null;
+    }
+}
+
+================================================================================
+
+--- ERRO NA LINHA 836 DO CSV original ---
+try {
+    player = new MediaPlayer();
+    player.setDataSource(ambientSound);
+    player.prepare();
+    player.start();
+    breathingAnimation.start();
+} catch (Exception e) {
+    onSessionError();
+}
+
+private void onSessionError() {
+    sessionLabel.setText("Session could not start");
+}
+
+================================================================================
+
+--- ERRO NA LINHA 837 DO CSV original ---
+try {
+    player = new MediaPlayer();
+    player.setDataSource(ambientSound);
+    player.prepare();
+    player.start();
+    breathingAnimation.start();
+} catch (Exception e) {
+    onSessionError();
+}
+
+@Override
+protected void onDestroy() {
+    super.onDestroy();
+    if (player != null) {
+        if (player.isPlaying()) {
+            player.stop();
+        }
+        player.release();
+        player = null;
+    }
+}
+
+private void onSessionError() {
+    sessionLabel.setText("Session could not start");
+    if (player != null) {
+        player.release();
+        player = null;
+    }
+}
+
+================================================================================
+
+--- ERRO NA LINHA 838 DO CSV original ---
+try {
+    player = new MediaPlayer();
+    player.setDataSource(powerUpSound);
+    player.prepare();
+    player.start();
+    gameSurface.getHolder().addCallback(new SurfaceHolder.Callback() {
+        @Override
+        public void surfaceCreated(SurfaceHolder holder) {
+        }
+        @Override
+        public void surfaceDestroyed(SurfaceHolder holder) {
+        }
+    });
+} catch (Exception e) {
+    onGameAudioError();
+}
+
+private void onGameAudioError() {
+    hudMessage.setText("Audio error");
+}
+
+================================================================================
+
+--- ERRO NA LINHA 839 DO CSV original ---
+try {
+    player = new MediaPlayer();
+    player.setDataSource(powerUpSound);
+    player.prepare();
+    player.start();
+    gameSurface.getHolder().addCallback(new SurfaceHolder.Callback() {
+        @Override
+        public void surfaceCreated(SurfaceHolder holder) {
+        }
+        @Override
+        public void surfaceDestroyed(SurfaceHolder holder) {
+            if (player != null) {
+                player.stop();
+                player.release();
+                player = null;
+            }
+        }
+    });
+} catch (Exception e) {
+    onGameAudioError();
+}
+
+@Override
+protected void onPause() {
+    super.onPause();
+    if (player != null) {
+        if (player.isPlaying()) {
+            player.stop();
+        }
+        player.release();
+        player = null;
+    }
+}
+
+private void onGameAudioError() {
+    hudMessage.setText("Audio error");
+    if (player != null) {
+        player.release();
+        player = null;
+    }
+}
+
+================================================================================
+
+--- ERRO NA LINHA 861 DO CSV original ---
+public class EventCountdownActivity extends AppCompatActivity {
+    private MediaPlayer alertPlayer;
+
+    private void releaseAlertPlayer() {
+        if (alertPlayer != null) {
+            try {
+                alertPlayer.stop();
+            } catch (IllegalStateException e) {
+            }
+            alertPlayer.release();
+            alertPlayer = null;
+        }
+    }
+
+    private void playAlertTone(Uri uri) {
+        releaseAlertPlayer();
+        try {
+            alertPlayer = new MediaPlayer();
+            alertPlayer.setDataSource(this, uri);
+            alertPlayer.setLooping(false);
+            alertPlayer.setOnCompletionListener(mp -> releaseAlertPlayer());
+            alertPlayer.prepare();
+            alertPlayer.start();
+        } catch (Exception e) {
+            releaseAlertPlayer();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        releaseAlertPlayer();
+    }
+}}]}】}]}]}
+
+================================================================================
+
+--- ERRO NA LINHA 926 DO CSV original ---
+final Track track2 = Track.CREATOR.createFromParcel(parcel);
+
+        assertThat(track1).isEqualTo(track2);
+    }
+}
+
+================================================================================
+
+--- ERRO NA LINHA 927 DO CSV original ---
+final Track track2 = Track.CREATOR.createFromParcel(parcel);
+
+        assertThat(track1).isEqualTo(track2);
+        parcel.recycle();
+    }
+}
+
+================================================================================
+
+--- ERRO NA LINHA 928 DO CSV original ---
+final ScanResult result2 = ScanResult.CREATOR.createFromParcel(parcel);
+
+        assertThat(result1.getPages()).hasSize(result2.getPages().size());
+    }
+}
+
+================================================================================
+
+--- ERRO NA LINHA 929 DO CSV original ---
+final ScanResult result2 = ScanResult.CREATOR.createFromParcel(parcel);
+
+        assertThat(result1.getPages()).hasSize(result2.getPages().size());
+        parcel.recycle();
+    }
+}
+
+================================================================================
+
+--- ERRO NA LINHA 930 DO CSV original ---
+final WorkoutSession session2 = WorkoutSession.CREATOR.createFromParcel(parcel);
+
+        assertThat(session1.getDuration()).isEqualTo(session2.getDuration());
+    }
+}
+
+================================================================================
+
+--- ERRO NA LINHA 931 DO CSV original ---
+final WorkoutSession session2 = WorkoutSession.CREATOR.createFromParcel(parcel);
+
+        assertThat(session1.getDuration()).isEqualTo(session2.getDuration());
+        parcel.recycle();
+    }
+}
+
+================================================================================
+
+--- ERRO NA LINHA 932 DO CSV original ---
+final Address address2 = Address.CREATOR.createFromParcel(parcel);
+
+        assertThat(address1).isEqualTo(address2);
+    }
+}
+
+================================================================================
+
+--- ERRO NA LINHA 933 DO CSV original ---
+final Address address2 = Address.CREATOR.createFromParcel(parcel);
+
+        assertThat(address1).isEqualTo(address2);
+        parcel.recycle();
+    }
+}
+
+================================================================================
+
+--- ERRO NA LINHA 934 DO CSV original ---
+final MessageThread thread2 = MessageThread.CREATOR.createFromParcel(parcel);
+
+        assertThat(thread1.getId()).isEqualTo(thread2.getId());
+    }
+}
+
+================================================================================
+
+--- ERRO NA LINHA 935 DO CSV original ---
+final MessageThread thread2 = MessageThread.CREATOR.createFromParcel(parcel);
+
+        assertThat(thread1.getId()).isEqualTo(thread2.getId());
+        parcel.recycle();
+    }
+}
+
+================================================================================
+
+--- ERRO NA LINHA 936 DO CSV original ---
+final Route route2 = Route.CREATOR.createFromParcel(parcel);
+
+        assertThat(route1.getDistanceMeters()).isEqualTo(route2.getDistanceMeters());
+    }
+}
+
+================================================================================
+
+--- ERRO NA LINHA 937 DO CSV original ---
+final Route route2 = Route.CREATOR.createFromParcel(parcel);
+
+        assertThat(route1.getDistanceMeters()).isEqualTo(route2.getDistanceMeters());
+        parcel.recycle();
+    }
+}
+
+================================================================================
+
+--- ERRO NA LINHA 938 DO CSV original ---
+final Transaction transaction2 = Transaction.CREATOR.createFromParcel(parcel);
+
+        assertThat(transaction1).isEqualTo(transaction2);
+    }
+}
+
+================================================================================
+
+--- ERRO NA LINHA 939 DO CSV original ---
+final Transaction transaction2 = Transaction.CREATOR.createFromParcel(parcel);
+
+        assertThat(transaction1).isEqualTo(transaction2);
+        parcel.recycle();
+    }
+}
+
+================================================================================
+
+--- ERRO NA LINHA 940 DO CSV original ---
+final LabResult labResult2 = LabResult.CREATOR.createFromParcel(parcel);
+
+        assertThat(labResult1.getValue()).isEqualTo(labResult2.getValue());
+    }
+}
+
+================================================================================
+
+--- ERRO NA LINHA 941 DO CSV original ---
+final LabResult labResult2 = LabResult.CREATOR.createFromParcel(parcel);
+
+        assertThat(labResult1.getValue()).isEqualTo(labResult2.getValue());
+        parcel.recycle();
+    }
+}
+
+================================================================================
+
+--- ERRO NA LINHA 942 DO CSV original ---
+final Booking booking2 = Booking.CREATOR.createFromParcel(parcel);
+
+        assertThat(booking1.getReference()).isEqualTo(booking2.getReference());
+    }
+}
+
+================================================================================
+
+--- ERRO NA LINHA 943 DO CSV original ---
+final Booking booking2 = Booking.CREATOR.createFromParcel(parcel);
+
+        assertThat(booking1.getReference()).isEqualTo(booking2.getReference());
+        parcel.recycle();
+    }
+}
+
+================================================================================
+
+--- ERRO NA LINHA 944 DO CSV original ---
+final PlayerState state2 = PlayerState.CREATOR.createFromParcel(parcel);
+
+        assertThat(state1.getLevel()).isEqualTo(state2.getLevel());
+    }
+}
+
+================================================================================
+
+--- ERRO NA LINHA 945 DO CSV original ---
+final PlayerState state2 = PlayerState.CREATOR.createFromParcel(parcel);
+
+        assertThat(state1.getLevel()).isEqualTo(state2.getLevel());
+        parcel.recycle();
+    }
+}
+
+================================================================================
+
+--- ERRO NA LINHA 1030 DO CSV original ---
+switch (msg.what) {
+    case MSG_TRACK_ENDED:
+        player.playNextTrack();
+        break;
+    case MSG_STREAM_ERROR:
+        Log.e(TAG, "Stream error occurred");
+        player.skipToNext();
+        break;
+    default:
+        Log.d(TAG, "Unknown event");
+        break;
+}
+return true;
+
+private void showError(String text) {
+    Message msg = new Message();
+    Bundle bundle = new Bundle();
+    bundle.putString("text", text);
+
+================================================================================
+
+--- ERRO NA LINHA 1031 DO CSV original ---
+switch (msg.what) {
+    case MSG_TRACK_ENDED:
+        player.playNextTrack();
+        break;
+    case MSG_STREAM_ERROR:
+        Log.e(TAG, "Stream error occurred");
+        player.skipToNext();
+        if (player.mWakeLock.isHeld()) {
+            player.mWakeLock.release();
+        }
+        break;
+    default:
+        Log.d(TAG, "Unknown event");
+        break;
+}
+return true;
+
+private void showError(String text) {
+    Message msg = new Message();
+    Bundle bundle = new Bundle();
+    bundle.putString("text", text);
+
+================================================================================
+
+--- ERRO NA LINHA 1032 DO CSV original ---
+switch (message.what) {
+    case MSG_PAGE_CAPTURED:
+        scanner.processPage();
+        break;
+    case MSG_SCAN_FAILED:
+        Toast.makeText(context, "Scan failed", Toast.LENGTH_SHORT).show();
+        retryButton.setEnabled(true);
+        break;
+    default:
+        break;
+}
+return true;
+
+private void notifyUser(String text) {
+    Message msg = new Message();
+    Bundle bundle = new Bundle();
+    bundle.putString("text", text);
+
+================================================================================
+
+--- ERRO NA LINHA 1033 DO CSV original ---
+switch (message.what) {
+    case MSG_PAGE_CAPTURED:
+        scanner.processPage();
+        break;
+    case MSG_SCAN_FAILED:
+        Toast.makeText(context, "Scan failed", Toast.LENGTH_SHORT).show();
+        retryButton.setEnabled(true);
+        if (scanner.mWakeLock.isHeld()) {
+            scanner.mWakeLock.release();
+        }
+        break;
+    default:
+        break;
+}
+return true;
+
+private void notifyUser(String text) {
+    Message msg = new Message();
+    Bundle bundle = new Bundle();
+    bundle.putString("text", text);
+
+================================================================================
+
+--- ERRO NA LINHA 1034 DO CSV original ---
+switch (event.getType()) {
+    case WORKOUT_STARTED:
+        session.startTracking();
+        break;
+    case SENSOR_DISCONNECTED:
+        Log.w(TAG, "Sensor disconnected");
+        session.pauseTracking();
+        break;
+    default:
+        break;
+}
+return true;
+
+private void postStatus(String text) {
+    Message msg = new Message();
+    Bundle bundle = new Bundle();
+    bundle.putString("text", text);
+
+================================================================================
+
+--- ERRO NA LINHA 1035 DO CSV original ---
+switch (event.getType()) {
+    case WORKOUT_STARTED:
+        session.startTracking();
+        break;
+    case SENSOR_DISCONNECTED:
+        Log.w(TAG, "Sensor disconnected");
+        session.pauseTracking();
+        if (session.mWakeLock.isHeld()) {
+            session.mWakeLock.release();
+        }
+        break;
+    default:
+        break;
+}
+return true;
+
+private void postStatus(String text) {
+    Message msg = new Message();
+    Bundle bundle = new Bundle();
+    bundle.putString("text", text);
+
+================================================================================
+
+--- ERRO NA LINHA 1036 DO CSV original ---
+switch (msg.what) {
+    case NAVIGATION_ROUTE_READY:
+        navigationController.beginTurnByTurn();
+        break;
+    case NAVIGATION_LOST_SIGNAL:
+        Log.e(TAG, "GPS signal lost");
+        navigationController.requestRouteRefresh();
+        break;
+    default:
+        break;
+}
+return true;
+
+private void showNavigationAlert(String text) {
+    Message msg = new Message();
+    Bundle bundle = new Bundle();
+    bundle.putString("text", text);
+
+================================================================================
+
+--- ERRO NA LINHA 1037 DO CSV original ---
+switch (msg.what) {
+    case NAVIGATION_ROUTE_READY:
+        navigationController.beginTurnByTurn();
+        break;
+    case NAVIGATION_LOST_SIGNAL:
+        Log.e(TAG, "GPS signal lost");
+        navigationController.requestRouteRefresh();
+        if (navigationController.mWakeLock.isHeld()) {
+            navigationController.mWakeLock.release();
+        }
+        break;
+    default:
+        break;
+}
+return true;
+
+private void showNavigationAlert(String text) {
+    Message msg = new Message();
+    Bundle bundle = new Bundle();
+    bundle.putString("text", text);
+
+================================================================================
+
+--- ERRO NA LINHA 1038 DO CSV original ---
+switch (handlerMsg.what) {
+    case MSG_BUFFER_READY:
+        videoPlayer.resumePlayback();
+        break;
+    case MSG_PLAYBACK_ERROR:
+        Log.e(TAG, "Playback error");
+        videoPlayer.loadFallbackStream();
+        break;
+    default:
+        break;
+}
+return true;
+
+private void dispatchUiMessage(String text) {
+    Message msg = new Message();
+    Bundle bundle = new Bundle();
+    bundle.putString("text", text);
+
+================================================================================
+
+--- ERRO NA LINHA 1039 DO CSV original ---
+switch (handlerMsg.what) {
+    case MSG_BUFFER_READY:
+        videoPlayer.resumePlayback();
+        break;
+    case MSG_PLAYBACK_ERROR:
+        Log.e(TAG, "Playback error");
+        videoPlayer.loadFallbackStream();
+        if (videoPlayer.mWakeLock.isHeld()) {
+            videoPlayer.mWakeLock.release();
+        }
+        break;
+    default:
+        break;
+}
+return true;
+
+private void dispatchUiMessage(String text) {
+    Message msg = new Message();
+    Bundle bundle = new Bundle();
+    bundle.putString("text", text);
+
+================================================================================
+
+--- ERRO NA LINHA 1040 DO CSV original ---
+switch (message.what) {
+    case MSG_PAGE_RENDERED:
+        reader.goToNextPage();
+        break;
+    case MSG_RENDER_TIMEOUT:
+        Log.w(TAG, "Render timeout");
+        reader.requeueRenderTask();
+        break;
+    default:
+        break;
+}
+return true;
+
+private void showReaderTip(String text) {
+    Message msg = new Message();
+    Bundle bundle = new Bundle();
+    bundle.putString("text", text);
+
+================================================================================
+
+--- ERRO NA LINHA 1041 DO CSV original ---
+switch (message.what) {
+    case MSG_PAGE_RENDERED:
+        reader.goToNextPage();
+        break;
+    case MSG_RENDER_TIMEOUT:
+        Log.w(TAG, "Render timeout");
+        reader.requeueRenderTask();
+        if (reader.mWakeLock.isHeld()) {
+            reader.mWakeLock.release();
+        }
+        break;
+    default:
+        break;
+}
+return true;
+
+private void showReaderTip(String text) {
+    Message msg = new Message();
+    Bundle bundle = new Bundle();
+    bundle.putString("text", text);
+
+================================================================================
+
+--- ERRO NA LINHA 1042 DO CSV original ---
+switch (cameraEvent) {
+    case CAMERA_FOCUS_LOCKED:
+        cameraController.capturePhoto();
+        break;
+    case CAMERA_CAPTURE_FAILED:
+        Log.e(TAG, "Capture failed");
+        cameraController.resetPreview();
+        break;
+    default:
+        break;
+}
+return true;
+
+private void displayCaptureState(String text) {
+    Message msg = new Message();
+    Bundle bundle = new Bundle();
+    bundle.putString("text", text);
+
+================================================================================
+
+--- ERRO NA LINHA 1043 DO CSV original ---
+switch (cameraEvent) {
+    case CAMERA_FOCUS_LOCKED:
+        cameraController.capturePhoto();
+        break;
+    case CAMERA_CAPTURE_FAILED:
+        Log.e(TAG, "Capture failed");
+        cameraController.resetPreview();
+        if (cameraController.mWakeLock.isHeld()) {
+            cameraController.mWakeLock.release();
+        }
+        break;
+    default:
+        break;
+}
+return true;
+
+private void displayCaptureState(String text) {
+    Message msg = new Message();
+    Bundle bundle = new Bundle();
+    bundle.putString("text", text);
+
+================================================================================
+
+--- ERRO NA LINHA 1044 DO CSV original ---
+switch (eventId) {
+    case PODCAST_EPISODE_READY:
+        podcastService.startEpisode();
+        break;
+    case PODCAST_DOWNLOAD_ERROR:
+        Toast.makeText(appContext, "Download error", Toast.LENGTH_LONG).show();
+        podcastService.queueRetry();
+        break;
+    default:
+        break;
+}
+return true;
+
+private void sendPlaybackMessage(String text) {
+    Message msg = new Message();
+    Bundle bundle = new Bundle();
+    bundle.putString("text", text);
+
+================================================================================
+
+--- ERRO NA LINHA 1045 DO CSV original ---
+switch (eventId) {
+    case PODCAST_EPISODE_READY:
+        podcastService.startEpisode();
+        break;
+    case PODCAST_DOWNLOAD_ERROR:
+        Toast.makeText(appContext, "Download error", Toast.LENGTH_LONG).show();
+        podcastService.queueRetry();
+        if (podcastService.mWakeLock.isHeld()) {
+            podcastService.mWakeLock.release();
+        }
+        break;
+    default:
+        break;
+}
+return true;
+
+private void sendPlaybackMessage(String text) {
+    Message msg = new Message();
+    Bundle bundle = new Bundle();
+    bundle.putString("text", text);
+
+================================================================================
+
+--- ERRO NA LINHA 1046 DO CSV original ---
+switch (responseCode) {
+    case PAYMENT_AUTHORIZED:
+        paymentManager.finalizeTransaction();
+        break;
+    case PAYMENT_DECLINED:
+        Log.e(TAG, "Payment declined");
+        paymentManager.showFailureScreen();
+        break;
+    default:
+        break;
+}
+return true;
+
+private void showReceiptMessage(String text) {
+    Message msg = new Message();
+    Bundle bundle = new Bundle();
+    bundle.putString("text", text);
+
+================================================================================
+
+--- ERRO NA LINHA 1047 DO CSV original ---
+switch (responseCode) {
+    case PAYMENT_AUTHORIZED:
+        paymentManager.finalizeTransaction();
+        break;
+    case PAYMENT_DECLINED:
+        Log.e(TAG, "Payment declined");
+        paymentManager.showFailureScreen();
+        if (paymentManager.mWakeLock.isHeld()) {
+            paymentManager.mWakeLock.release();
+        }
+        break;
+    default:
+        break;
+}
+return true;
+
+private void showReceiptMessage(String text) {
+    Message msg = new Message();
+    Bundle bundle = new Bundle();
+    bundle.putString("text", text);
+
+================================================================================
+
+--- ERRO NA LINHA 1048 DO CSV original ---
+switch (msg.what) {
+    case MSG_ATTACHMENT_UPLOADED:
+        chatController.sendMessage();
+        break;
+    case MSG_UPLOAD_FAILED:
+        Log.e(TAG, "Attachment upload failed");
+        chatController.queueResend();
+        break;
+    default:
+        break;
+}
+return true;
+
+private void showChatStatus(String text) {
+    Message msg = new Message();
+    Bundle bundle = new Bundle();
+    bundle.putString("text", text);
+
+================================================================================
+
+--- ERRO NA LINHA 1049 DO CSV original ---
+switch (msg.what) {
+    case MSG_ATTACHMENT_UPLOADED:
+        chatController.sendMessage();
+        break;
+    case MSG_UPLOAD_FAILED:
+        Log.e(TAG, "Attachment upload failed");
+        chatController.queueResend();
+        if (chatController.mWakeLock.isHeld()) {
+            chatController.mWakeLock.release();
+        }
+        break;
+    default:
+        break;
+}
+return true;
+
+private void showChatStatus(String text) {
+    Message msg = new Message();
+    Bundle bundle = new Bundle();
+    bundle.putString("text", text);
+
+================================================================================
+
+--- ERRO NA LINHA 1050 DO CSV original ---
+switch (status) {
+    case SENSOR_DATA_READY:
+        sensorHub.uploadReading();
+        break;
+    case SENSOR_READ_ERROR:
+        Log.w(TAG, "Sensor read error");
+        sensorHub.scheduleReconnect();
+        break;
+    default:
+        break;
+}
+return true;
+
+private void sendLog(String text) {
+    Message msg = new Message();
+    Bundle bundle = new Bundle();
+    bundle.putString("text", text);
+
+================================================================================
+
+--- ERRO NA LINHA 1051 DO CSV original ---
+switch (status) {
+    case SENSOR_DATA_READY:
+        sensorHub.uploadReading();
+        break;
+    case SENSOR_READ_ERROR:
+        Log.w(TAG, "Sensor read error");
+        sensorHub.scheduleReconnect();
+        if (sensorHub.mWakeLock.isHeld()) {
+            sensorHub.mWakeLock.release();
+        }
+        break;
+    default:
+        break;
+}
+return true;
+
+private void sendLog(String text) {
+    Message msg = new Message();
+    Bundle bundle = new Bundle();
+    bundle.putString("text", text);
+
+================================================================================
+
+--- ERRO NA LINHA 1213 DO CSV original ---
+String configBackup = deviceConfig.toJson();
+
+FileOutputStream out = null;
+try {
+    File backupFile = new File(getFilesDir(), "device_backup.json");
+    out = new FileOutputStream(backupFile);
+    out.write(configBackup.getBytes(StandardCharsets.UTF_8));
+    return backupFile;
+} catch (IOException e) {
+    e.printStackTrace();
+    return null;
+} finally {
+    try {
+        if (out != null) {
+            out.flush();
+            out.close();
+        }
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
+}}
+
+================================================================================
+
+--- ERRO NA LINHA 1770 DO CSV original ---
+Socket socket = connectToStream(serverHost, serverPort);
+                if (socket != null) {
+                    playStream(socket);
+                }
+            } catch (IOException e) {
+                Log.e(TAG, "Erro ao reproduzir stream", e);
+            }
+
+================================================================================
+
+--- ERRO NA LINHA 1771 DO CSV original ---
+Socket socket = connectToStream(serverHost, serverPort);
+                if (socket != null) {
+                    playStream(socket);
+                    socket.close();
+                }
+            } catch (IOException e) {
+                Log.e(TAG, "Erro ao reproduzir stream", e);
+            }
+
+================================================================================
+
+--- ERRO NA LINHA 1772 DO CSV original ---
+Socket client = scannerSocketFactory.open(host, port);
+                byte[] frame = readFrame(client);
+                if (frame != null) {
+                    processScannedFrame(frame);
+                }
+            } catch (SocketTimeoutException e) {
+                // ignorar timeout
+            } catch (IOException e) {
+                Log.w(TAG, "Falha no scanner", e);
+            }
+
+================================================================================
+
+--- ERRO NA LINHA 1773 DO CSV original ---
+Socket client = scannerSocketFactory.open(host, port);
+                byte[] frame = readFrame(client);
+                if (frame != null) {
+                    processScannedFrame(frame);
+                }
+                client.close();
+            } catch (SocketTimeoutException e) {
+                // ignorar timeout
+            } catch (IOException e) {
+                Log.w(TAG, "Falha no scanner", e);
+            }
+
+================================================================================
+
+--- ERRO NA LINHA 1774 DO CSV original ---
+Socket wearableSocket = openWearableConnection(deviceIp, devicePort);
+                HeartRateData data = receiveHeartRate(wearableSocket);
+                if (data != null) {
+                    updateWorkoutUi(data);
+                }
+            } catch (IOException e) {
+                Log.e(TAG, "Erro ao ler dados do wearable", e);
+            }
+
+================================================================================
+
+--- ERRO NA LINHA 1775 DO CSV original ---
+Socket wearableSocket = openWearableConnection(deviceIp, devicePort);
+                HeartRateData data = receiveHeartRate(wearableSocket);
+                if (data != null) {
+                    updateWorkoutUi(data);
+                }
+                wearableSocket.close();
+            } catch (IOException e) {
+                Log.e(TAG, "Erro ao ler dados do wearable", e);
+            }
+
+================================================================================
+
+--- ERRO NA LINHA 1776 DO CSV original ---
+Socket socket = chatConnector.connect(chatHost, chatPort);
+                String message = readIncomingMessage(socket);
+                if (message != null) {
+                    showMessageOnScreen(message);
+                }
+            } catch (IOException e) {
+                Log.e(TAG, "Erro na conexão do chat", e);
+            }
+
+================================================================================
+
+--- ERRO NA LINHA 1777 DO CSV original ---
+Socket socket = chatConnector.connect(chatHost, chatPort);
+                String message = readIncomingMessage(socket);
+                if (message != null) {
+                    showMessageOnScreen(message);
+                }
+                socket.close();
+            } catch (IOException e) {
+                Log.e(TAG, "Erro na conexão do chat", e);
+            }
+
+================================================================================
+
+--- ERRO NA LINHA 1778 DO CSV original ---
+Socket controlSocket = deviceManager.openControlChannel(ipAddress, controlPort);
+                sendCommand(controlSocket, command);
+                if (ackReceived(controlSocket)) {
+                    markDeviceAsUpdated(deviceId);
+                }
+            } catch (IOException e) {
+                Log.e(TAG, "Falha ao enviar comando IoT", e);
+            }
+
+================================================================================
+
+--- ERRO NA LINHA 1779 DO CSV original ---
+Socket controlSocket = deviceManager.openControlChannel(ipAddress, controlPort);
+                sendCommand(controlSocket, command);
+                if (ackReceived(controlSocket)) {
+                    markDeviceAsUpdated(deviceId);
+                }
+                controlSocket.close();
+            } catch (IOException e) {
+                Log.e(TAG, "Falha ao enviar comando IoT", e);
+            }
+
+================================================================================
+
+--- ERRO NA LINHA 1780 DO CSV original ---
+Socket gameSocket = networkClient.joinMatch(serverAddress, serverPort);
+                MatchState state = receiveMatchState(gameSocket);
+                if (state != null) {
+                    renderMatch(state);
+                }
+            } catch (IOException e) {
+                Log.w(TAG, "Erro na partida online", e);
+            }
+
+================================================================================
+
+--- ERRO NA LINHA 1781 DO CSV original ---
+Socket gameSocket = networkClient.joinMatch(serverAddress, serverPort);
+                MatchState state = receiveMatchState(gameSocket);
+                if (state != null) {
+                    renderMatch(state);
+                }
+                gameSocket.close();
+            } catch (IOException e) {
+                Log.w(TAG, "Erro na partida online", e);
+            }
+
+================================================================================
+
+--- ERRO NA LINHA 1782 DO CSV original ---
+Socket feedSocket = newsFetcher.openFeedConnection(feedUrlHost, feedUrlPort);
+                String articleJson = downloadArticle(feedSocket);
+                if (articleJson != null) {
+                    cacheArticle(articleJson);
+                }
+            } catch (IOException e) {
+                Log.e(TAG, "Falha ao obter feed", e);
+            }
+
+================================================================================
+
+--- ERRO NA LINHA 1783 DO CSV original ---
+Socket feedSocket = newsFetcher.openFeedConnection(feedUrlHost, feedUrlPort);
+                String articleJson = downloadArticle(feedSocket);
+                if (articleJson != null) {
+                    cacheArticle(articleJson);
+                }
+                feedSocket.close();
+            } catch (IOException e) {
+                Log.e(TAG, "Falha ao obter feed", e);
+            }
+
+================================================================================
+
+--- ERRO NA LINHA 1784 DO CSV original ---
+Socket doctorSocket = remoteMonitor.connectDoctorStation(endpointHost, endpointPort);
+                VitalSigns signs = readRemoteVitals(doctorSocket);
+                if (signs != null) {
+                    syncPatientRecord(signs);
+                }
+            } catch (IOException e) {
+                Log.e(TAG, "Erro na teleconsulta", e);
+            }
+
+================================================================================
+
+--- ERRO NA LINHA 1785 DO CSV original ---
+Socket doctorSocket = remoteMonitor.connectDoctorStation(endpointHost, endpointPort);
+                VitalSigns signs = readRemoteVitals(doctorSocket);
+                if (signs != null) {
+                    syncPatientRecord(signs);
+                }
+                doctorSocket.close();
+            } catch (IOException e) {
+                Log.e(TAG, "Erro na teleconsulta", e);
+            }
+
+================================================================================
+
+--- ERRO NA LINHA 1786 DO CSV original ---
+Socket priceSocket = priceService.openConnection(apiHost, apiPort);
+                PriceQuote quote = fetchLatestPrice(priceSocket, productId);
+                if (quote != null) {
+                    displayDiscount(quote);
+                }
+            } catch (IOException e) {
+                Log.e(TAG, "Erro ao buscar preço", e);
+            }
+
+================================================================================
+
+--- ERRO NA LINHA 1787 DO CSV original ---
+Socket priceSocket = priceService.openConnection(apiHost, apiPort);
+                PriceQuote quote = fetchLatestPrice(priceSocket, productId);
+                if (quote != null) {
+                    displayDiscount(quote);
+                }
+                priceSocket.close();
+            } catch (IOException e) {
+                Log.e(TAG, "Erro ao buscar preço", e);
+            }
+
+================================================================================
+
+--- ERRO NA LINHA 1788 DO CSV original ---
+Socket navSocket = routeServer.connect(mapHost, mapPort);
+                RouteInfo route = readRoute(navSocket);
+                if (route != null) {
+                    updateNavigation(route);
+                }
+            } catch (IOException e) {
+                Log.e(TAG, "Erro ao obter rota", e);
+            }
+
+================================================================================
+
+--- ERRO NA LINHA 1789 DO CSV original ---
+Socket navSocket = routeServer.connect(mapHost, mapPort);
+                RouteInfo route = readRoute(navSocket);
+                if (route != null) {
+                    updateNavigation(route);
+                }
+                navSocket.close();
+            } catch (IOException e) {
+                Log.e(TAG, "Erro ao obter rota", e);
+            }
+
+================================================================================
+

@@ -90,6 +90,6 @@ if __name__ == "__main__":
     CSV_ORIGINAL = 'C:/Dissertacao/data_bases/dataset_treino_droidleaks.csv'
     
     # O novo ficheiro com o dobro do tamanho e os "0s" incluídos
-    CSV_BALANCEADO = 'C:/Dissertacao/data_bases/dataset_balanceado.csv'
+    CSV_BALANCEADO = 'C:/Dissertacao/data_bases/data_bases/03_processed/dataset_balanceado.csv'
     
     gerar_dataset_balanceado(CSV_ORIGINAL, CSV_BALANCEADO)

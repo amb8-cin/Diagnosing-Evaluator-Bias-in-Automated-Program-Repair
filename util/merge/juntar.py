@@ -4,8 +4,8 @@ def mesclar_resultados_ast_completo():
     print("🔄 Iniciando o cruzamento triplo de dados...")
 
     # 1. Caminhos dos arquivos
-    caminho_ast = 'C:/Dissertacao/data_bases/ast/holdout_290_ast.csv' # A LISTA MESTRA (290 IDs)
-    caminho_bruto = 'C:/Dissertacao/data_bases/ast/dataset_sintetico_chatgpt.csv' # O CONTEXTO ORIGINAL
+    caminho_ast = 'C:/Dissertacao/data_bases/ast/holdout_ast.csv' # A LISTA MESTRA (290 IDs)
+    caminho_bruto = 'C:/Dissertacao/data_bases/04_final/dataset_sintetico_chatgpt.csv' # O CONTEXTO ORIGINAL
     caminho_llms = 'C:/Dissertacao/data_bases/ast/resultados_torneio_llms.csv' # AS RESPOSTAS ANTIGAS
     
     # 2. Leitura dos dados

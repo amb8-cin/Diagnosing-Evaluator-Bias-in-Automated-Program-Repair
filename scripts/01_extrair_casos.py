@@ -148,9 +148,9 @@ def extrair_casos_para_experimento(csv_path, repos_dir, output_dir, log_path):
 # COMO EXECUTAR - DROIDLEAKS
 # ==========================================
 if __name__ == "__main__":
-    ARQUIVO_CSV = 'C:/Users/andrezza.bonfim/Documents/docs meus/Mestrado/dissertação/DroidLeaks/DroidLeaks/bugs/droidleaks.xlsx'
-    PASTA_REPOSITORIOS = 'C:/Users/andrezza.bonfim/Documents/docs meus/Mestrado/dissertação/repositorios_droidleaks'
-    PASTA_EXPERIMENTO = 'C:/Users/andrezza.bonfim/Documents/docs meus/Mestrado/dissertação/droidleaks_coletado'
+    ARQUIVO_CSV = 'C:/Dissertacao/data_bases/01_raw/droidleaks.xlsx'
+    PASTA_REPOSITORIOS = 'C:/Dissertacao/data_bases/01_raw/repositorios_droidleaks'
+    PASTA_EXPERIMENTO = 'C:/Dissertacao/data_bases/02_extracted'
     
     # Caminho do novo arquivo de LOG
     ARQUIVO_LOG = 'C:/Users/andrezza.bonfim/Documents/docs meus/Mestrado/dissertação/repositorios_droidleaks/relatorio_falhas.txt'

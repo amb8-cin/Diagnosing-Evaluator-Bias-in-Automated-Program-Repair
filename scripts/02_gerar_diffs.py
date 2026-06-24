@@ -60,6 +60,6 @@ def gerar_diffs_dataset(diretorio_base):
 # ==========================================
 if __name__ == "__main__":
     # Caminho exato da sua pasta com os casos extraídos
-    PASTA_DATASET = 'C:/Dissertacao/droidleaks_coletado'
+    PASTA_DATASET = 'C:\Dissertacao\data_bases\02_extracted'
     
     gerar_diffs_dataset(PASTA_DATASET)

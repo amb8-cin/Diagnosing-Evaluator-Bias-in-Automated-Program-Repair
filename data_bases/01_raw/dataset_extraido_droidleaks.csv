@@ -1,0 +1,3857 @@
+﻿ID_Caso;Aplicacao;Classe_Recurso;Caminho_Ficheiro;Codigo_Diff;Tem_Fuga_de_Recurso
+Case_003_AnkiDroid;AnkiDroid;android.database.Cursor;Sched.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -2582,6 +2582,11 @@
+                 }
+                 revYesRate = cur.getDouble(0);
+                 revTime = cur.getDouble(1);
++                
++                if (cur != null && !cur.isClosed()) {
++                    cur.close();
++                }
++                
+                 cur = mCol
+                         .getDb()
+                         .getDatabase()";1
+Case_006_AnkiDroid;AnkiDroid;android.database.Cursor;Deck.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -405,34 +405,65 @@
+      * deckVars methods
+      */
+     public boolean hasKey(String key) {
+-        return getDB().getDatabase().rawQuery(""SELECT 1 FROM deckVars WHERE key = '"" + key + ""'"", null).moveToNext();
++        Cursor cur = null;
++        try {
++            cur = getDB().getDatabase().rawQuery(""SELECT 1 FROM deckVars WHERE key = '"" + key + ""'"", null);
++            return cur.moveToNext();
++        } finally {
++            if (cur != null) {
++                cur.close();
++            }	
++        }
+     }
+ 
+ 
+     public int getInt(String key) throws SQLException {
+-        Cursor cur = getDB().getDatabase().rawQuery(""SELECT value FROM deckVars WHERE key = '"" + key + ""'"", null);
+-        if (cur.moveToFirst()) {
+-            return cur.getInt(0);
+-        } else {
+-            throw new SQLException(""DeckVars.getInt: could not retrieve value for "" + key);
+-        }
+-    }
++        Cursor cur = null; 
++        try {
++            cur = getDB().getDatabase().rawQuery(""SELECT value FROM deckVars WHERE key = '"" + key + ""'"", null);
++            if (cur.moveToFirst()) {
++                return cur.getInt(0);
++            } else {
++                throw new SQLException(""DeckVars.getInt: could not retrieve value for "" + key);
++            }        	
++        } finally {
++            if (cur != null) {
++                cur.close();
++            }	
++        }
++    }
++    
++    
+     public double getFloat(String key) throws SQLException {
+-        Cursor cur = getDB().getDatabase().rawQuery(""SELECT value FROM deckVars WHERE key = '"" + key + ""'"", null);
+-        if (cur.moveToFirst()) {
+-            return cur.getFloat(0);
+-        } else {
+-            throw new SQLException(""DeckVars.getFloat: could not retrieve value for "" + key);
+-        }
++        Cursor cur = null;
++    	try {
++    		cur = getDB().getDatabase().rawQuery(""SELECT value FROM deckVars WHERE key = '"" + key + ""'"", null);
++    		if (cur.moveToFirst()) {
++    			return cur.getFloat(0);
++    		} else {
++    			throw new SQLException(""DeckVars.getFloat: could not retrieve value for "" + key);
++    		}
++    	} finally {
++            if (cur != null) {
++                cur.close();
++            }	    		
++    	}
+     }
+ 
+ 
+     public boolean getBool(String key) {
+-        Cursor cur = getDB().getDatabase().rawQuery(""SELECT value FROM deckVars WHERE key = '"" + key + ""'"", null);
+-        if (cur.moveToFirst()) {
+-            return (cur.getInt(0) != 0);
+-        }
+-        return false;
++        Cursor cur = null;
++    	try {
++    		cur = getDB().getDatabase().rawQuery(""SELECT value FROM deckVars WHERE key = '"" + key + ""'"", null);
++    		if (cur.moveToFirst()) {
++    			return (cur.getInt(0) != 0);
++    		}
++    	} finally {
++            if (cur != null) {
++                cur.close();
++            }	    		    		
++    	}
++    	return false;
+     }
+ 
+ 
+@@ -1189,26 +1220,40 @@
+     @SuppressWarnings(""unused"")
+     private void _fillFailedQueue() {
+         if ((mFailedSoonCount != 0) && mFailedQueue.isEmpty()) {
+-            String sql = ""SELECT c.id, factId, combinedDue FROM cards c WHERE type = 0 AND combinedDue < "" +
+-            mFailedCutoff + "" ORDER BY combinedDue LIMIT "" + mQueueLimit;
+-            Cursor cur = getDB().getDatabase().rawQuery(cardLimit(""revActive"", ""revInactive"", sql), null);
+-            while (cur.moveToNext()) {
+-                QueueItem qi = new QueueItem(cur.getLong(0), cur.getLong(1), cur.getDouble(2));
+-                mFailedQueue.add(0, qi); // Add to front, so list is reversed as it is built
+-            }
++            Cursor cur = null;
++        	try {
++        		String sql = ""SELECT c.id, factId, combinedDue FROM cards c WHERE type = 0 AND combinedDue < "" +
++        		mFailedCutoff + "" ORDER BY combinedDue LIMIT "" + mQueueLimit;
++        		cur = getDB().getDatabase().rawQuery(cardLimit(""revActive"", ""revInactive"", sql), null);
++        		while (cur.moveToNext()) {
++        			QueueItem qi = new QueueItem(cur.getLong(0), cur.getLong(1), cur.getDouble(2));
++        			mFailedQueue.add(0, qi); // Add to front, so list is reversed as it is built
++        		}
++            } finally {
++                if (cur != null) {
++                    cur.close();
++                }
++            }        		
+         }
+     }
+ 
+ 
+     @SuppressWarnings(""unused"")
+     private void _fillRevQueue() {
+-        if ((mRevCount != 0) && mRevQueue.isEmpty()) {
+-            String sql = ""SELECT c.id, factId, combinedDue FROM cards c WHERE type = 1 AND combinedDue < "" + mDueCutoff
+-                    + "" ORDER BY "" + revOrder() + "" LIMIT "" + mQueueLimit;
+-            Cursor cur = getDB().getDatabase().rawQuery(cardLimit(""revActive"", ""revInactive"", sql), null);
+-            while (cur.moveToNext()) {
+-                QueueItem qi = new QueueItem(cur.getLong(0), cur.getLong(1), cur.getDouble(2));
+-                mRevQueue.add(0, qi); // Add to front, so list is reversed as it is built
++    	if ((mRevCount != 0) && mRevQueue.isEmpty()) {
++            Cursor cur = null;
++        	try {
++        		String sql = ""SELECT c.id, factId, combinedDue FROM cards c WHERE type = 1 AND combinedDue < "" + mDueCutoff
++        					+ "" ORDER BY "" + revOrder() + "" LIMIT "" + mQueueLimit;
++        		cur = getDB().getDatabase().rawQuery(cardLimit(""revActive"", ""revInactive"", sql), null);
++        		while (cur.moveToNext()) {
++        			QueueItem qi = new QueueItem(cur.getLong(0), cur.getLong(1), cur.getDouble(2));
++        			mRevQueue.add(0, qi); // Add to front, so list is reversed as it is built
++        		}
++            } finally {
++                if (cur != null) {
++                    cur.close();
++                }
+             }
+         }
+     }
+@@ -1217,12 +1262,19 @@
+     @SuppressWarnings(""unused"")
+     private void _fillNewQueue() {
+         if ((mNewCountToday != 0) && mNewQueue.isEmpty() && mSpacedCards.isEmpty()) {
+-            String sql = ""SELECT c.id, factId, combinedDue FROM cards c WHERE type = 2 AND combinedDue < "" + mDueCutoff
+-                    + "" ORDER BY "" + newOrder() + "" LIMIT "" + mQueueLimit;
+-            Cursor cur = getDB().getDatabase().rawQuery(cardLimit(""newActive"", ""newInactive"", sql), null);
+-            while (cur.moveToNext()) {
+-                QueueItem qi = new QueueItem(cur.getLong(0), cur.getLong(1), cur.getDouble(2));
+-                mNewQueue.addFirst(qi); // Add to front, so list is reversed as it is built
++            Cursor cur = null;
++        	try {
++            	String sql = ""SELECT c.id, factId, combinedDue FROM cards c WHERE type = 2 AND combinedDue < "" + mDueCutoff
++            				+ "" ORDER BY "" + newOrder() + "" LIMIT "" + mQueueLimit;
++            	cur = getDB().getDatabase().rawQuery(cardLimit(""newActive"", ""newInactive"", sql), null);
++            	while (cur.moveToNext()) {
++            		QueueItem qi = new QueueItem(cur.getLong(0), cur.getLong(1), cur.getDouble(2));
++            		mNewQueue.addFirst(qi); // Add to front, so list is reversed as it is built
++            	}
++            } finally {
++                if (cur != null) {
++                    cur.close();
++                }
+             }
+         }
+     }
+@@ -1490,16 +1542,22 @@
+     @SuppressWarnings(""unused"")
+     private void _fillRevEarlyQueue() {
+         if ((mRevCount != 0) && mRevQueue.isEmpty()) {
+-            String sql = ""SELECT id, factId, combinedDue FROM cards WHERE type = 1 AND combinedDue > "" + mDueCutoff
+-                    + "" ORDER BY combinedDue LIMIT "" + mQueueLimit;
+-            Cursor cur = getDB().getDatabase().rawQuery(sql, null);
+-            while (cur.moveToNext()) {
+-                QueueItem qi = new QueueItem(cur.getLong(0), cur.getLong(1));
+-                mRevQueue.add(0, qi); // Add to front, so list is reversed as it is built
+-            }
+-        }
+-    }
+-
++            Cursor cur = null;
++            try {
++            	String sql = ""SELECT id, factId, combinedDue FROM cards WHERE type = 1 AND combinedDue > "" + mDueCutoff
++            				+ "" ORDER BY combinedDue LIMIT "" + mQueueLimit;
++            	cur = getDB().getDatabase().rawQuery(sql, null);
++            	while (cur.moveToNext()) {
++            		QueueItem qi = new QueueItem(cur.getLong(0), cur.getLong(1));
++            		mRevQueue.add(0, qi); // Add to front, so list is reversed as it is built
++            	}
++            } finally {
++            	if (cur != null) {
++                	cur.close();
++            	}
++            }
++        }
++    }
+ 
+     /*
+      * Learn more*****************************
+@@ -1652,16 +1710,24 @@
+     @SuppressWarnings(""unused"")
+     private void _fillCramQueue() {
+         if ((mRevCount != 0) && mRevQueue.isEmpty()) {
+-            Log.i(AnkiDroidApp.TAG, ""fill cram queue: "" + mActiveCramTags + "" "" + mCramOrder + "" "" + mQueueLimit);
+-            String sql = ""SELECT id, factId FROM cards c WHERE type BETWEEN 0 AND 2 ORDER BY "" + mCramOrder + "" LIMIT ""
+-                    + mQueueLimit;
+-            sql = cardLimit(mActiveCramTags, null, sql);
+-            Log.i(AnkiDroidApp.TAG, ""SQL: "" + sql);
+-            Cursor cur = getDB().getDatabase().rawQuery(sql, null);
+-            while (cur.moveToNext()) {
+-                QueueItem qi = new QueueItem(cur.getLong(0), cur.getLong(1));
+-                mRevQueue.add(0, qi); // Add to front, so list is reversed as it is built
+-            }
++            Cursor cur = null;
++            try {
++        		Log.i(AnkiDroidApp.TAG, ""fill cram queue: "" + mActiveCramTags + "" "" + mCramOrder + "" "" + mQueueLimit);
++            	String sql = ""SELECT id, factId FROM cards c WHERE type BETWEEN 0 AND 2 ORDER BY "" + mCramOrder + "" LIMIT ""
++            		+ mQueueLimit;
++            	sql = cardLimit(mActiveCramTags, null, sql);
++            	Log.i(AnkiDroidApp.TAG, ""SQL: "" + sql);
++            	cur = getDB().getDatabase().rawQuery(sql, null);
++            	while (cur.moveToNext()) {
++                	QueueItem qi = new QueueItem(cur.getLong(0), cur.getLong(1));
++                	mRevQueue.add(0, qi); // Add to front, so list is reversed as it is built
++            	}
++        	} finally {
++            	if (cur != null) {
++                	cur.close();
++            	}
++        	}
++
+         }
+     }";1
+Case_025_AnkiDroid;AnkiDroid;android.database.Cursor;MetaDB.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -88,21 +88,28 @@
+         mMetaDb.execSQL(""CREATE TABLE IF NOT EXISTS smallWidgetStatus ("" + ""id INTEGER PRIMARY KEY AUTOINCREMENT, ""
+                 + ""due INTEGER NOT NULL, eta INTEGER NOT NULL)"");
+         // Use pragma to get info about widgetStatus.
+-        Cursor c = mMetaDb.rawQuery(""PRAGMA table_info(widgetStatus)"", null);
+-        int columnNumber = c.getCount();
+-        if (columnNumber > 0) {
+-            if (columnNumber < 7) {
+-                mMetaDb.execSQL(""ALTER TABLE widgetStatus "" + ""ADD COLUMN eta INTEGER NOT NULL DEFAULT '0'"");
+-                mMetaDb.execSQL(""ALTER TABLE widgetStatus "" + ""ADD COLUMN time INTEGER NOT NULL DEFAULT '0'"");
+-            }
+-        } else {
+-            mMetaDb.execSQL(""CREATE TABLE IF NOT EXISTS widgetStatus ("" + ""deckId INTEGER NOT NULL PRIMARY KEY, ""
+-                    + ""deckName TEXT NOT NULL, "" + ""newCards INTEGER NOT NULL, "" + ""lrnCards INTEGER NOT NULL, ""
+-                    + ""dueCards INTEGER NOT NULL, "" + ""progress INTEGER NOT NULL, "" + ""eta INTEGER NOT NULL)"");
+-        }
+-        mMetaDb.setVersion(databaseVersion);
+-        Timber.i(""MetaDB:: Upgrading Internal Database finished. New version: %d"", databaseVersion);
+-        return mMetaDb;
++        Cursor c = null;
++        try {
++             c = mMetaDb.rawQuery(""PRAGMA table_info(widgetStatus)"", null);
++            int columnNumber = c.getCount();
++            if (columnNumber > 0) {
++                if (columnNumber < 7) {
++                    mMetaDb.execSQL(""ALTER TABLE widgetStatus "" + ""ADD COLUMN eta INTEGER NOT NULL DEFAULT '0'"");
++                    mMetaDb.execSQL(""ALTER TABLE widgetStatus "" + ""ADD COLUMN time INTEGER NOT NULL DEFAULT '0'"");
++                }
++            } else {
++                mMetaDb.execSQL(""CREATE TABLE IF NOT EXISTS widgetStatus ("" + ""deckId INTEGER NOT NULL PRIMARY KEY, ""
++                        + ""deckName TEXT NOT NULL, "" + ""newCards INTEGER NOT NULL, "" + ""lrnCards INTEGER NOT NULL, ""
++                        + ""dueCards INTEGER NOT NULL, "" + ""progress INTEGER NOT NULL, "" + ""eta INTEGER NOT NULL)"");
++            }
++            mMetaDb.setVersion(databaseVersion);
++            Timber.i(""MetaDB:: Upgrading Internal Database finished. New version: %d"", databaseVersion);
++            return mMetaDb;
++        } finally {
++            if (c != null) {
++                c.close();
++            }
++        }
+     }";1
+Case_026_AnySoftKeyboard;AnySoftKeyboard;android.database.Cursor;ContactsDictionary.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -136,7 +136,9 @@
+     	
+     	if (newCount == mContactsCount  && newHash == mContactsHash )
+     	{
++    	    cursor.close();
+     	    return;
++    	    
+     	}
+     		if (AnySoftKeyboardConfiguration.DEBUG) Log.d(TAG, ""Contacts will be reloaded since count or hash changed. New count ""+newCount+"" was(""+mContactsCount+""), new hash ""+newHash+"" (was ""+mContactsHash+"")."");
+     		mContactsCount = newCount;";1
+Case_028_AnySoftKeyboard;AnySoftKeyboard;android.database.Cursor;UserDictionaryEditorActivity.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -31,15 +31,17 @@
+ import android.provider.UserDictionary;
+ import android.text.InputType;
+ import android.text.TextUtils;
++import android.util.Log;
+ import android.view.ContextMenu;
+ import android.view.Menu;
+ import android.view.MenuItem;
+ import android.view.View;
+ import android.view.ContextMenu.ContextMenuInfo;
++import android.widget.AdapterView.OnItemSelectedListener;
++import android.widget.AdapterView;
+ import android.widget.AlphabetIndexer;
+ import android.widget.ArrayAdapter;
+ import android.widget.EditText;
+-import android.widget.ListAdapter;
+ import android.widget.ListView;
+ import android.widget.SectionIndexer;
+ import android.widget.SimpleCursorAdapter;
+@@ -47,11 +49,38 @@
+ import android.widget.TextView;
+ import android.widget.AdapterView.AdapterContextMenuInfo;
+ 
+-import com.anysoftkeyboard.dictionaries.DictionaryFactory;
++import com.anysoftkeyboard.keyboards.KeyboardAddOnAndBuilder;
++import com.anysoftkeyboard.keyboards.KeyboardFactory;
+ import com.menny.android.anysoftkeyboard.R;
+ 
+-public class UserDictionaryEditorActivity extends ListActivity {
+-
++public class UserDictionaryEditorActivity extends ListActivity implements OnItemSelectedListener {
++
++	private abstract class MyAsyncTask extends AsyncTask<Void, Void, String[]>
++	{
++		private ProgressDialog progresDialog;
++		@Override
++		protected void onPreExecute() {
++			super.onPreExecute();
++			
++			progresDialog = new ProgressDialog(UserDictionaryEditorActivity.this); 
++			progresDialog.setTitle("""");
++			progresDialog.setMessage(getText(R.string.user_dictionary_read_please_wait));
++			progresDialog.setCancelable(false);
++			progresDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
++			
++			progresDialog.setOwnerActivity(UserDictionaryEditorActivity.this);
++			
++			progresDialog.show();
++		}
++		
++		protected void onPostExecute(String[] result) {
++			progresDialog.dismiss();
++			applyResults(result);
++		}
++
++		protected abstract void applyResults(String[] result);
++	}
++	
+     private static final String INSTANCE_KEY_DIALOG_EDITING_WORD = ""DIALOG_EDITING_WORD"";
+     private static final String INSTANCE_KEY_ADDED_WORD = ""DIALOG_ADDED_WORD"";
+ 
+@@ -74,6 +103,7 @@
+     private static final int OPTIONS_MENU_ADD = Menu.FIRST;
+ 
+     private static final int DIALOG_ADD_OR_EDIT = 0;
++	private static final String TAG = ""ASK_UDE"";
+     
+     /** The word being edited in the dialog (null means the user is adding a word). */
+     private String mDialogEditingWord;
+@@ -81,6 +111,7 @@
+     private Spinner mLangs;
+     
+     private Cursor mCursor;
++    private String mSelectedLocale = null;
+     
+     private boolean mAddedWordAlready;
+     private boolean mAutoReturn;
+@@ -92,6 +123,8 @@
+         setContentView(R.layout.list_content_with_empty_view);
+         
+         mLangs = (Spinner)findViewById(R.id.user_dictionay_langs);
++        mLangs.setOnItemSelectedListener(this);
++        
+         TextView emptyView = (TextView) findViewById(R.id.empty_user_dictionary);
+         
+         ListView listView = getListView();
+@@ -99,8 +132,6 @@
+         listView.setEmptyView(emptyView);
+ 
+         registerForContextMenu(listView);
+-        
+-        
+     }
+     
+     @Override
+@@ -123,24 +154,8 @@
+     
+     
+     private void fillLangsSpinner() {
+-    	new AsyncTask<Void, Void, String[]>()
++    	new MyAsyncTask()
+     	{
+-    		private ProgressDialog progresDialog;
+-    		@Override
+-    		protected void onPreExecute() {
+-    			super.onPreExecute();
+-    			
+-    			progresDialog = new ProgressDialog(UserDictionaryEditorActivity.this); 
+-    			progresDialog.setTitle("""");
+-    			progresDialog.setMessage(getText(R.string.user_dictionary_read_please_wait));
+-    			progresDialog.setCancelable(false);
+-    			progresDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+-    			
+-    			progresDialog.setOwnerActivity(UserDictionaryEditorActivity.this);
+-    			
+-    			progresDialog.show();
+-    		}
+-    		
+     		@Override
+     		protected String[] doInBackground(Void... params) {
+     			try
+@@ -157,9 +172,21 @@
+     					langsCursor.moveToNext();
+     					if (TextUtils.isEmpty(locale)) continue;
+     					if (langs.contains(locale)) continue;
++    					Log.d(TAG, ""Adding locale ""+locale+"" to editor."");
+     					langs.add(locale);
+     				}
+     				
++    				langsCursor.close();
++    				//now to add all layouts locales
++    				ArrayList<KeyboardAddOnAndBuilder> keyboards = KeyboardFactory.getAllAvailableKeyboards(getApplicationContext());
++    				for(KeyboardAddOnAndBuilder kbd : keyboards)
++    				{
++    					String locale = kbd.getKeyboardLocale();
++    					if (TextUtils.isEmpty(locale)) continue;
++    					if (langs.contains(locale)) continue;
++    					Log.d(TAG, ""Adding locale ""+locale+"" to editor."");
++    					langs.add(locale);
++    				}
+     				return langs.toArray(new String[langs.size()]);
+     			}
+     			catch(Exception e)
+@@ -168,11 +195,11 @@
+     				e.printStackTrace();
+     			}
+     			
+-    			return new String[]{""en""};
++    			return new String[]{};
+     		}
+     		
+-    		protected void onPostExecute(String[] result) {
+-    			progresDialog.dismiss();
++    		@Override
++    		protected void applyResults(String[] result) {
+     			ArrayAdapter <CharSequence> adapter = new ArrayAdapter <CharSequence> (UserDictionaryEditorActivity.this, android.R.layout.simple_spinner_item );
+     			adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+     			for(String lang : result)
+@@ -181,9 +208,45 @@
+     			mLangs.setAdapter(adapter);
+     		};
+     	}.execute();
+-		
+ 	}
+-
++    
++    public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
++    	mSelectedLocale = arg0.getItemAtPosition(arg2).toString();
++    	
++    	new MyAsyncTask()
++    	{
++    		@Override
++    		protected String[] doInBackground(Void... params) {
++    			try
++    			{
++    				mCursor = getContentResolver().query(UserDictionary.Words.CONTENT_URI, QUERY_PROJECTION,
++    		                QUERY_SELECTION, new String[] { mSelectedLocale },
++    		                ""UPPER("" + UserDictionary.Words.WORD + "")"");
++    			}
++    			catch(Exception e)
++    			{
++    				//TODO: Use ASK fallback
++    				e.printStackTrace();
++    			}
++    			
++    			return null;
++    		}
++    		
++    		@Override
++    		protected void applyResults(String[] result) {
++    			MyAdapter adapter = new MyAdapter(UserDictionaryEditorActivity.this,
++    	                android.R.layout.simple_list_item_1, mCursor,
++    	                new String[] { UserDictionary.Words.WORD },
++    	                new int[] { android.R.id.text1 });
++    			setListAdapter(adapter);
++    		};
++    	}.execute();
++    }
++
++    public void onNothingSelected(AdapterView<?> arg0) {
++    	mSelectedLocale = null;
++    }
++    
+ 	@Override
+     protected void onRestoreInstanceState(Bundle state) {
+         super.onRestoreInstanceState(state);
+@@ -196,20 +259,6 @@
+         super.onSaveInstanceState(outState);
+         outState.putString(INSTANCE_KEY_DIALOG_EDITING_WORD, mDialogEditingWord);
+         outState.putBoolean(INSTANCE_KEY_ADDED_WORD, mAddedWordAlready);
+-    }
+-
+-    private Cursor createCursor(String locale) {
+-        // Case-insensitive sort
+-        return managedQuery(UserDictionary.Words.CONTENT_URI, QUERY_PROJECTION,
+-                QUERY_SELECTION, new String[] { locale },
+-                ""UPPER("" + UserDictionary.Words.WORD + "")"");
+-    }
+-
+-    private ListAdapter createAdapter() {
+-        return new MyAdapter(this,
+-                android.R.layout.simple_list_item_1, mCursor,
+-                new String[] { UserDictionary.Words.WORD },
+-                new int[] { android.R.id.text1 });
+     }
+     
+     @Override";1
+Case_029_Osmand;Osmand;android.database.Cursor;HillshadeLayer.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -105,8 +105,8 @@
+ 						}
+ 						
+ 					} while(cursor.moveToNext());
+-					cursor.close();
+-				}
++				}
++				cursor.close();
+ 			}
+ 
+ 			private Map<String, SQLiteTileSource> readFiles(final OsmandApplication app, File tilesDir, Map<String, Long> fileModified) {";1
+Case_037_SMSDroid;SMSDroid;android.database.Cursor;Conversation.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -247,9 +247,12 @@
+ 								ConversationProvider.INDEX_THREADID]
+ 								+ "" = "" + threadId, null, null);
+ 				if (cursor != null && cursor.moveToFirst()) {
+-					return getConversation(context, cursor, true);
++					ret = getConversation(context, cursor, true);
+ 				} else {
+ 					Log.e(TAG, ""did not found conversation: "" + threadId);
++				}
++				if (cursor != null && !cursor.isClosed()) {
++					cursor.close();
+ 				}
+ 			}
+ 			return ret;";1
+Case_048_Owncloud;Owncloud;android.database.Cursor;FileContentProvider.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -178,6 +178,7 @@
+             if (c != null && c.moveToFirst()) {
+                 remoteId = c.getString(c.getColumnIndex(ProviderTableMeta.FILE_REMOTE_ID));
+                 //ThumbnailsCacheManager.removeFileFromCache(remoteId);
++                c.close();
+             }
+             Log_OC.d(TAG, ""Removing FILE "" + remoteId);
+ 
+@@ -187,11 +188,6 @@
+                             + uri.getPathSegments().get(1)
+                             + (!TextUtils.isEmpty(where) ? "" AND ("" + where
+                                     + "")"" : """"), whereArgs);
+-            /* just for log
+-            if (c!=null) {
+-                c.close();
+-            }
+-            */
+             break;
+         case DIRECTORY:
+             // deletion of folder is recursive
+@@ -306,6 +302,9 @@
+             // ugly patch; serious refactorization is needed to reduce work in
+             // FileDataStorageManager and bring it to FileContentProvider
+             if (doubleCheck == null || !doubleCheck.moveToFirst()) {
++                if (doubleCheck != null) {
++                    doubleCheck.close();
++                }
+                 long rowId = db.insert(ProviderTableMeta.FILE_TABLE_NAME, null, values);
+                 if (rowId > 0) {
+                     Uri insertedFileUri =
+@@ -341,6 +340,9 @@
+             // ugly patch; serious refactorization is needed to reduce work in
+             // FileDataStorageManager and bring it to FileContentProvider
+             if (doubleCheckShare == null || !doubleCheckShare.moveToFirst()) {
++                if (doubleCheckShare != null) {
++                    doubleCheckShare.close();
++                }
+                 long rowId = db.insert(ProviderTableMeta.OCSHARES_TABLE_NAME, null, values);
+                 if (rowId >0) {
+                     insertedShareUri =";1
+Case_049_Owncloud;Owncloud;android.database.Cursor;FileContentProvider.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -178,6 +178,7 @@
+             if (c != null && c.moveToFirst()) {
+                 remoteId = c.getString(c.getColumnIndex(ProviderTableMeta.FILE_REMOTE_ID));
+                 //ThumbnailsCacheManager.removeFileFromCache(remoteId);
++                c.close();
+             }
+             Log_OC.d(TAG, ""Removing FILE "" + remoteId);
+ 
+@@ -187,11 +188,6 @@
+                             + uri.getPathSegments().get(1)
+                             + (!TextUtils.isEmpty(where) ? "" AND ("" + where
+                                     + "")"" : """"), whereArgs);
+-            /* just for log
+-            if (c!=null) {
+-                c.close();
+-            }
+-            */
+             break;
+         case DIRECTORY:
+             // deletion of folder is recursive
+@@ -306,6 +302,9 @@
+             // ugly patch; serious refactorization is needed to reduce work in
+             // FileDataStorageManager and bring it to FileContentProvider
+             if (doubleCheck == null || !doubleCheck.moveToFirst()) {
++                if (doubleCheck != null) {
++                    doubleCheck.close();
++                }
+                 long rowId = db.insert(ProviderTableMeta.FILE_TABLE_NAME, null, values);
+                 if (rowId > 0) {
+                     Uri insertedFileUri =
+@@ -341,6 +340,9 @@
+             // ugly patch; serious refactorization is needed to reduce work in
+             // FileDataStorageManager and bring it to FileContentProvider
+             if (doubleCheckShare == null || !doubleCheckShare.moveToFirst()) {
++                if (doubleCheckShare != null) {
++                    doubleCheckShare.close();
++                }
+                 long rowId = db.insert(ProviderTableMeta.OCSHARES_TABLE_NAME, null, values);
+                 if (rowId >0) {
+                     insertedShareUri =";1
+Case_050_Owncloud;Owncloud;android.database.Cursor;FileContentProvider.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -178,6 +178,7 @@
+             if (c != null && c.moveToFirst()) {
+                 remoteId = c.getString(c.getColumnIndex(ProviderTableMeta.FILE_REMOTE_ID));
+                 //ThumbnailsCacheManager.removeFileFromCache(remoteId);
++                c.close();
+             }
+             Log_OC.d(TAG, ""Removing FILE "" + remoteId);
+ 
+@@ -187,11 +188,6 @@
+                             + uri.getPathSegments().get(1)
+                             + (!TextUtils.isEmpty(where) ? "" AND ("" + where
+                                     + "")"" : """"), whereArgs);
+-            /* just for log
+-            if (c!=null) {
+-                c.close();
+-            }
+-            */
+             break;
+         case DIRECTORY:
+             // deletion of folder is recursive
+@@ -306,6 +302,9 @@
+             // ugly patch; serious refactorization is needed to reduce work in
+             // FileDataStorageManager and bring it to FileContentProvider
+             if (doubleCheck == null || !doubleCheck.moveToFirst()) {
++                if (doubleCheck != null) {
++                    doubleCheck.close();
++                }
+                 long rowId = db.insert(ProviderTableMeta.FILE_TABLE_NAME, null, values);
+                 if (rowId > 0) {
+                     Uri insertedFileUri =
+@@ -341,6 +340,9 @@
+             // ugly patch; serious refactorization is needed to reduce work in
+             // FileDataStorageManager and bring it to FileContentProvider
+             if (doubleCheckShare == null || !doubleCheckShare.moveToFirst()) {
++                if (doubleCheckShare != null) {
++                    doubleCheckShare.close();
++                }
+                 long rowId = db.insert(ProviderTableMeta.OCSHARES_TABLE_NAME, null, values);
+                 if (rowId >0) {
+                     insertedShareUri =";1
+Case_054_Bankdroid;Bankdroid;android.database.Cursor;BankFactory.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -5,7 +5,9 @@
+ 
+ import net.sf.andhsli.hotspotlogin.SimpleCrypto;
+ import android.content.Context;
++import android.content.SharedPreferences;
+ import android.database.Cursor;
++import android.preference.PreferenceManager;
+ 
+ import com.liato.bankdroid.banks.Avanza;
+ import com.liato.bankdroid.banks.AvanzaMini;
+@@ -83,7 +85,10 @@
+ 		banks.add(new Eurocard(context));
+         banks.add(new FirstCard(context));
+         banks.add(new PayPal(context));
+-        banks.add(new TestBank(context));
++        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
++        if (prefs.getBoolean(""debug_mode"", false)) { 
++            banks.add(new TestBank(context));
++        }
+ 		return banks;
+ 	}
+ 
+@@ -139,7 +144,11 @@
+ 			c.moveToNext();
+ 			//Log.d(""AA"", ""Refreshing ""+c.getString(clmBanktype)+"" (""+c.getString(clmUsername)+"")."");
+ 			try {
++			    if (c.getInt(c.getColumnIndex(""banktype"")) == Bank.AVANZA) {
++			        continue;
++			    }
+ 				Bank bank = fromBanktypeId(c.getInt(c.getColumnIndex(""banktype"")), context);
++				
+ 	            String password = """";
+                 try {
+                     password = SimpleCrypto.decrypt(Crypto.getKey(), c.getString(c.getColumnIndex(""password"")));
+@@ -197,6 +206,7 @@
+                                      new BigDecimal(c.getString(c.getColumnIndex(""amount""))),
+                                      c.getString(c.getColumnIndex(""currency""))));
+ 				}
++				c.close();
+ 			}
+ 			account.setTransactions(transactions);
+ 		}";1
+Case_069_OSMTracker;OSMTracker;android.database.Cursor;TrackManager.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -409,6 +409,7 @@
+ 				deleteTrack(cursor.getLong(id_col));
+ 			} while (cursor.moveToNext());
+ 		}
++		cursor.close();
+ 	}
+ 
+ 	/**";1
+Case_070_OSMTracker;OSMTracker;android.database.Cursor;DatabaseHelper.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -201,6 +201,8 @@
+ 					
+ 				}
+ 			}while(cursor.moveToNext());
++			
++			cursor.close();
+ 		}
+ 		
+ 		ContentValues vals = new ContentValues();";1
+Case_071_OSMTracker;OSMTracker;android.database.Cursor;Track.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -66,12 +66,16 @@
+ 				startLat = startCursor.getFloat(startCursor.getColumnIndex(Schema.COL_LATITUDE));
+ 				startLong = startCursor.getFloat(startCursor.getColumnIndex(Schema.COL_LONGITUDE));
+ 			}
++			startCursor.close();
++			
+ 			Cursor endCursor = cr.query(TrackContentProvider.trackEndUri(trackId), null, null, null, null);
+ 			if(endCursor.moveToFirst()){
+ 				endDate = endCursor.getLong(endCursor.getColumnIndex(Schema.COL_TIMESTAMP));
+ 				endLat = endCursor.getFloat(endCursor.getColumnIndex(Schema.COL_LATITUDE));
+ 				endLong = endCursor.getFloat(endCursor.getColumnIndex(Schema.COL_LONGITUDE));
+ 			}
++			endCursor.close();
++			
+ 			extraInformationRead = true;
+ 		}
+ 	}";1
+Case_072_OSMTracker;OSMTracker;android.database.Cursor;Track.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -66,12 +66,16 @@
+ 				startLat = startCursor.getFloat(startCursor.getColumnIndex(Schema.COL_LATITUDE));
+ 				startLong = startCursor.getFloat(startCursor.getColumnIndex(Schema.COL_LONGITUDE));
+ 			}
++			startCursor.close();
++			
+ 			Cursor endCursor = cr.query(TrackContentProvider.trackEndUri(trackId), null, null, null, null);
+ 			if(endCursor.moveToFirst()){
+ 				endDate = endCursor.getLong(endCursor.getColumnIndex(Schema.COL_TIMESTAMP));
+ 				endLat = endCursor.getFloat(endCursor.getColumnIndex(Schema.COL_LATITUDE));
+ 				endLong = endCursor.getFloat(endCursor.getColumnIndex(Schema.COL_LONGITUDE));
+ 			}
++			endCursor.close();
++			
+ 			extraInformationRead = true;
+ 		}
+ 	}";1
+Case_078_IRCCloud;IRCCloud;android.database.Cursor;MainActivity.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -2244,7 +2244,7 @@
+                                 startActivity(new Intent(MainActivity.this, EditConnectionActivity.class));
+                                 finish();
+                             } else {
+-                                if (!open_bid(NetworkConnection.getInstance().getUserInfo().last_selected_bid) && !open_bid(BuffersDataSource.getInstance().firstBid()))
++                                if ((NetworkConnection.getInstance().getUserInfo() == null || !open_bid(NetworkConnection.getInstance().getUserInfo().last_selected_bid)) && !open_bid(BuffersDataSource.getInstance().firstBid()))
+                                     finish();
+                             }
+                         }
+@@ -4447,10 +4447,11 @@
+                 Cursor c = activity.getContentResolver().query(mFileUri, new String[]{OpenableColumns.SIZE}, null, null, null);
+                 if (c != null && c.moveToFirst()) {
+                     total = c.getInt(0);
+-                    c.close();
+                 } else {
+                     total = fileIn.available();
+                 }
++                if(c != null)
++                    c.close();
+             } catch (Exception e) {
+                 Crashlytics.log(Log.ERROR, ""IRCCloud"", ""could not open InputStream: "" + e);
+                 if(activity != null) {";1
+Case_089_Wordpress;Wordpress;android.database.Cursor;NotesAdapter.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -48,7 +48,7 @@
+     }
+ 
+     public void reloadNotes() {
+-        swapCursor(mQuery.execute());
++        changeCursor(mQuery.execute());
+     }
+ 
+     public Note getNote(int position) {";1
+Case_093_Wordpress;Wordpress;android.database.Cursor;MediaGridAdapter.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -412,10 +412,11 @@
+     }
+ 
+     @Override
+-    public Cursor swapCursor(Cursor newCursor) {
++    public void changeCursor(Cursor newCursor) {
+         if (newCursor == null) {
+             mCursorDataCount = 0;
+-            return super.swapCursor(newCursor);
++            super.changeCursor(newCursor);
++            return;
+         }
+         
+         mCursorDataCount = newCursor.getCount();
+@@ -445,7 +446,7 @@
+         
+         // use a merge cursor to place merge the extra rows at the bottom of the newly swapped cursor
+         MergeCursor mergeCursor = new MergeCursor(new Cursor[] { newCursor, matrixCursor });
+-        return super.swapCursor(mergeCursor);
++        super.changeCursor(mergeCursor);
+     }
+ 
+     /** Return the number of columns in the media grid **/";1
+Case_094_Wordpress;Wordpress;android.database.Cursor;MediaGridFragment.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -413,7 +413,7 @@
+         Cursor cursor = filterItems(mFilter);
+ 
+         if (cursor != null) {
+-            mGridAdapter.swapCursor(cursor);
++            mGridAdapter.changeCursor(cursor);
+             mResultView.setVisibility(View.GONE);
+         } else {
+             if (filter != Filter.CUSTOM_DATE) {
+@@ -437,7 +437,7 @@
+ 
+         long one_day = 24 * 60 * 60 * 1000;
+         Cursor cursor = WordPress.wpDB.getMediaFilesForBlog(blogId, startDate.getTimeInMillis(), endDate.getTimeInMillis() + one_day);
+-        mGridAdapter.swapCursor(cursor);
++        mGridAdapter.changeCursor(cursor);
+ 
+         if (cursor != null && cursor.moveToFirst()) {
+             mResultView.setVisibility(View.VISIBLE);
+@@ -598,7 +598,7 @@
+         mGridView.setSelection(0);
+         mGridView.requestFocusFromTouch();
+         mGridView.setSelection(0);
+-        mGridAdapter.swapCursor(null);
++        mGridAdapter.changeCursor(null);
+ 
+         resetSpinnerAdapter();";1
+Case_095_Wordpress;Wordpress;android.database.Cursor;MediaGridFragment.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -413,7 +413,7 @@
+         Cursor cursor = filterItems(mFilter);
+ 
+         if (cursor != null) {
+-            mGridAdapter.swapCursor(cursor);
++            mGridAdapter.changeCursor(cursor);
+             mResultView.setVisibility(View.GONE);
+         } else {
+             if (filter != Filter.CUSTOM_DATE) {
+@@ -437,7 +437,7 @@
+ 
+         long one_day = 24 * 60 * 60 * 1000;
+         Cursor cursor = WordPress.wpDB.getMediaFilesForBlog(blogId, startDate.getTimeInMillis(), endDate.getTimeInMillis() + one_day);
+-        mGridAdapter.swapCursor(cursor);
++        mGridAdapter.changeCursor(cursor);
+ 
+         if (cursor != null && cursor.moveToFirst()) {
+             mResultView.setVisibility(View.VISIBLE);
+@@ -598,7 +598,7 @@
+         mGridView.setSelection(0);
+         mGridView.requestFocusFromTouch();
+         mGridView.setSelection(0);
+-        mGridAdapter.swapCursor(null);
++        mGridAdapter.changeCursor(null);
+ 
+         resetSpinnerAdapter();";1
+Case_096_Wordpress;Wordpress;android.database.Cursor;MediaGridFragment.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -413,7 +413,7 @@
+         Cursor cursor = filterItems(mFilter);
+ 
+         if (cursor != null) {
+-            mGridAdapter.swapCursor(cursor);
++            mGridAdapter.changeCursor(cursor);
+             mResultView.setVisibility(View.GONE);
+         } else {
+             if (filter != Filter.CUSTOM_DATE) {
+@@ -437,7 +437,7 @@
+ 
+         long one_day = 24 * 60 * 60 * 1000;
+         Cursor cursor = WordPress.wpDB.getMediaFilesForBlog(blogId, startDate.getTimeInMillis(), endDate.getTimeInMillis() + one_day);
+-        mGridAdapter.swapCursor(cursor);
++        mGridAdapter.changeCursor(cursor);
+ 
+         if (cursor != null && cursor.moveToFirst()) {
+             mResultView.setVisibility(View.VISIBLE);
+@@ -598,7 +598,7 @@
+         mGridView.setSelection(0);
+         mGridView.requestFocusFromTouch();
+         mGridView.setSelection(0);
+-        mGridAdapter.swapCursor(null);
++        mGridAdapter.changeCursor(null);
+ 
+         resetSpinnerAdapter();";1
+Case_097_Wordpress;Wordpress;android.database.Cursor;StatsCursorFragment.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -134,7 +134,7 @@
+     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+         mCallback.onCursorLoaded(getUri(), data);
+         if (mAdapter != null)
+-            mAdapter.swapCursor(data);
++            mAdapter.changeCursor(data);
+         configureEmptyLabel();
+         if (isTablet()) {
+             reloadLinearLayout();
+@@ -144,7 +144,7 @@
+     @Override
+     public void onLoaderReset(Loader<Cursor> loader) {
+         if (mAdapter != null)
+-            mAdapter.swapCursor(null);
++            mAdapter.changeCursor(null);
+         configureEmptyLabel();
+         if (isTablet()) {
+             reloadLinearLayout();";1
+Case_098_Wordpress;Wordpress;android.database.Cursor;StatsCursorFragment.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -134,7 +134,7 @@
+     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+         mCallback.onCursorLoaded(getUri(), data);
+         if (mAdapter != null)
+-            mAdapter.swapCursor(data);
++            mAdapter.changeCursor(data);
+         configureEmptyLabel();
+         if (isTablet()) {
+             reloadLinearLayout();
+@@ -144,7 +144,7 @@
+     @Override
+     public void onLoaderReset(Loader<Cursor> loader) {
+         if (mAdapter != null)
+-            mAdapter.swapCursor(null);
++            mAdapter.changeCursor(null);
+         configureEmptyLabel();
+         if (isTablet()) {
+             reloadLinearLayout();";1
+Case_099_Wordpress;Wordpress;android.database.Cursor;ThemeSearchFragment.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -140,7 +140,7 @@
+         if (mAdapter == null) {
+             return;
+         } else {   
+-            mAdapter.swapCursor(cursor);   
++            mAdapter.changeCursor(cursor);   
+             mGridView.invalidateViews();
+             
+             if (cursor == null || cursor.getCount() == 0) {";1
+Case_100_Wordpress;Wordpress;android.database.Cursor;ThemeTabFragment.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -193,7 +193,7 @@
+         
+         if (mNoResultText.isShown())
+             mNoResultText.setVisibility(View.GONE);
+-        mAdapter.swapCursor(cursor);
++        mAdapter.changeCursor(cursor);
+     }
+     
+     protected String getBlogId() {";1
+Case_116_ChatSecure;ChatSecure;android.database.Cursor;SystemServices.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -157,9 +157,12 @@
+                     }
+                 }
+                 
+-                cursor.close();
++               
+             }
+         }
++        
++        if (cursor != null)
++            cursor.close();
+         
+         return info;
+     }";1
+Case_119_ChatSecure;ChatSecure;android.database.Cursor;ChatView.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -966,6 +966,9 @@
+         log(""bind "" + this + "" "" + chatId);
+         mLastChatId = chatId;
+         
++        if (mCursor != null && !mCursor.isClosed())
++            mCursor.close();
++        
+         Uri contactUri = ContentUris.withAppendedId(Imps.Contacts.CONTENT_URI, chatId);
+         mCursor = mActivity.getContentResolver().query(contactUri, CHAT_PROJECTION, null, null, null);";1
+Case_132_Transdroid;Transdroid;android.database.Cursor;SearchHelper.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -85,20 +85,18 @@
+ 			// The installed Torrent Search version is corrupt or incompatible
+ 			return null;
+ 		}
++		List<SearchSite> sites = new ArrayList<>();
+ 		if (cursor.moveToFirst()) {
+-			List<SearchSite> sites = new ArrayList<SearchSite>();
+ 			do {
+ 				// Read the cursor fields into the SearchSite object
+ 				sites.add(new SearchSite(cursor.getInt(CURSOR_SITE_ID), cursor.getString(CURSOR_SITE_CODE), cursor
+ 						.getString(CURSOR_SITE_NAME), cursor.getString(CURSOR_SITE_RSSURL),
+-						cursor.getColumnNames().length > 4 ? (cursor.getInt(CURSOR_SITE_ISPRIVATE) == 1 ? true : false)
+-								: false));
++						cursor.getColumnNames().length > 4 && cursor.getInt(CURSOR_SITE_ISPRIVATE) == 1));
+ 			} while (cursor.moveToNext());
+-			cursor.close();
+-			return sites;
+ 		}
+ 
+-		return null;
++		cursor.close();
++		return sites;
+ 
+ 	}
+ 
+@@ -107,7 +105,7 @@
+ 	 * be called in a background thread.
+ 	 * @param query The search query to pass to the torrent site
+ 	 * @param site The site to search, as retrieved from the TorrentSitesProvider, or null if the Torrent Search package
+-	 * @param sortBy.name() The sort order to request from the torrent site, if supported
++	 * @param sortBy The sort order to request from the torrent site, if supported
+ 	 * @return A list of torrent search results as POJOs, or null if the Torrent Search package is not installed or
+ 	 *         there is no internet connection
+ 	 */
+@@ -128,7 +126,7 @@
+ 			return null;
+ 		}
+ 		if (cursor.moveToFirst()) {
+-			ArrayList<SearchResult> results = new ArrayList<SearchResult>();
++			ArrayList<SearchResult> results = new ArrayList<>();
+ 			do {
+ 				// Read the cursor fields into the SearchResult object
+ 				results.add(new SearchResult(cursor.getInt(CURSOR_SEARCH_ID), cursor.getString(CURSOR_SEARCH_NAME),
+@@ -141,6 +139,7 @@
+ 		}
+ 
+ 		// Torrent Search package is not yet installed
++		cursor.close();
+ 		return null;
+ 
+ 	}";1
+Case_133_Transdroid;Transdroid;android.database.Cursor;SearchHelper.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -85,20 +85,18 @@
+ 			// The installed Torrent Search version is corrupt or incompatible
+ 			return null;
+ 		}
++		List<SearchSite> sites = new ArrayList<>();
+ 		if (cursor.moveToFirst()) {
+-			List<SearchSite> sites = new ArrayList<SearchSite>();
+ 			do {
+ 				// Read the cursor fields into the SearchSite object
+ 				sites.add(new SearchSite(cursor.getInt(CURSOR_SITE_ID), cursor.getString(CURSOR_SITE_CODE), cursor
+ 						.getString(CURSOR_SITE_NAME), cursor.getString(CURSOR_SITE_RSSURL),
+-						cursor.getColumnNames().length > 4 ? (cursor.getInt(CURSOR_SITE_ISPRIVATE) == 1 ? true : false)
+-								: false));
++						cursor.getColumnNames().length > 4 && cursor.getInt(CURSOR_SITE_ISPRIVATE) == 1));
+ 			} while (cursor.moveToNext());
+-			cursor.close();
+-			return sites;
+ 		}
+ 
+-		return null;
++		cursor.close();
++		return sites;
+ 
+ 	}
+ 
+@@ -107,7 +105,7 @@
+ 	 * be called in a background thread.
+ 	 * @param query The search query to pass to the torrent site
+ 	 * @param site The site to search, as retrieved from the TorrentSitesProvider, or null if the Torrent Search package
+-	 * @param sortBy.name() The sort order to request from the torrent site, if supported
++	 * @param sortBy The sort order to request from the torrent site, if supported
+ 	 * @return A list of torrent search results as POJOs, or null if the Torrent Search package is not installed or
+ 	 *         there is no internet connection
+ 	 */
+@@ -128,7 +126,7 @@
+ 			return null;
+ 		}
+ 		if (cursor.moveToFirst()) {
+-			ArrayList<SearchResult> results = new ArrayList<SearchResult>();
++			ArrayList<SearchResult> results = new ArrayList<>();
+ 			do {
+ 				// Read the cursor fields into the SearchResult object
+ 				results.add(new SearchResult(cursor.getInt(CURSOR_SEARCH_ID), cursor.getString(CURSOR_SEARCH_NAME),
+@@ -141,6 +139,7 @@
+ 		}
+ 
+ 		// Torrent Search package is not yet installed
++		cursor.close();
+ 		return null;
+ 
+ 	}";1
+Case_136_CSipSimple;CSipSimple;android.database.Cursor;PresenceManager.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -196,6 +196,8 @@
+             } finally {
+                 c.close();
+             }
++        }else if(c != null) {
++            c.close();
+         }
+ 
+         for(SipProfile acc : accToRemove) {";1
+Case_137_CSipSimple;CSipSimple;android.database.Cursor;ContactsUtils5.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -128,7 +128,8 @@
+              while (pCur.moveToNext()) {
+                  // Could also use some other IM type but may be confusing. Are there phones with no 'custom' IM type?
+             	 phones.add(new Phone(pCur.getString(pCur.getColumnIndex(ContactsContract.Data.DATA1)), ""sip""));
+-             } 
++             }
++             pCur.close();
+         }
+ 
+  		return(phones);
+@@ -299,7 +300,7 @@
+ 		//TODO : throw error if holders length != correct length
+ 		
+ 		Uri uri = Uri.withAppendedPath(ContactsContract.Data.CONTENT_URI, """");
+-		Cursor resCursor = ctxt.getContentResolver().query(uri, 
++		Cursor resCursor = ctxt.managedQuery(uri, 
+ 				new String[] {
+ 					ContactsContract.Data._ID,
+ 			    	RawContacts.CONTACT_ID,";1
+Case_138_APG;APG;android.database.Cursor;ContactHelper.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -303,10 +303,13 @@
+         Cursor contactMasterKey = context.getContentResolver().query(contactUri,
+                 new String[]{ContactsContract.Data.DATA2}, null, null, null);
+         if (contactMasterKey != null) {
+-            if (contactMasterKey.moveToNext()) {
+-                return KeychainContract.KeyRings.buildGenericKeyRingUri(contactMasterKey.getLong(0));
+-            }
+-            contactMasterKey.close();
++            try {
++                if (contactMasterKey.moveToNext()) {
++                    return KeychainContract.KeyRings.buildGenericKeyRingUri(contactMasterKey.getLong(0));
++                }
++            } finally {
++                contactMasterKey.close();
++            }
+         }
+         return null;
+     }
+@@ -537,7 +540,7 @@
+                 KEYS_TO_CONTACT_PROJECTION,
+                 KeychainContract.KeyRings.HAS_ANY_SECRET + ""!=0"",
+                 null, null);
+-        if (cursor != null) {
++        if (cursor != null) try {
+             while (cursor.moveToNext()) {
+                 long masterKeyId = cursor.getLong(INDEX_MASTER_KEY_ID);
+                 boolean isExpired = cursor.getInt(INDEX_IS_EXPIRED) != 0;
+@@ -565,6 +568,8 @@
+                     }
+                 }
+             }
++        } finally {
++            cursor.close();
+         }
+ 
+         for (long masterKeyId : keysToDelete) {";1
+Case_139_APG;APG;android.database.Cursor;ContactHelper.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -303,10 +303,13 @@
+         Cursor contactMasterKey = context.getContentResolver().query(contactUri,
+                 new String[]{ContactsContract.Data.DATA2}, null, null, null);
+         if (contactMasterKey != null) {
+-            if (contactMasterKey.moveToNext()) {
+-                return KeychainContract.KeyRings.buildGenericKeyRingUri(contactMasterKey.getLong(0));
+-            }
+-            contactMasterKey.close();
++            try {
++                if (contactMasterKey.moveToNext()) {
++                    return KeychainContract.KeyRings.buildGenericKeyRingUri(contactMasterKey.getLong(0));
++                }
++            } finally {
++                contactMasterKey.close();
++            }
+         }
+         return null;
+     }
+@@ -537,7 +540,7 @@
+                 KEYS_TO_CONTACT_PROJECTION,
+                 KeychainContract.KeyRings.HAS_ANY_SECRET + ""!=0"",
+                 null, null);
+-        if (cursor != null) {
++        if (cursor != null) try {
+             while (cursor.moveToNext()) {
+                 long masterKeyId = cursor.getLong(INDEX_MASTER_KEY_ID);
+                 boolean isExpired = cursor.getInt(INDEX_IS_EXPIRED) != 0;
+@@ -565,6 +568,8 @@
+                     }
+                 }
+             }
++        } finally {
++            cursor.close();
+         }
+ 
+         for (long masterKeyId : keysToDelete) {";1
+Case_145_FBReaderJ;FBReaderJ;android.database.sqlite.SQLiteDatabase;LibraryService.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -144,6 +144,10 @@
+ 			}
+ 		}
+ 
++		public void close() {
++			myDatabase.close();
++		}
++
+ 		public String status() {
+ 			return myCollection.status().toString();
+ 		}
+@@ -324,8 +328,10 @@
+ 	@Override
+ 	public void onDestroy() {
+ 		if (myLibrary != null) {
+-			myLibrary.deactivate();
++			final LibraryImplementation l = myLibrary;
+ 			myLibrary = null;
++			l.deactivate();
++			l.close();
+ 		}
+ 		super.onDestroy();
+ 	}";1
+Case_149_AnySoftKeyboard;AnySoftKeyboard;android.database.sqlite.SQLiteDatabase;AutoDictionary.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -323,6 +323,8 @@
+ 
+ 	@Override
+ 	protected void closeAllResources() {
++		if (mOpenHelper != null)
++			mOpenHelper.close();
+ 	}
+ 
+ 	@Override";1
+Case_153_ConnectBot;ConnectBot;android.database.sqlite.SQLiteDatabase;PubkeyListActivity.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -25,7 +25,6 @@
+ import org.connectbot.util.PubkeyUtils;
+ 
+ import android.app.AlertDialog;
+-import android.app.Dialog;
+ import android.app.ListActivity;
+ import android.content.Context;
+ import android.content.DialogInterface;
+@@ -41,16 +40,15 @@
+ import android.view.Menu;
+ import android.view.MenuItem;
+ import android.view.View;
+-import android.view.ViewGroup;
+ import android.view.MenuItem.OnMenuItemClickListener;
+ import android.widget.AdapterView;
+-import android.widget.CursorAdapter;
+ import android.widget.EditText;
+ import android.widget.ImageView;
+-import android.widget.LinearLayout;
+ import android.widget.ListView;
++import android.widget.SimpleCursorAdapter;
+ import android.widget.TableRow;
+ import android.widget.TextView;
++import android.widget.SimpleCursorAdapter.ViewBinder;
+ 
+ public class PubkeyListActivity extends ListActivity implements EventListener {
+ 	public final static String TAG = PubkeyListActivity.class.toString();
+@@ -64,8 +62,6 @@
+ 	
+ 	protected LayoutInflater inflater = null;
+ 
+-	protected Dialog changePasswordDialog;
+-
+ 	@Override
+     public void onStart() {
+ 		super.onStart();
+@@ -75,6 +71,14 @@
+ 		
+ 		ListView list = this.getListView();
+ 		this.registerForContextMenu(list);
++	}
++	
++	@Override
++    public void onStop() {
++		super.onStop();
++	
++		if(this.pubkeydb != null)
++			this.pubkeydb.close();
+ 	}
+ 	
+ 	@Override
+@@ -219,68 +223,50 @@
+ 	};
+ 	
+ 	protected void updateCursor() {
+-		/*
+ 		if (this.pubkeys != null)
+ 			pubkeys.requery();
+-		*/
+-		// refresh cursor because of possible sorting change
+-		if(this.pubkeys != null)
+-			this.pubkeys.close();
+-		if(this.pubkeydb == null) return;
++
++		if (this.pubkeydb == null) return;
+ 		
+ 		this.pubkeys = this.pubkeydb.allPubkeys();
+-		this.setListAdapter(new PubkeyCursorAdapter(this, this.pubkeys));
+-		//this.startManagingCursor(pubkeys);
+-	}
+-	
+-	class PubkeyCursorAdapter extends CursorAdapter {
+-		private final LayoutInflater mInflater;
+-		private final int mNickname;
+-		private final int mPubkey;
+-		private final int mKeyType;
+-		private final int mEncrypted;
+-		
+-		public PubkeyCursorAdapter(Context context, Cursor c) {
+-			super(context, c);
++		
++		SimpleCursorAdapter adapter = new SimpleCursorAdapter(this, R.layout.item_pubkey, this.pubkeys,
++				new String[] { PubkeyDatabase.FIELD_PUBKEY_NICKNAME, PubkeyDatabase.FIELD_PUBKEY_TYPE, PubkeyDatabase.FIELD_PUBKEY_ENCRYPTED },
++				new int[] { android.R.id.text1, android.R.id.text2, android.R.id.icon1 });
++		adapter.setViewBinder(new PubkeyBinder());
++		this.setListAdapter(adapter);
++
++		this.startManagingCursor(pubkeys);
++	}
++	
++	class PubkeyBinder implements ViewBinder {
++		public boolean setViewValue(View view, Cursor cursor, int columnIndex) {			
++			switch (view.getId()) {
++			case android.R.id.text2:
++				int encrypted = cursor.getInt(cursor.getColumnIndexOrThrow(PubkeyDatabase.FIELD_PUBKEY_ENCRYPTED));
++				
++				PublicKey pub;
++				try {
++					pub = PubkeyUtils.decodePublic(cursor.getBlob(cursor.getColumnIndexOrThrow(PubkeyDatabase.FIELD_PUBKEY_PUBLIC)),
++							cursor.getString(columnIndex));
++					((TextView)view).setText(PubkeyUtils.describeKey(pub, encrypted));
++				} catch (Exception e) {
++					e.printStackTrace();
++					
++					((TextView)view).setText(R.string.pubkey_unknown_format);
++					Log.e(TAG, ""Error decoding public key at "" + cursor.toString());
++				}
++				return true;
++				
++			case android.R.id.icon1:
++				if (cursor.getInt(columnIndex) != 0)
++					((ImageView)view).setImageState(new int[] { android.R.attr.state_checked }, true);
++				else
++					((ImageView)view).setImageState(new int[] {  }, true);
++				return true;
++			}
+ 			
+-            mInflater = LayoutInflater.from(context);
+-            mNickname = c.getColumnIndexOrThrow(PubkeyDatabase.FIELD_PUBKEY_NICKNAME);
+-            mPubkey = c.getColumnIndexOrThrow(PubkeyDatabase.FIELD_PUBKEY_PUBLIC);
+-            mEncrypted = c.getColumnIndexOrThrow(PubkeyDatabase.FIELD_PUBKEY_ENCRYPTED);
+-            mKeyType = c.getColumnIndexOrThrow(PubkeyDatabase.FIELD_PUBKEY_TYPE);
+-		}
+-
+-		@Override
+-		public void bindView(View view, Context context, Cursor cursor) {
+-			TextView text1 = (TextView) view.findViewById(android.R.id.text1);
+-			TextView text2 = (TextView) view.findViewById(android.R.id.text2);
+-			ImageView icon1 = (ImageView) view.findViewById(android.R.id.icon1);
+-			
+-			text1.setText(cursor.getString(mNickname));
+-
+-			String keyType = cursor.getString(mKeyType);
+-			int encrypted = cursor.getInt(mEncrypted);
+-			PublicKey pk;
+-			try {
+-				pk = PubkeyUtils.decodePublic(cursor.getBlob(mPubkey), keyType);
+-				text2.setText(PubkeyUtils.describeKey(pk, encrypted));
+-			} catch (Exception e) {
+-				e.printStackTrace();
+-				
+-				text2.setText(R.string.pubkey_unknown_format);
+-				Log.e(TAG, ""Error decoding public key at "" + cursor.toString());
+-			}
+-			
+-			if (encrypted == 0)
+-				icon1.setImageResource(R.drawable.pubkey_unlocked);
+-		}
+-
+-		@Override
+-		public View newView(Context context, Cursor cursor, ViewGroup parent) {
+-            final LinearLayout view = (LinearLayout) mInflater.inflate(
+-                    R.layout.item_pubkey, parent, false);
+-            return view;
+-		}
+-	}
+-
++			return false;
++		}	
++	}
+ }";1
+Case_156_SipDroid;SipDroid;android.hardware.Camera;VideoCamera.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -44,6 +44,7 @@
+ import android.net.LocalSocket;
+ import android.net.LocalSocketAddress;
+ import android.net.Uri;
++import android.os.Build;
+ import android.os.Bundle;
+ import android.os.Handler;
+ import android.os.Message;
+@@ -315,7 +316,7 @@
+         mSurfaceHolder = null;
+     }
+ 
+-    boolean isAvailableSprintFFC;
++    boolean isAvailableSprintFFC,useFront = true;
+     
+ 	private void checkForCamera()
+ 	{
+@@ -350,25 +351,34 @@
+         else
+         	mMediaRecorder.reset();
+         if (mCamera != null) {
++        	if (Integer.parseInt(Build.VERSION.SDK) >= 8)
++        		VideoCameraNew2.reconnect(mCamera);
+         	mCamera.release();
+         	mCamera = null;
+         }
+ 
+-		if (isAvailableSprintFFC)
+-		{
+-			try
++        if (useFront && Integer.parseInt(Build.VERSION.SDK) >= 5) {
++			if (isAvailableSprintFFC)
+ 			{
+-				Method method = Class.forName(""android.hardware.HtcFrontFacingCamera"").getDeclaredMethod(""getCamera"", null);
+-				mCamera = (Camera) method.invoke(null, null);
+-			}
+-			catch (Exception ex)
+-			{
+-				Log.d(TAG, ex.toString());
++				try
++				{
++					Method method = Class.forName(""android.hardware.HtcFrontFacingCamera"").getDeclaredMethod(""getCamera"", null);
++					mCamera = (Camera) method.invoke(null, null);
++				}
++				catch (Exception ex)
++				{
++					Log.d(TAG, ex.toString());
++				}
++			} else {
++				mCamera = Camera.open(); 
++				Camera.Parameters parameters = mCamera.getParameters(); 
++				parameters.set(""camera-id"", 2); 
++				mCamera.setParameters(parameters); 
+ 			}
+ 			VideoCameraNew.unlock(mCamera);
+ 			mMediaRecorder.setCamera(mCamera);
+ 	        mVideoPreview.setOnClickListener(this);
+-		}
++        }
+         mVideoPreview.setOnLongClickListener(this);
+         mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
+         mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+@@ -403,6 +413,12 @@
+         Log.v(TAG, ""Releasing media recorder."");
+         if (mMediaRecorder != null) {
+             mMediaRecorder.reset();
++            if (mCamera != null) {
++	        	if (Integer.parseInt(Build.VERSION.SDK) >= 8)
++	        		VideoCameraNew2.reconnect(mCamera);
++	        	mCamera.release();
++	        	mCamera = null;
++            }
+             mMediaRecorder.release();
+             mMediaRecorder = null;
+         }
+@@ -628,7 +644,7 @@
+ 
+ 	@Override
+ 	public void onClick(View v) {
+-		isAvailableSprintFFC = !isAvailableSprintFFC;
++		useFront = !useFront;
+ 		initializeVideo();
+ 		change = true;
+ 	}";1
+Case_157_Ushahidi;Ushahidi;android.location.LocationListener;CheckinMap.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -62,6 +62,8 @@
+     
+     private Bundle checkinsBundle = new Bundle();
+     
++    private DeviceLocationListener locListener;
++
+     private static final int HOME = Menu.FIRST + 1;
+ 
+     private static final int ADD_CHECKIN = Menu.FIRST + 2;
+@@ -94,7 +96,8 @@
+         mapView.setBuiltInZoomControls(true);
+         name = UshahidiPref.firstname + "" "" + UshahidiPref.lastname;
+         checkins = new ArrayList<Checkin>();
+-        setDeviceLocation();
++
++        locListener = new DeviceLocationListener(); // started during onResume
+ 
+         // checkinsList = showCheckins();
+         CheckinsTask checkinTask = new CheckinsTask();
+@@ -256,51 +259,55 @@
+ 
+     }
+ 
+-    // Fetches the current location of the device.
+-    private void setDeviceLocation() {
+-
+-        DeviceLocationListener listener = new DeviceLocationListener();
+-        LocationManager manager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+-
+-        long updateTimeMsec = 1000L;
+-
+-        // get low accuracy provider
+-        LocationProvider low = manager.getProvider(manager.getBestProvider(
+-                Util.createCoarseCriteria(), true));
+-
+-        // get high accuracy provider
+-        LocationProvider high = manager.getProvider(manager.getBestProvider(
+-                Util.createFineCriteria(), true));
+-
+-        manager.requestLocationUpdates(low.getName(), updateTimeMsec, 500.0f, listener);
+-
+-        manager.requestLocationUpdates(high.getName(), updateTimeMsec, 500.0f, listener);
+-
+-    }
+-
+     public void onDestroy() {
+         super.onDestroy();
+-        ((LocationManager)getSystemService(Context.LOCATION_SERVICE))
+-                .removeUpdates(new DeviceLocationListener());
+-    }
+-
++        locListener.stop();
++    }
++    
++    public void onPause() {
++        super.onPause();
++        locListener.stop();
++    }
++    
+     public void onResume() {
+         super.onResume();
++        locListener.start();
+     }
+ 
+     // get the current location of the device/user
+-    public class DeviceLocationListener implements LocationListener {
++    private class DeviceLocationListener implements LocationListener {
++        LocationManager manager;
++
++        public DeviceLocationListener(){
++            manager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
++        }
++
++        public void start(){
++            long updateTimeMsec = 1000L;
++            // get low accuracy provider
++            LocationProvider low = manager.getProvider(manager.getBestProvider(
++                    Util.createCoarseCriteria(), true));
++            // get high accuracy provider
++            LocationProvider high = manager.getProvider(manager.getBestProvider(
++                    Util.createFineCriteria(), true));
++            manager.requestLocationUpdates(low.getName(), updateTimeMsec, 500.0f, locListener);
++            manager.requestLocationUpdates(high.getName(), updateTimeMsec, 500.0f, locListener);
++        }
++
++        public void stop(){
++            manager.removeUpdates(this);
++        }
++
+         public void onLocationChanged(Location location) {
+ 
+             if (location != null) {
+-
+-                ((LocationManager)getSystemService(Context.LOCATION_SERVICE)).removeUpdates(this);
+ 
+                 latitude = location.getLatitude();
+                 longitude = location.getLongitude();
+ 
+                 centerLocation(getPoint(latitude, longitude));
+ 
++                stop();
+             }
+         }";1
+Case_158_OsmDroid;OsmDroid;android.location.LocationListener;SampleMapActivity.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -72,9 +72,6 @@
+ 			this.enableDoGPSRecordingAndContributing();
+ 		else
+ 			this.disableDoGPSRecordingAndContributing(false);
+-
+-		// register location listener
+-		initLocation();
+ 	}
+ 
+ 	private LocationManager getLocationManager() {
+@@ -101,17 +98,23 @@
+ 
+ 	public abstract void onLocationChanged(final Location pLoc);
+ 
+-	/**
+-	 * Called when activity is destroyed. Unregisters LocationListener.
+-	 */
+ 	@Override
+-	protected void onDestroy() {
+-		super.onDestroy();
++	protected void onResume() {
++		// register location listener
++		initLocation();
++
++		super.onPause();
++	}
++
++	@Override
++	protected void onPause() {
+ 		getLocationManager().removeUpdates(mLocationListener);
+ 
+ 		if (this.mDoGPSRecordingAndContributing) {
+ 			OSMUploader.uploadAsync(this.mRouteRecorder.getRecordedGeoPoints());
+ 		}
++
++		super.onResume();
+ 	}
+ 
+ 	// ===========================================================";1
+Case_162_IRCCloud;IRCCloud;android.media.MediaPlayer;ImageViewerActivity.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -446,6 +446,9 @@
+         try {
+             player = new MediaPlayer();
+             final SurfaceView v = (SurfaceView)findViewById(R.id.video);
++            if(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
++                v.getHolder().setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
++
+             v.getHolder().addCallback(new SurfaceHolder.Callback() {
+                 @Override
+                 public void surfaceCreated(SurfaceHolder surfaceHolder) {
+@@ -476,7 +479,11 @@
+ 
+                 @Override
+                 public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
+-
++                    if(player != null) {
++                        player.stop();
++                        player.release();
++                        player = null;
++                    }
+                 }
+             });
+             v.setVisibility(View.VISIBLE);
+@@ -549,11 +556,9 @@
+     }
+ 
+     private void fail() {
+-        android.util.Log.e(""IRCCloud"", ""FAILED"");
+-        Thread.dumpStack();
+-        /*Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.IMAGE_SCHEME), ""http"")));
++        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.IMAGE_SCHEME), ""http"")));
+         startActivity(intent);
+-        finish();*/
++        finish();
+     }
+ 
+     @Override";1
+Case_163_IRCCloud;IRCCloud;android.media.MediaPlayer;ImageViewerActivity.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -62,12 +62,16 @@
+ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity implements ShareActionProviderHax.OnShareActionProviderSubVisibilityChangedListener {
+ 
+     private class OEmbedTask extends AsyncTaskEx<String, Void, String> {
++        private String provider = null;
+ 
+         @Override
+         protected String doInBackground(String... params) {
+             try {
+                 JSONObject o = NetworkConnection.getInstance().fetchJSON(params[0]);
+-                if (o.getString(""type"").equalsIgnoreCase(""photo""))
++                if(o.has(""provider_name""))
++                    provider = o.getString(""provider_name"");
++
++                if ((provider != null && provider.equals(""Giphy"")) || o.getString(""type"").equalsIgnoreCase(""photo""))
+                     return o.getString(""url"");
+             } catch (Exception e) {
+             }
+@@ -77,7 +81,10 @@
+         @Override
+         protected void onPostExecute(String url) {
+             if (url != null) {
+-                loadImage(url);
++                if(provider != null && provider.equals(""Giphy""))
++                    new GiphyTask().execute(url.substring(url.indexOf(""/gifs/"") + 6));
++                else
++                    loadImage(url);
+             } else {
+                 fail();
+             }
+@@ -175,6 +182,40 @@
+                         return data.getString(""mp4Url"");
+                     else if(data.has(""gifUrl"") && data.getString(""gifUrl"").length() > 0)
+                         return data.getString(""gifUrl"");
++                }
++            } catch (Exception e) {
++            }
++            return null;
++        }
++
++        @Override
++        protected void onPostExecute(String url) {
++            if (url != null) {
++                if(url.endsWith("".mp4"")) {
++                    loadVideo(url);
++                    player.setLooping(true);
++                    player.setVolume(0,0);
++                } else {
++                    loadImage(url);
++                }
++            } else {
++                fail();
++            }
++        }
++    }
++
++    public class GiphyTask extends AsyncTaskEx<String, Void, String> {
++        @Override
++        protected String doInBackground(String... params) {
++            try {
++                HashMap<String, String> headers = new HashMap<>();
++                JSONObject o = NetworkConnection.getInstance().fetchJSON(""https://api.giphy.com/v1/gifs/"" + params[0] + ""?api_key=dc6zaTOxFJmzC"", headers);
++                if(o.has(""data"") && o.getJSONObject(""data"").has(""images"")) {
++                    JSONObject data = o.getJSONObject(""data"").getJSONObject(""images"").getJSONObject(""original"");
++                    if(data.has(""mp4"") && data.getString(""mp4"").length() > 0)
++                        return data.getString(""mp4"");
++                    else if(data.getString(""url"").endsWith("".gif""))
++                        return data.getString(""url"");
+                 }
+             } catch (Exception e) {
+             }
+@@ -418,6 +459,11 @@
+                 id = id.substring(id.lastIndexOf(""/"") + 1, id.length());
+                 new GfyCatTask().execute(id);
+                 return;
++            } else if (lower.startsWith(""giphy.com/"") || lower.startsWith(""www.giphy.com/"") || lower.startsWith(""gph.is/"")) {
++                if(lower.contains(""/gifs/"") && lower.lastIndexOf(""/"") > lower.indexOf(""/gifs/"") + 6)
++                    url = url.substring(0, lower.lastIndexOf(""/""));
++                new OEmbedTask().execute(""https://giphy.com/services/oembed/?url="" + url);
++                return;
+             } else if (lower.startsWith(""flickr.com/"") || lower.startsWith(""www.flickr.com/"")) {
+                 new OEmbedTask().execute(""https://www.flickr.com/services/oembed/?format=json&url="" + url);
+                 return;
+@@ -460,15 +506,23 @@
+                         int videoHeight = player.getVideoHeight();
+ 
+                         int screenWidth = getWindowManager().getDefaultDisplay().getWidth();
++                        int screenHeight = getWindowManager().getDefaultDisplay().getHeight();
++
++                        int scaledWidth = (int) (((float)videoWidth / (float)videoHeight) * (float)screenHeight);
++                        int scaledHeight = (int) (((float)videoHeight / (float)videoWidth) * (float)screenWidth);
+ 
+                         android.view.ViewGroup.LayoutParams lp = v.getLayoutParams();
+                         lp.width = screenWidth;
+-                        lp.height = (int) (((float)videoHeight / (float)videoWidth) * (float)screenWidth);
++                        lp.height = scaledHeight;
++                        if(lp.height > screenHeight && scaledWidth < screenWidth) {
++                            lp.width = scaledWidth;
++                            lp.height = screenHeight;
++                        }
+                         v.setLayoutParams(lp);
+ 
+                         player.start();
+                     } catch (IOException e) {
+-                        e.printStackTrace();
++                        fail();
+                     }
+                 }
+ 
+@@ -480,7 +534,10 @@
+                 @Override
+                 public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
+                     if(player != null) {
+-                        player.stop();
++                        try {
++                            player.stop();
++                        } catch (IllegalStateException e) {
++                        }
+                         player.release();
+                         player = null;
+                     }
+@@ -566,6 +623,19 @@
+         super.onResume();
+         if (mSpinner != null && mSpinner.getVisibility() == View.GONE)
+             hide_actionbar();
++    }
++
++    @Override
++    public void onPause() {
++        super.onPause();
++        if(player != null) {
++            try {
++                player.stop();
++            } catch (IllegalStateException e) {
++            }
++            player.release();
++            player = null;
++        }
+     }
+ 
+     @Override";1
+Case_164_Zxing;Zxing;android.net.http.AndroidHttpClient;QRCodeEncoder.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -160,10 +160,11 @@
+     public void run() {
+       String url = CHART_SERVER_URL + mPixelResolution + ""x"" + mPixelResolution + ""&chl="" +
+           mContents;
++      AndroidHttpClient client = null;
+       try {
+         URI uri = new URI(""http"", url, null);
+         HttpGet get = new HttpGet(uri);
+-        AndroidHttpClient client = AndroidHttpClient.newInstance(mUserAgent);
++        client = AndroidHttpClient.newInstance(mUserAgent);
+         HttpResponse response = client.execute(get);
+         HttpEntity entity = response.getEntity();
+         Bitmap image = BitmapFactory.decodeStream(entity.getContent());
+@@ -180,6 +181,10 @@
+         Log.e(TAG, e.toString());
+         Message message = Message.obtain(mHandler, R.id.encode_failed);
+         message.sendToTarget();
++      } finally {
++        if (client != null) {
++          client.close();
++        }
+       }
+     }
+   }";1
+Case_165_Zxing;Zxing;android.net.http.AndroidHttpClient;SearchBookContentsActivity.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -294,6 +294,7 @@
+         } catch (IOException e) {
+           Log.e(TAG, e.toString());
+         }
++        client.close();
+       }
+       return cookie;
+     }";1
+Case_166_IRCCloud;IRCCloud;android.net.wifi.WifiManager.WifiLock;NetworkConnection.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -110,7 +110,7 @@
+ 	private Timer shutdownTimer = null;
+ 	private Timer idleTimer = null;
+ 	public long idle_interval = 1000;
+-    private int failCount = 0;
++    private volatile int failCount = 0;
+ 	private long reconnect_timestamp = 0;
+ 	private String useragent = null;
+     private String streamId = null;
+@@ -606,6 +606,9 @@
+             Log.d(TAG, ""Connecting: "" + url);
+         }
+ 
++        TestFlight.log(""Attempt: "" + failCount);
++        Log.d(TAG, ""Attempt: "" + failCount);
++
+ 		client = new WebSocketClient(URI.create(url), new WebSocketClient.Listener() {
+ 		    @Override
+ 		    public void onConnect() {
+@@ -1703,6 +1706,10 @@
+ 			if(idleTimer != null && state != STATE_CONNECTED) {
+ 				idleTimer.cancel();
+ 				idleTimer = null;
++                failCount = 0;
++                if(wifiLock.isHeld())
++                    wifiLock.release();
++                reconnect_timestamp = 0;
+ 				state = STATE_DISCONNECTED;
+ 			}
+ 		}";1
+Case_168_Cgeo;Cgeo;android.os.Parcel;ImageTest.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -186,5 +186,6 @@
+         final Image image2 = Image.CREATOR.createFromParcel(parcel);
+ 
+         assertThat(image1).isEqualTo(image2);
++        parcel.recycle();
+     }
+ }";1
+Case_169_K-9 Mail;K-9 Mail;android.os.ParcelFileDescriptor;OpenPgpApi.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -25,6 +25,8 @@
+ import android.util.Log;
+ import org.openintents.openpgp.IOpenPgpService;
+ import org.openintents.openpgp.OpenPgpError;
++
++import java.io.IOException;
+ import java.io.InputStream;
+ import java.io.OutputStream;
+ 
+@@ -209,6 +211,7 @@
+     }
+ 
+     public Intent executeApi(Intent data, InputStream is, OutputStream os) {
++        ParcelFileDescriptor input = null;
+         try {
+             data.putExtra(EXTRA_API_VERSION, OpenPgpApi.API_VERSION);
+ 
+@@ -219,7 +222,7 @@
+                 return result;
+             } else {
+                 // pipe the input and output
+-                ParcelFileDescriptor input = ParcelFileDescriptorUtil.pipeFrom(is,
++                input = ParcelFileDescriptorUtil.pipeFrom(is,
+                         new ParcelFileDescriptorUtil.IThreadListener() {
+ 
+                             @Override
+@@ -255,6 +258,14 @@
+             result.putExtra(RESULT_ERROR,
+                     new OpenPgpError(OpenPgpError.CLIENT_SIDE_ERROR, e.getMessage()));
+             return result;
++        } finally {
++            if (input != null) {
++                try {
++                    input.close();
++                } catch (IOException e) {
++                    Log.e(OpenPgpApi.TAG, ""Failed to close input file descriptor"", e);
++                }
++            }
+         }
+     }";1
+Case_170_K-9 Mail;K-9 Mail;android.os.PowerManager.WakeLock;MessagingController.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -2646,14 +2646,15 @@
+             final boolean ignoreLastCheckedTime,
+             final boolean useManualWakeLock,
+             final MessagingListener listener) {
+-    	
++        
++      WakeLock twakeLock = null;
+       if (useManualWakeLock) {
+         PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+-        WakeLock wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, ""Email"");
+-        wakeLock.setReferenceCounted(false);
+-        wakeLock.acquire(Email.MANUAL_WAKE_LOCK_TIMEOUT);
+-      }
+-      
++        twakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, ""Email"");
++        twakeLock.setReferenceCounted(false);
++        twakeLock.acquire(Email.MANUAL_WAKE_LOCK_TIMEOUT);
++      }
++      final WakeLock wakeLock = twakeLock;
+       
+         for (MessagingListener l : getListeners()) {
+             l.checkMailStarted(context, account);
+@@ -2870,7 +2871,10 @@
+                   public void run() {
+ 
+ 		            	  Log.i(Email.LOG_TAG, ""Finished mail sync"");
+-		             	 
++		            	  if (wakeLock != null)
++		            	  {
++		            	      wakeLock.release();
++		            	  }
+ 		                for (MessagingListener l : getListeners()) {
+ 		                    l.checkMailFinished(context, account);
+ 		                }";1
+Case_171_CallMeter;CallMeter;android.os.PowerManager.WakeLock;LogRunnerService.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -34,6 +34,7 @@
+ import android.os.Handler;
+ import android.os.Message;
+ import android.os.PowerManager;
++import android.os.PowerManager.WakeLock;
+ import android.preference.DatePreference;
+ import android.preference.PreferenceManager;
+ import android.provider.CallLog.Calls;
+@@ -662,36 +663,15 @@
+ 			return;
+ 		}
+ 		final String a = intent.getAction();
+-		Log.d(TAG, ""onHandleIntent("" + a + "")"");
+-
+-		final PowerManager pm = (PowerManager) this
+-				.getSystemService(Context.POWER_SERVICE);
+-		final PowerManager.WakeLock wakelock = pm.newWakeLock(
+-				PowerManager.PARTIAL_WAKE_LOCK, TAG);
+-		wakelock.acquire();
+-		Log.i(TAG, ""got wakelock"");
+-
+-		if (a != null && (// .
+-				a.equals(TelephonyManager.ACTION_PHONE_STATE_CHANGED) // .
+-				|| a.equals(ACTION_SMS))) {
+-			Log.i(TAG, ""sleep for "" + WAIT_FOR_LOGS + ""ms"");
+-			try {
+-				Thread.sleep(WAIT_FOR_LOGS);
+-			} catch (InterruptedException e) {
+-				Log.e(TAG, ""interrupted while waiting for logs"", e);
+-			}
+-		}
++		Log.d(TAG, ""onHandleIntent(action="" + a + "")"");
++
++		final WakeLock wakelock = this.acquire(a);
+ 
+ 		final Handler h = Plans.getHandler();
+ 		if (h != null) {
+ 			h.sendEmptyMessage(Plans.MSG_BACKGROUND_START_MATCHER);
+ 		}
+ 
+-		// update roaming info
+-		roaming = ((TelephonyManager) this
+-				.getSystemService(Context.TELEPHONY_SERVICE))
+-				.isNetworkRoaming();
+-		Log.d(TAG, ""roaming: "" + roaming);
+ 		final SharedPreferences p = PreferenceManager
+ 				.getDefaultSharedPreferences(this);
+ 		if (System.currentTimeMillis() - // .
+@@ -709,6 +689,8 @@
+ 				Preferences.PREFS_SHOWCALLINFO, false);
+ 		final boolean askForPlan = p.getBoolean(Preferences.PREFS_ASK_FOR_PLAN,
+ 				false);
++		final String deleimter = p
++				.getString(Preferences.PREFS_DELIMITER, "" | "");
+ 
+ 		final boolean runMatcher = a == ACTION_RUN_MATCHER;
+ 		boolean shortRun = runMatcher
+@@ -722,6 +704,7 @@
+ 				&& a.equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
+ 			if (intent.getBooleanExtra(ConnectivityManager.EXTRA_IS_FAILOVER,
+ 					false)) {
++				this.release(wakelock, h);
+ 				return;
+ 			}
+ 			shortRun = true;
+@@ -761,6 +744,7 @@
+ 			}
+ 			c.close();
+ 		}
++
+ 		updateData(this, shortRun && !runMatcher);
+ 		if (!shortRun || runMatcher) {
+ 			if (deleteBefore > 0L) {
+@@ -809,7 +793,7 @@
+ 					if (cost > 0) {
+ 						String currencyFormat = Preferences
+ 								.getCurrencyFormat(this);
+-						sb.append("" | "" // FIXME
++						sb.append(deleimter
+ 								+ String.format(currencyFormat, cost));
+ 					}
+ 					if (planname != null) {
+@@ -855,6 +839,53 @@
+ 			}
+ 		}
+ 
++		this.release(wakelock, h);
++	}
++
++	/**
++	 * Acquire {@link WakeLock} and init service.
++	 * 
++	 * @param a
++	 *            action
++	 * @return {@link WakeLock}
++	 */
++	private WakeLock acquire(final String a) {
++		final PowerManager pm = (PowerManager) this
++				.getSystemService(Context.POWER_SERVICE);
++		final PowerManager.WakeLock wakelock = pm.newWakeLock(
++				PowerManager.PARTIAL_WAKE_LOCK, TAG);
++		wakelock.acquire();
++		Log.i(TAG, ""got wakelock"");
++
++		if (a != null && (// .
++				a.equals(TelephonyManager.ACTION_PHONE_STATE_CHANGED) // .
++				|| a.equals(ACTION_SMS))) {
++			Log.i(TAG, ""sleep for "" + WAIT_FOR_LOGS + ""ms"");
++			try {
++				Thread.sleep(WAIT_FOR_LOGS);
++			} catch (InterruptedException e) {
++				Log.e(TAG, ""interrupted while waiting for logs"", e);
++			}
++		}
++
++		// update roaming info
++		roaming = ((TelephonyManager) this
++				.getSystemService(Context.TELEPHONY_SERVICE))
++				.isNetworkRoaming();
++		Log.d(TAG, ""roaming: "" + roaming);
++
++		return wakelock;
++	}
++
++	/**
++	 * Release {@link WakeLock} and notify {@link Handler}.
++	 * 
++	 * @param wakelock
++	 *            {@link WakeLock}
++	 * @param h
++	 *            {@link Handler}
++	 */
++	private void release(final WakeLock wakelock, final Handler h) {
+ 		// schedule next update
+ 		LogRunnerReceiver.schedNext(this);
+ 		if (h != null) {";1
+Case_172_ConnectBot;ConnectBot;android.os.PowerManager.WakeLock;ConsoleActivity.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -20,8 +20,6 @@
+ import java.lang.ref.WeakReference;
+ import java.util.List;
+ 
+-import org.connectbot.bean.HostBean;
+-import org.connectbot.bean.PortForwardBean;
+ import org.connectbot.bean.SelectionArea;
+ import org.connectbot.service.PromptHelper;
+ import org.connectbot.service.TerminalBridge;
+@@ -780,11 +778,6 @@
+ 		// connect with manager service to find all bridges
+ 		// when connected it will insert all views
+ 		bindService(new Intent(this, TerminalManager.class), connection, Context.BIND_AUTO_CREATE);
+-
+-		// make sure we dont let the screen fall asleep
+-		// this also keeps the wifi chipset from disconnecting us
+-		if(wakelock != null && prefs.getBoolean(PreferenceConstants.KEEP_ALIVE, true))
+-			wakelock.acquire();
+ 	}
+ 
+ 	@Override
+@@ -792,6 +785,10 @@
+ 		super.onPause();
+ 		Log.d(TAG, ""onPause called"");
+ 
++		// Allow the screen to dim and fall asleep.
++		if (wakelock != null && wakelock.isHeld())
++			wakelock.release();
++
+ 		if (forcedOrientation && bound != null)
+ 			bound.setResizeAllowed(false);
+ 	}
+@@ -800,6 +797,11 @@
+ 	public void onResume() {
+ 		super.onResume();
+ 		Log.d(TAG, ""onResume called"");
++
++		// Make sure we don't let the screen fall asleep.
++		// This also keeps the Wi-Fi chipset from disconnecting us.
++		if (wakelock != null && prefs.getBoolean(PreferenceConstants.KEEP_ALIVE, true))
++			wakelock.acquire();
+ 
+ 		configureOrientation();
+ 
+@@ -860,10 +862,6 @@
+ 		super.onStop();
+ 
+ 		unbindService(connection);
+-
+-		// allow the screen to dim and fall asleep
+-		if(wakelock != null && wakelock.isHeld())
+-			wakelock.release();
+ 	}
+ 
+ 	protected void shiftCurrentTerminal(final int direction) {";1
+Case_174_VLC;VLC;android.os.PowerManager.WakeLock;AudioService.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -432,6 +432,14 @@
+                     float pos = msg.getData().getFloat(""data"");
+                     service.updateWidgetPosition(service, pos);
+                     break;
++                case EventHandler.MediaPlayerEncounteredError:
++                    showToast(VLCApplication.getAppContext().getString(R.string.invalid_location,
++                            service.mCurrentMedia.getLocation()), Toast.LENGTH_SHORT);
++                    service.executeUpdate();
++                    service.next();
++                    if (service.mWakeLock.isHeld())
++                        service.mWakeLock.release();
++                    break;
+                 default:
+                     Log.e(TAG, ""Event not handled"");
+                     break;
+@@ -1131,7 +1139,7 @@
+         return true;
+     }
+ 
+-    private void showToast(String text, int duration) {
++    private static void showToast(String text, int duration) {
+         Message msg = new Message();
+         Bundle bundle = new Bundle();
+         bundle.putString(""text"", text);";1
+Case_175_CSipSimple;CSipSimple;android.os.PowerManager.WakeLock;UAStateReceiver.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -115,10 +115,11 @@
+ 			if(calls != null && calls.length > 0) {
+ 				for( SipCallSession existingCall : calls) {
+ 					if(!existingCall.isAfterEnded()) {
+-						Log.e(THIS_FILE, ""For now we do not support two call at the same time !!!"");
++						Log.e(THIS_FILE, ""Settings to not support two call at the same time !!!"");
+ 						//If there is an ongoing call and we do not support multiple calls
+ 						//Send busy here
+ 						pjsua.call_hangup(callId, 486, null, null);
++						unlockCpu();
+ 						return;
+ 					}
+ 				}";1
+Case_176_CSipSimple;CSipSimple;android.os.PowerManager.WakeLock;SipService.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -602,7 +602,9 @@
+ 				// immediately
+ 				if (connected) {
+ 					if (mTask != null) {
++						Log.d(THIS_FILE, ""We already have a current task in stack"");
+ 						mTask.cancel();
++						sipWakeLock.release(mTask);
+ 					}
+ 					mTask = new MyTimerTask(type, connected);
+ 					if(mTimer == null) {";1
+Case_177_CSipSimple;CSipSimple;android.os.PowerManager.WakeLock;SipService.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -640,7 +640,7 @@
+ 
+ 	public SipNotifications notificationManager;
+ 	private SipServiceExecutor mExecutor;
+-	private PjSipService pjService;
++	private static PjSipService pjService;
+ 	private static HandlerThread executorThread;
+ 
+ 	// Broadcast receiver for the service
+@@ -766,6 +766,7 @@
+ 					// device goes to sleep
+ 					sipWakeLock.acquire(mTask);
+ 				} else {
++					// If it's about the same connection type cancel the pending connection
+ 					if ((mTask != null) && mTask.mNetworkType.equals(type)) {
+ 						mTask.cancel();
+ 						sipWakeLock.release(mTask);
+@@ -804,6 +805,7 @@
+ 				synchronized (createLock) {
+ 					if (mTask != this) {
+ 						Log.w(THIS_FILE, ""  unexpected task: "" + mNetworkType + (mConnected ? "" CONNECTED"" : ""DISCONNECTED""));
++						sipWakeLock.release(this);
+ 						return;
+ 					}
+ 					mTask = null;";1
+Case_178_Xabber;Xabber;android.view.MotionEvent;ContactListFragment.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -370,8 +370,10 @@
+ 	 * Stop fling scrolling.
+ 	 */
+ 	private void stopMovement() {
+-		listView.onTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(),
+-				SystemClock.uptimeMillis(), MotionEvent.ACTION_CANCEL, 0, 0, 0));
++		MotionEvent event = MotionEvent.obtain(SystemClock.uptimeMillis(),
++				SystemClock.uptimeMillis(), MotionEvent.ACTION_CANCEL, 0, 0, 0);
++		listView.onTouchEvent(event);
++		event.recycle();
+ 	}
+ 
+ 	public interface OnContactClickListener {";1
+Case_192_VLC;VLC;java.io.BufferedWriter;Logcat.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -48,15 +48,18 @@
+         BufferedWriter bw = new BufferedWriter(output);
+         String line;
+ 
+-        while ((line = br.readLine()) != null) {
+-            bw.write(line);
+-            bw.newLine();
++        try {
++            while ((line = br.readLine()) != null) {
++                bw.write(line);
++                bw.newLine();
++            }
++        }catch(Exception e) {}
++        finally {
++            bw.close();
++            output.close();
++            br.close();
++            input.close();
+         }
+-
+-        bw.close();
+-        output.close();
+-        br.close();
+-        input.close();
+     }
+ 
+     /**";1
+Case_195_APG;APG;java.io.DataOutputStream;ParcelableFileCache.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -66,20 +66,23 @@
+ 
+         File tempFile = new File(mContext.getCacheDir(), mFilename);
+ 
++
+         DataOutputStream oos = new DataOutputStream(new FileOutputStream(tempFile));
+ 
+-        oos.writeInt(numEntries);
+-
+-        while (it.hasNext()) {
+-            Parcel p = Parcel.obtain(); // creating empty parcel object
+-            p.writeParcelable(it.next(), 0); // saving bundle as parcel
+-            byte[] buf = p.marshall();
+-            oos.writeInt(buf.length);
+-            oos.write(buf);
+-            p.recycle();
+-        }
+-
+-        oos.close();
++        try {
++            oos.writeInt(numEntries);
++
++            while (it.hasNext()) {
++                Parcel p = Parcel.obtain(); // creating empty parcel object
++                p.writeParcelable(it.next(), 0); // saving bundle as parcel
++                byte[] buf = p.marshall();
++                oos.writeInt(buf.length);
++                oos.write(buf);
++                p.recycle();
++            }
++        } finally {
++            oos.close();
++        }
+ 
+     }";1
+Case_206_CycleStreets;CycleStreets;java.io.FileInputStream;ApiCallCache.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -82,6 +82,7 @@
+       int n = 0;
+       while ((n = fis.read(buffer)) != -1)
+         output.write(buffer, 0, n);            
++      fis.close();
+     } // try
+     catch(IOException e)
+     {";1
+Case_214_Xabber;Xabber;java.io.FileOutputStream;AccountInfoEditorFragment.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -554,18 +554,28 @@
+ 
+         Bitmap srcBitmap = BitmapFactory.decodeFile(srcPath);
+ 
++        FileOutputStream out = null;
+         try {
+             Bitmap oriented = Bitmap.createBitmap(srcBitmap, 0, 0, srcBitmap.getWidth(), srcBitmap.getHeight(), matrix, true);
+             srcBitmap.recycle();
+ 
+             final File rotateImageFile = createImageFile(ROTATE_FILE_NAME);
+-            FileOutputStream out = new FileOutputStream(rotateImageFile);
+-            oriented.compress(Bitmap.CompressFormat.JPEG, 100, out);
+-
++            out = new FileOutputStream(rotateImageFile);
++            oriented.compress(Bitmap.CompressFormat.JPEG, 85, out);
++            oriented.recycle();
+             return Uri.fromFile(rotateImageFile);
+         } catch (IOException | OutOfMemoryError e) {
+             e.printStackTrace();
+             return srcUri;
++        } finally {
++            try {
++                if (out != null) {
++                    out.flush();
++                    out.close();
++                }
++            } catch (IOException e) {
++                e.printStackTrace();
++            }
+         }
+     }
+ 
+@@ -602,7 +612,7 @@
+                 break;
+             case Crop.RESULT_ERROR:
+                 avatarSize.setVisibility(View.INVISIBLE);
+-                Toast.makeText(getActivity(), Crop.getError(result).getMessage(), Toast.LENGTH_SHORT).show();
++                Toast.makeText(getActivity(), R.string.error_during_crop, Toast.LENGTH_SHORT).show();
+                 // no break!
+             default:
+                 newAvatarImageUri = null;";1
+Case_218_ChatSecure;ChatSecure;java.io.FilterInputStream;SM.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -163,8 +163,10 @@
+             ByteArrayInputStream in = new ByteArrayInputStream(bytes);
+             OtrInputStream ois = new OtrInputStream(in);
+             int len = ois.readInt();
+-            if (len > 100)
++            if (len > 100) {
++                ois.close();
+                 throw new SMException(""Too many ints"");
++            }
+             BigInteger[] ints = new BigInteger[len];
+             for (int i = 0; i < len; i++) {
+                 ints[i] = ois.readBigInt();";1
+Case_219_ChatSecure;ChatSecure;java.io.FilterInputStream;IOTest.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -46,12 +46,14 @@
+         ByteArrayOutputStream out = new ByteArrayOutputStream();
+         OtrOutputStream oos = new OtrOutputStream(out);
+         oos.writeShort(source);
++        oos.close();
+ 
+         byte[] converted = out.toByteArray();
+ 
+         ByteArrayInputStream bin = new ByteArrayInputStream(converted);
+         OtrInputStream ois = new OtrInputStream(bin);
+         int result = ois.readShort();
++        ois.close();
+ 
+         assertEquals(source, result);
+     }
+@@ -62,12 +64,14 @@
+         ByteArrayOutputStream out = new ByteArrayOutputStream();
+         OtrOutputStream oos = new OtrOutputStream(out);
+         oos.writeData(source);
++        oos.close();
+ 
+         byte[] converted = out.toByteArray();
+ 
+         ByteArrayInputStream bin = new ByteArrayInputStream(converted);
+         OtrInputStream ois = new OtrInputStream(bin);
+         byte[] result = ois.readData();
++        ois.close();
+ 
+         assertTrue(java.util.Arrays.equals(source, result));
+     }
+@@ -80,12 +84,14 @@
+         ByteArrayOutputStream out = new ByteArrayOutputStream();
+         OtrOutputStream oos = new OtrOutputStream(out);
+         oos.writeBigInt(source);
++        oos.close();
+ 
+         byte[] converted = out.toByteArray();
+ 
+         ByteArrayInputStream bin = new ByteArrayInputStream(converted);
+         OtrInputStream ois = new OtrInputStream(bin);
+         BigInteger result = ois.readBigInt();
++        ois.close();
+ 
+         assertTrue(source.compareTo(result) == 0);
+     }
+@@ -98,12 +104,14 @@
+         ByteArrayOutputStream out = new ByteArrayOutputStream();
+         OtrOutputStream oos = new OtrOutputStream(out);
+         oos.writeDHPublicKey(source);
++        oos.close();
+ 
+         byte[] converted = out.toByteArray();
+ 
+         ByteArrayInputStream bin = new ByteArrayInputStream(converted);
+         OtrInputStream ois = new OtrInputStream(bin);
+         DHPublicKey result = ois.readDHPublicKey();
++        ois.close();
+ 
+         assertTrue(source.getY().compareTo(result.getY()) == 0);
+     }";1
+Case_220_ChatSecure;ChatSecure;java.io.FilterInputStream;IOTest.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -46,12 +46,14 @@
+         ByteArrayOutputStream out = new ByteArrayOutputStream();
+         OtrOutputStream oos = new OtrOutputStream(out);
+         oos.writeShort(source);
++        oos.close();
+ 
+         byte[] converted = out.toByteArray();
+ 
+         ByteArrayInputStream bin = new ByteArrayInputStream(converted);
+         OtrInputStream ois = new OtrInputStream(bin);
+         int result = ois.readShort();
++        ois.close();
+ 
+         assertEquals(source, result);
+     }
+@@ -62,12 +64,14 @@
+         ByteArrayOutputStream out = new ByteArrayOutputStream();
+         OtrOutputStream oos = new OtrOutputStream(out);
+         oos.writeData(source);
++        oos.close();
+ 
+         byte[] converted = out.toByteArray();
+ 
+         ByteArrayInputStream bin = new ByteArrayInputStream(converted);
+         OtrInputStream ois = new OtrInputStream(bin);
+         byte[] result = ois.readData();
++        ois.close();
+ 
+         assertTrue(java.util.Arrays.equals(source, result));
+     }
+@@ -80,12 +84,14 @@
+         ByteArrayOutputStream out = new ByteArrayOutputStream();
+         OtrOutputStream oos = new OtrOutputStream(out);
+         oos.writeBigInt(source);
++        oos.close();
+ 
+         byte[] converted = out.toByteArray();
+ 
+         ByteArrayInputStream bin = new ByteArrayInputStream(converted);
+         OtrInputStream ois = new OtrInputStream(bin);
+         BigInteger result = ois.readBigInt();
++        ois.close();
+ 
+         assertTrue(source.compareTo(result) == 0);
+     }
+@@ -98,12 +104,14 @@
+         ByteArrayOutputStream out = new ByteArrayOutputStream();
+         OtrOutputStream oos = new OtrOutputStream(out);
+         oos.writeDHPublicKey(source);
++        oos.close();
+ 
+         byte[] converted = out.toByteArray();
+ 
+         ByteArrayInputStream bin = new ByteArrayInputStream(converted);
+         OtrInputStream ois = new OtrInputStream(bin);
+         DHPublicKey result = ois.readDHPublicKey();
++        ois.close();
+ 
+         assertTrue(source.getY().compareTo(result.getY()) == 0);
+     }";1
+Case_221_ChatSecure;ChatSecure;java.io.FilterInputStream;IOTest.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -46,12 +46,14 @@
+         ByteArrayOutputStream out = new ByteArrayOutputStream();
+         OtrOutputStream oos = new OtrOutputStream(out);
+         oos.writeShort(source);
++        oos.close();
+ 
+         byte[] converted = out.toByteArray();
+ 
+         ByteArrayInputStream bin = new ByteArrayInputStream(converted);
+         OtrInputStream ois = new OtrInputStream(bin);
+         int result = ois.readShort();
++        ois.close();
+ 
+         assertEquals(source, result);
+     }
+@@ -62,12 +64,14 @@
+         ByteArrayOutputStream out = new ByteArrayOutputStream();
+         OtrOutputStream oos = new OtrOutputStream(out);
+         oos.writeData(source);
++        oos.close();
+ 
+         byte[] converted = out.toByteArray();
+ 
+         ByteArrayInputStream bin = new ByteArrayInputStream(converted);
+         OtrInputStream ois = new OtrInputStream(bin);
+         byte[] result = ois.readData();
++        ois.close();
+ 
+         assertTrue(java.util.Arrays.equals(source, result));
+     }
+@@ -80,12 +84,14 @@
+         ByteArrayOutputStream out = new ByteArrayOutputStream();
+         OtrOutputStream oos = new OtrOutputStream(out);
+         oos.writeBigInt(source);
++        oos.close();
+ 
+         byte[] converted = out.toByteArray();
+ 
+         ByteArrayInputStream bin = new ByteArrayInputStream(converted);
+         OtrInputStream ois = new OtrInputStream(bin);
+         BigInteger result = ois.readBigInt();
++        ois.close();
+ 
+         assertTrue(source.compareTo(result) == 0);
+     }
+@@ -98,12 +104,14 @@
+         ByteArrayOutputStream out = new ByteArrayOutputStream();
+         OtrOutputStream oos = new OtrOutputStream(out);
+         oos.writeDHPublicKey(source);
++        oos.close();
+ 
+         byte[] converted = out.toByteArray();
+ 
+         ByteArrayInputStream bin = new ByteArrayInputStream(converted);
+         OtrInputStream ois = new OtrInputStream(bin);
+         DHPublicKey result = ois.readDHPublicKey();
++        ois.close();
+ 
+         assertTrue(source.getY().compareTo(result.getY()) == 0);
+     }";1
+Case_222_ChatSecure;ChatSecure;java.io.FilterInputStream;IOTest.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -46,12 +46,14 @@
+         ByteArrayOutputStream out = new ByteArrayOutputStream();
+         OtrOutputStream oos = new OtrOutputStream(out);
+         oos.writeShort(source);
++        oos.close();
+ 
+         byte[] converted = out.toByteArray();
+ 
+         ByteArrayInputStream bin = new ByteArrayInputStream(converted);
+         OtrInputStream ois = new OtrInputStream(bin);
+         int result = ois.readShort();
++        ois.close();
+ 
+         assertEquals(source, result);
+     }
+@@ -62,12 +64,14 @@
+         ByteArrayOutputStream out = new ByteArrayOutputStream();
+         OtrOutputStream oos = new OtrOutputStream(out);
+         oos.writeData(source);
++        oos.close();
+ 
+         byte[] converted = out.toByteArray();
+ 
+         ByteArrayInputStream bin = new ByteArrayInputStream(converted);
+         OtrInputStream ois = new OtrInputStream(bin);
+         byte[] result = ois.readData();
++        ois.close();
+ 
+         assertTrue(java.util.Arrays.equals(source, result));
+     }
+@@ -80,12 +84,14 @@
+         ByteArrayOutputStream out = new ByteArrayOutputStream();
+         OtrOutputStream oos = new OtrOutputStream(out);
+         oos.writeBigInt(source);
++        oos.close();
+ 
+         byte[] converted = out.toByteArray();
+ 
+         ByteArrayInputStream bin = new ByteArrayInputStream(converted);
+         OtrInputStream ois = new OtrInputStream(bin);
+         BigInteger result = ois.readBigInt();
++        ois.close();
+ 
+         assertTrue(source.compareTo(result) == 0);
+     }
+@@ -98,12 +104,14 @@
+         ByteArrayOutputStream out = new ByteArrayOutputStream();
+         OtrOutputStream oos = new OtrOutputStream(out);
+         oos.writeDHPublicKey(source);
++        oos.close();
+ 
+         byte[] converted = out.toByteArray();
+ 
+         ByteArrayInputStream bin = new ByteArrayInputStream(converted);
+         OtrInputStream ois = new OtrInputStream(bin);
+         DHPublicKey result = ois.readDHPublicKey();
++        ois.close();
+ 
+         assertTrue(source.getY().compareTo(result.getY()) == 0);
+     }";1
+Case_225_ChatSecure;ChatSecure;java.io.FilterOutputStream;SerializationUtils.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -73,6 +73,7 @@
+         oos.writeMysteriousT(t);
+         byte[] b = out.toByteArray();
+         out.close();
++        oos.close();
+         return b;
+     }
+ 
+@@ -83,6 +84,7 @@
+         oos.writeData(b);
+         byte[] otrb = out.toByteArray();
+         out.close();
++        oos.close();
+         return otrb;
+     }";1
+Case_226_ChatSecure;ChatSecure;java.io.FilterOutputStream;SerializationUtils.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -73,6 +73,7 @@
+         oos.writeMysteriousT(t);
+         byte[] b = out.toByteArray();
+         out.close();
++        oos.close();
+         return b;
+     }
+ 
+@@ -83,6 +84,7 @@
+         oos.writeData(b);
+         byte[] otrb = out.toByteArray();
+         out.close();
++        oos.close();
+         return otrb;
+     }";1
+Case_227_ChatSecure;ChatSecure;java.io.FilterOutputStream;SessionImpl.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -645,6 +645,7 @@
+                     try {
+                         eoos.writeShort(tlv.type);
+                         eoos.writeTlvData(tlv.value);
++                        eoos.close();
+                     } catch (IOException e) {
+                         throw new OtrException(e);
+                     }";1
+Case_228_ChatSecure;ChatSecure;java.io.FilterOutputStream;IOTest.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -46,12 +46,14 @@
+         ByteArrayOutputStream out = new ByteArrayOutputStream();
+         OtrOutputStream oos = new OtrOutputStream(out);
+         oos.writeShort(source);
++        oos.close();
+ 
+         byte[] converted = out.toByteArray();
+ 
+         ByteArrayInputStream bin = new ByteArrayInputStream(converted);
+         OtrInputStream ois = new OtrInputStream(bin);
+         int result = ois.readShort();
++        ois.close();
+ 
+         assertEquals(source, result);
+     }
+@@ -62,12 +64,14 @@
+         ByteArrayOutputStream out = new ByteArrayOutputStream();
+         OtrOutputStream oos = new OtrOutputStream(out);
+         oos.writeData(source);
++        oos.close();
+ 
+         byte[] converted = out.toByteArray();
+ 
+         ByteArrayInputStream bin = new ByteArrayInputStream(converted);
+         OtrInputStream ois = new OtrInputStream(bin);
+         byte[] result = ois.readData();
++        ois.close();
+ 
+         assertTrue(java.util.Arrays.equals(source, result));
+     }
+@@ -80,12 +84,14 @@
+         ByteArrayOutputStream out = new ByteArrayOutputStream();
+         OtrOutputStream oos = new OtrOutputStream(out);
+         oos.writeBigInt(source);
++        oos.close();
+ 
+         byte[] converted = out.toByteArray();
+ 
+         ByteArrayInputStream bin = new ByteArrayInputStream(converted);
+         OtrInputStream ois = new OtrInputStream(bin);
+         BigInteger result = ois.readBigInt();
++        ois.close();
+ 
+         assertTrue(source.compareTo(result) == 0);
+     }
+@@ -98,12 +104,14 @@
+         ByteArrayOutputStream out = new ByteArrayOutputStream();
+         OtrOutputStream oos = new OtrOutputStream(out);
+         oos.writeDHPublicKey(source);
++        oos.close();
+ 
+         byte[] converted = out.toByteArray();
+ 
+         ByteArrayInputStream bin = new ByteArrayInputStream(converted);
+         OtrInputStream ois = new OtrInputStream(bin);
+         DHPublicKey result = ois.readDHPublicKey();
++        ois.close();
+ 
+         assertTrue(source.getY().compareTo(result.getY()) == 0);
+     }";1
+Case_229_ChatSecure;ChatSecure;java.io.FilterOutputStream;IOTest.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -46,12 +46,14 @@
+         ByteArrayOutputStream out = new ByteArrayOutputStream();
+         OtrOutputStream oos = new OtrOutputStream(out);
+         oos.writeShort(source);
++        oos.close();
+ 
+         byte[] converted = out.toByteArray();
+ 
+         ByteArrayInputStream bin = new ByteArrayInputStream(converted);
+         OtrInputStream ois = new OtrInputStream(bin);
+         int result = ois.readShort();
++        ois.close();
+ 
+         assertEquals(source, result);
+     }
+@@ -62,12 +64,14 @@
+         ByteArrayOutputStream out = new ByteArrayOutputStream();
+         OtrOutputStream oos = new OtrOutputStream(out);
+         oos.writeData(source);
++        oos.close();
+ 
+         byte[] converted = out.toByteArray();
+ 
+         ByteArrayInputStream bin = new ByteArrayInputStream(converted);
+         OtrInputStream ois = new OtrInputStream(bin);
+         byte[] result = ois.readData();
++        ois.close();
+ 
+         assertTrue(java.util.Arrays.equals(source, result));
+     }
+@@ -80,12 +84,14 @@
+         ByteArrayOutputStream out = new ByteArrayOutputStream();
+         OtrOutputStream oos = new OtrOutputStream(out);
+         oos.writeBigInt(source);
++        oos.close();
+ 
+         byte[] converted = out.toByteArray();
+ 
+         ByteArrayInputStream bin = new ByteArrayInputStream(converted);
+         OtrInputStream ois = new OtrInputStream(bin);
+         BigInteger result = ois.readBigInt();
++        ois.close();
+ 
+         assertTrue(source.compareTo(result) == 0);
+     }
+@@ -98,12 +104,14 @@
+         ByteArrayOutputStream out = new ByteArrayOutputStream();
+         OtrOutputStream oos = new OtrOutputStream(out);
+         oos.writeDHPublicKey(source);
++        oos.close();
+ 
+         byte[] converted = out.toByteArray();
+ 
+         ByteArrayInputStream bin = new ByteArrayInputStream(converted);
+         OtrInputStream ois = new OtrInputStream(bin);
+         DHPublicKey result = ois.readDHPublicKey();
++        ois.close();
+ 
+         assertTrue(source.getY().compareTo(result.getY()) == 0);
+     }";1
+Case_230_ChatSecure;ChatSecure;java.io.FilterOutputStream;IOTest.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -46,12 +46,14 @@
+         ByteArrayOutputStream out = new ByteArrayOutputStream();
+         OtrOutputStream oos = new OtrOutputStream(out);
+         oos.writeShort(source);
++        oos.close();
+ 
+         byte[] converted = out.toByteArray();
+ 
+         ByteArrayInputStream bin = new ByteArrayInputStream(converted);
+         OtrInputStream ois = new OtrInputStream(bin);
+         int result = ois.readShort();
++        ois.close();
+ 
+         assertEquals(source, result);
+     }
+@@ -62,12 +64,14 @@
+         ByteArrayOutputStream out = new ByteArrayOutputStream();
+         OtrOutputStream oos = new OtrOutputStream(out);
+         oos.writeData(source);
++        oos.close();
+ 
+         byte[] converted = out.toByteArray();
+ 
+         ByteArrayInputStream bin = new ByteArrayInputStream(converted);
+         OtrInputStream ois = new OtrInputStream(bin);
+         byte[] result = ois.readData();
++        ois.close();
+ 
+         assertTrue(java.util.Arrays.equals(source, result));
+     }
+@@ -80,12 +84,14 @@
+         ByteArrayOutputStream out = new ByteArrayOutputStream();
+         OtrOutputStream oos = new OtrOutputStream(out);
+         oos.writeBigInt(source);
++        oos.close();
+ 
+         byte[] converted = out.toByteArray();
+ 
+         ByteArrayInputStream bin = new ByteArrayInputStream(converted);
+         OtrInputStream ois = new OtrInputStream(bin);
+         BigInteger result = ois.readBigInt();
++        ois.close();
+ 
+         assertTrue(source.compareTo(result) == 0);
+     }
+@@ -98,12 +104,14 @@
+         ByteArrayOutputStream out = new ByteArrayOutputStream();
+         OtrOutputStream oos = new OtrOutputStream(out);
+         oos.writeDHPublicKey(source);
++        oos.close();
+ 
+         byte[] converted = out.toByteArray();
+ 
+         ByteArrayInputStream bin = new ByteArrayInputStream(converted);
+         OtrInputStream ois = new OtrInputStream(bin);
+         DHPublicKey result = ois.readDHPublicKey();
++        ois.close();
+ 
+         assertTrue(source.getY().compareTo(result.getY()) == 0);
+     }";1
+Case_231_ChatSecure;ChatSecure;java.io.FilterOutputStream;IOTest.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -46,12 +46,14 @@
+         ByteArrayOutputStream out = new ByteArrayOutputStream();
+         OtrOutputStream oos = new OtrOutputStream(out);
+         oos.writeShort(source);
++        oos.close();
+ 
+         byte[] converted = out.toByteArray();
+ 
+         ByteArrayInputStream bin = new ByteArrayInputStream(converted);
+         OtrInputStream ois = new OtrInputStream(bin);
+         int result = ois.readShort();
++        ois.close();
+ 
+         assertEquals(source, result);
+     }
+@@ -62,12 +64,14 @@
+         ByteArrayOutputStream out = new ByteArrayOutputStream();
+         OtrOutputStream oos = new OtrOutputStream(out);
+         oos.writeData(source);
++        oos.close();
+ 
+         byte[] converted = out.toByteArray();
+ 
+         ByteArrayInputStream bin = new ByteArrayInputStream(converted);
+         OtrInputStream ois = new OtrInputStream(bin);
+         byte[] result = ois.readData();
++        ois.close();
+ 
+         assertTrue(java.util.Arrays.equals(source, result));
+     }
+@@ -80,12 +84,14 @@
+         ByteArrayOutputStream out = new ByteArrayOutputStream();
+         OtrOutputStream oos = new OtrOutputStream(out);
+         oos.writeBigInt(source);
++        oos.close();
+ 
+         byte[] converted = out.toByteArray();
+ 
+         ByteArrayInputStream bin = new ByteArrayInputStream(converted);
+         OtrInputStream ois = new OtrInputStream(bin);
+         BigInteger result = ois.readBigInt();
++        ois.close();
+ 
+         assertTrue(source.compareTo(result) == 0);
+     }
+@@ -98,12 +104,14 @@
+         ByteArrayOutputStream out = new ByteArrayOutputStream();
+         OtrOutputStream oos = new OtrOutputStream(out);
+         oos.writeDHPublicKey(source);
++        oos.close();
+ 
+         byte[] converted = out.toByteArray();
+ 
+         ByteArrayInputStream bin = new ByteArrayInputStream(converted);
+         OtrInputStream ois = new OtrInputStream(bin);
+         DHPublicKey result = ois.readDHPublicKey();
++        ois.close();
+ 
+         assertTrue(source.getY().compareTo(result.getY()) == 0);
+     }";1
+Case_232_K-9 Mail;K-9 Mail;java.io.InputStream;AccountSetupCheckSettings.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -478,8 +478,11 @@
+             }
+             Transport transport = Transport.getInstance(K9.app, account);
+             transport.close();
+-            transport.open();
+-            transport.close();
++            try {
++                transport.open();
++            } finally {
++                transport.close();
++            }
+         }
+ 
+         private void checkIncoming() throws MessagingException {";1
+Case_234_K-9 Mail;K-9 Mail;java.io.InputStream;AttachmentView.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -206,19 +206,21 @@
+     }
+ 
+     private Bitmap getPreviewIcon() {
++        Bitmap icon = null;
+         try {
+-            return BitmapFactory.decodeStream(
+-                       mContext.getContentResolver().openInputStream(
++            InputStream input = mContext.getContentResolver().openInputStream(
+                            AttachmentProvider.getAttachmentThumbnailUri(mAccount,
+                                    part.getAttachmentId(),
+                                    62,
+-                                   62)));
++                                   62));
++            icon = BitmapFactory.decodeStream(input);
++            input.close();
+         } catch (Exception e) {
+             /*
+              * We don't care what happened, we just return null for the preview icon.
+              */
+-            return null;
+-        }
++        }
++        return icon;
+     }
+ 
+     private void onViewButtonClicked() {";1
+Case_237_K-9 Mail;K-9 Mail;java.io.InputStream;LocalStore.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -39,6 +39,7 @@
+ import java.io.File;
+ import java.io.FileInputStream;
+ import java.io.FileNotFoundException;
++import java.io.IOException;
+ import java.io.InputStream;
+ import java.io.Serializable;
+ import java.util.ArrayList;
+@@ -717,12 +718,24 @@
+         }
+     }
+ 
+-    InputStream getDecodingInputStream(InputStream rawInputStream, String encoding) {
++    InputStream getDecodingInputStream(final InputStream rawInputStream, String encoding) {
+         if (MimeUtil.ENC_BASE64.equals(encoding)) {
+-            return new Base64InputStream(rawInputStream);
++            return new Base64InputStream(rawInputStream) {
++                @Override
++                public void close() throws IOException {
++                    super.close();
++                    rawInputStream.close();
++                }
++            };
+         }
+         if (MimeUtil.ENC_QUOTED_PRINTABLE.equals(encoding)) {
+-            return new QuotedPrintableInputStream(rawInputStream);
++            return new QuotedPrintableInputStream(rawInputStream) {
++                @Override
++                public void close() throws IOException {
++                    super.close();
++                    rawInputStream.close();
++                }
++            };
+         }
+ 
+         return rawInputStream;";1
+Case_261_Terminal;Terminal;java.io.InputStream;TermSession.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -75,6 +75,7 @@
+ 
+     private static final int NEW_INPUT = 1;
+     private static final int NEW_OUTPUT = 2;
++    private static final int FINISH = 3;
+ 
+     /**
+      * Callback to be invoked when a {@link TermSession} finishes.
+@@ -149,6 +150,8 @@
+                     public void handleMessage(Message msg) {
+                         if (msg.what == NEW_OUTPUT) {
+                             writeToOutput();
++                        } else if (msg.what == FINISH) {
++                            Looper.myLooper().quit();
+                         }
+                     }
+                 };
+@@ -461,11 +464,22 @@
+ 
+     /**
+      * Finish this terminal session.  Frees resources used by the terminal
+-     * emulator.
++     * emulator and closes the attached <code>InputStream</code> and
++     * <code>OutputStream</code>.
+      */
+     public void finish() {
+         mIsRunning = false;
+         mTranscriptScreen.finish();
++
++        // Stop the reader and writer threads, and close the I/O streams
++        mWriterHandler.sendEmptyMessage(FINISH);
++        try {
++            mTermIn.close();
++            mTermOut.close();
++        } catch (IOException e) {
++            // We don't care if this fails
++        }
++
+         if (mFinishCallback != null) {
+             mFinishCallback.onSessionFinish(this);
+         }";1
+Case_264_FBReaderJ;FBReaderJ;java.io.InputStreamReader;ZLOwnXMLParser.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -119,6 +119,7 @@
+ 		while (true) {
+ 			int count = streamReader.read(buffer);
+ 			if (count <= 0) {
++				streamReader.close();
+ 				return;
+ 			}
+ 			if (count < buffer.length) {";1
+Case_265_Hacker News;Hacker News;java.io.ObjectInputStream;FileUtil.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -3,6 +3,7 @@
+ import java.io.File;
+ import java.io.FileInputStream;
+ import java.io.FileOutputStream;
++import java.io.IOException;
+ import java.io.ObjectInputStream;
+ import java.io.ObjectOutputStream;
+ 
+@@ -22,23 +23,41 @@
+      * Returns null if no last feed was found or could not be parsed.
+      */
+     public static HNFeed getLastHNFeed() {
++    	ObjectInputStream obj = null;
+         try {
+-            ObjectInputStream obj = new ObjectInputStream(new FileInputStream(getLastHNFeedFilePath()));
++            obj = new ObjectInputStream(new FileInputStream(getLastHNFeedFilePath()));
+             Object rawHNFeed = obj.readObject();
+             if (rawHNFeed instanceof HNFeed)
+                 return (HNFeed) rawHNFeed;
+         } catch (Exception e) {
+             Log.e(TAG, ""Could not get last HNFeed from file :("", e);
++        } finally {
++        	if (obj!=null){
++        		try {
++					obj.close();
++				} catch (IOException e) {
++		            Log.e(TAG, ""Couldn't close last NH feed file :("", e);
++				}
++        	}
+         }
+         return null;
+     }
+ 
+     public static void setLastHNFeed(HNFeed hnFeed) {
++    	ObjectOutputStream os = null;
+         try {
+-            ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(getLastHNFeedFilePath()));
++            os = new ObjectOutputStream(new FileOutputStream(getLastHNFeedFilePath()));
+             os.writeObject(hnFeed);
+         } catch (Exception e) {
+             Log.e(TAG, ""Could not save last HNFeed to file :("", e);
++        } finally {
++        	if (os!=null){
++        		try {
++					os.close();
++				} catch (IOException e) {
++		            Log.e(TAG, ""Couldn't close last NH feed file :("", e);
++		        }
++        	}
+         }
+     }
+ 
+@@ -51,23 +70,41 @@
+      * Returns null if no last comments file was found or could not be parsed.
+      */
+     public static HNPostComments getLastHNPostComments(String postID) {
++    	ObjectInputStream obj = null;
+         try {
+-            ObjectInputStream obj = new ObjectInputStream(new FileInputStream(getLastHNPostCommentsPath(postID)));
++            obj = new ObjectInputStream(new FileInputStream(getLastHNPostCommentsPath(postID)));
+             Object rawHNComments = obj.readObject();
+             if (rawHNComments instanceof HNPostComments)
+                 return (HNPostComments) rawHNComments;
+         } catch (Exception e) {
+             Log.e(TAG, ""Could not get last HNPostComments from file :("", e);
++        } finally {
++        	if (obj!=null){
++        		try {
++					obj.close();
++				} catch (IOException e) {
++		            Log.e(TAG, ""Couldn't close last NH comments file :("", e);
++				}
++        	}
+         }
+         return null;
+     }
+ 
+     public static void setLastHNPostComments(HNPostComments comments, String postID) {
++    	ObjectOutputStream os = null;
+         try {
+-            ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(getLastHNPostCommentsPath(postID)));
++            os = new ObjectOutputStream(new FileOutputStream(getLastHNPostCommentsPath(postID)));
+             os.writeObject(comments);
+         } catch (Exception e) {
+             Log.e(TAG, ""Could not save last HNPostComments to file :("", e);
++        } finally {
++        	if (os!=null){
++        		try {
++					os.close();
++				} catch (IOException e) {
++		            Log.e(TAG, ""Couldn't close last NH comments file :("", e);
++		        }
++        	}
+         }
+     }";1
+Case_266_Hacker News;Hacker News;java.io.ObjectInputStream;FileUtil.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -3,6 +3,7 @@
+ import java.io.File;
+ import java.io.FileInputStream;
+ import java.io.FileOutputStream;
++import java.io.IOException;
+ import java.io.ObjectInputStream;
+ import java.io.ObjectOutputStream;
+ 
+@@ -22,23 +23,41 @@
+      * Returns null if no last feed was found or could not be parsed.
+      */
+     public static HNFeed getLastHNFeed() {
++    	ObjectInputStream obj = null;
+         try {
+-            ObjectInputStream obj = new ObjectInputStream(new FileInputStream(getLastHNFeedFilePath()));
++            obj = new ObjectInputStream(new FileInputStream(getLastHNFeedFilePath()));
+             Object rawHNFeed = obj.readObject();
+             if (rawHNFeed instanceof HNFeed)
+                 return (HNFeed) rawHNFeed;
+         } catch (Exception e) {
+             Log.e(TAG, ""Could not get last HNFeed from file :("", e);
++        } finally {
++        	if (obj!=null){
++        		try {
++					obj.close();
++				} catch (IOException e) {
++		            Log.e(TAG, ""Couldn't close last NH feed file :("", e);
++				}
++        	}
+         }
+         return null;
+     }
+ 
+     public static void setLastHNFeed(HNFeed hnFeed) {
++    	ObjectOutputStream os = null;
+         try {
+-            ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(getLastHNFeedFilePath()));
++            os = new ObjectOutputStream(new FileOutputStream(getLastHNFeedFilePath()));
+             os.writeObject(hnFeed);
+         } catch (Exception e) {
+             Log.e(TAG, ""Could not save last HNFeed to file :("", e);
++        } finally {
++        	if (os!=null){
++        		try {
++					os.close();
++				} catch (IOException e) {
++		            Log.e(TAG, ""Couldn't close last NH feed file :("", e);
++		        }
++        	}
+         }
+     }
+ 
+@@ -51,23 +70,41 @@
+      * Returns null if no last comments file was found or could not be parsed.
+      */
+     public static HNPostComments getLastHNPostComments(String postID) {
++    	ObjectInputStream obj = null;
+         try {
+-            ObjectInputStream obj = new ObjectInputStream(new FileInputStream(getLastHNPostCommentsPath(postID)));
++            obj = new ObjectInputStream(new FileInputStream(getLastHNPostCommentsPath(postID)));
+             Object rawHNComments = obj.readObject();
+             if (rawHNComments instanceof HNPostComments)
+                 return (HNPostComments) rawHNComments;
+         } catch (Exception e) {
+             Log.e(TAG, ""Could not get last HNPostComments from file :("", e);
++        } finally {
++        	if (obj!=null){
++        		try {
++					obj.close();
++				} catch (IOException e) {
++		            Log.e(TAG, ""Couldn't close last NH comments file :("", e);
++				}
++        	}
+         }
+         return null;
+     }
+ 
+     public static void setLastHNPostComments(HNPostComments comments, String postID) {
++    	ObjectOutputStream os = null;
+         try {
+-            ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(getLastHNPostCommentsPath(postID)));
++            os = new ObjectOutputStream(new FileOutputStream(getLastHNPostCommentsPath(postID)));
+             os.writeObject(comments);
+         } catch (Exception e) {
+             Log.e(TAG, ""Could not save last HNPostComments to file :("", e);
++        } finally {
++        	if (os!=null){
++        		try {
++					os.close();
++				} catch (IOException e) {
++		            Log.e(TAG, ""Couldn't close last NH comments file :("", e);
++		        }
++        	}
+         }
+     }";1
+Case_267_Hacker News;Hacker News;java.io.ObjectOutputStream;FileUtil.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -3,6 +3,7 @@
+ import java.io.File;
+ import java.io.FileInputStream;
+ import java.io.FileOutputStream;
++import java.io.IOException;
+ import java.io.ObjectInputStream;
+ import java.io.ObjectOutputStream;
+ 
+@@ -22,23 +23,41 @@
+      * Returns null if no last feed was found or could not be parsed.
+      */
+     public static HNFeed getLastHNFeed() {
++    	ObjectInputStream obj = null;
+         try {
+-            ObjectInputStream obj = new ObjectInputStream(new FileInputStream(getLastHNFeedFilePath()));
++            obj = new ObjectInputStream(new FileInputStream(getLastHNFeedFilePath()));
+             Object rawHNFeed = obj.readObject();
+             if (rawHNFeed instanceof HNFeed)
+                 return (HNFeed) rawHNFeed;
+         } catch (Exception e) {
+             Log.e(TAG, ""Could not get last HNFeed from file :("", e);
++        } finally {
++        	if (obj!=null){
++        		try {
++					obj.close();
++				} catch (IOException e) {
++		            Log.e(TAG, ""Couldn't close last NH feed file :("", e);
++				}
++        	}
+         }
+         return null;
+     }
+ 
+     public static void setLastHNFeed(HNFeed hnFeed) {
++    	ObjectOutputStream os = null;
+         try {
+-            ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(getLastHNFeedFilePath()));
++            os = new ObjectOutputStream(new FileOutputStream(getLastHNFeedFilePath()));
+             os.writeObject(hnFeed);
+         } catch (Exception e) {
+             Log.e(TAG, ""Could not save last HNFeed to file :("", e);
++        } finally {
++        	if (os!=null){
++        		try {
++					os.close();
++				} catch (IOException e) {
++		            Log.e(TAG, ""Couldn't close last NH feed file :("", e);
++		        }
++        	}
+         }
+     }
+ 
+@@ -51,23 +70,41 @@
+      * Returns null if no last comments file was found or could not be parsed.
+      */
+     public static HNPostComments getLastHNPostComments(String postID) {
++    	ObjectInputStream obj = null;
+         try {
+-            ObjectInputStream obj = new ObjectInputStream(new FileInputStream(getLastHNPostCommentsPath(postID)));
++            obj = new ObjectInputStream(new FileInputStream(getLastHNPostCommentsPath(postID)));
+             Object rawHNComments = obj.readObject();
+             if (rawHNComments instanceof HNPostComments)
+                 return (HNPostComments) rawHNComments;
+         } catch (Exception e) {
+             Log.e(TAG, ""Could not get last HNPostComments from file :("", e);
++        } finally {
++        	if (obj!=null){
++        		try {
++					obj.close();
++				} catch (IOException e) {
++		            Log.e(TAG, ""Couldn't close last NH comments file :("", e);
++				}
++        	}
+         }
+         return null;
+     }
+ 
+     public static void setLastHNPostComments(HNPostComments comments, String postID) {
++    	ObjectOutputStream os = null;
+         try {
+-            ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(getLastHNPostCommentsPath(postID)));
++            os = new ObjectOutputStream(new FileOutputStream(getLastHNPostCommentsPath(postID)));
+             os.writeObject(comments);
+         } catch (Exception e) {
+             Log.e(TAG, ""Could not save last HNPostComments to file :("", e);
++        } finally {
++        	if (os!=null){
++        		try {
++					os.close();
++				} catch (IOException e) {
++		            Log.e(TAG, ""Couldn't close last NH comments file :("", e);
++		        }
++        	}
+         }
+     }";1
+Case_268_Hacker News;Hacker News;java.io.ObjectOutputStream;FileUtil.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -3,6 +3,7 @@
+ import java.io.File;
+ import java.io.FileInputStream;
+ import java.io.FileOutputStream;
++import java.io.IOException;
+ import java.io.ObjectInputStream;
+ import java.io.ObjectOutputStream;
+ 
+@@ -22,23 +23,41 @@
+      * Returns null if no last feed was found or could not be parsed.
+      */
+     public static HNFeed getLastHNFeed() {
++    	ObjectInputStream obj = null;
+         try {
+-            ObjectInputStream obj = new ObjectInputStream(new FileInputStream(getLastHNFeedFilePath()));
++            obj = new ObjectInputStream(new FileInputStream(getLastHNFeedFilePath()));
+             Object rawHNFeed = obj.readObject();
+             if (rawHNFeed instanceof HNFeed)
+                 return (HNFeed) rawHNFeed;
+         } catch (Exception e) {
+             Log.e(TAG, ""Could not get last HNFeed from file :("", e);
++        } finally {
++        	if (obj!=null){
++        		try {
++					obj.close();
++				} catch (IOException e) {
++		            Log.e(TAG, ""Couldn't close last NH feed file :("", e);
++				}
++        	}
+         }
+         return null;
+     }
+ 
+     public static void setLastHNFeed(HNFeed hnFeed) {
++    	ObjectOutputStream os = null;
+         try {
+-            ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(getLastHNFeedFilePath()));
++            os = new ObjectOutputStream(new FileOutputStream(getLastHNFeedFilePath()));
+             os.writeObject(hnFeed);
+         } catch (Exception e) {
+             Log.e(TAG, ""Could not save last HNFeed to file :("", e);
++        } finally {
++        	if (os!=null){
++        		try {
++					os.close();
++				} catch (IOException e) {
++		            Log.e(TAG, ""Couldn't close last NH feed file :("", e);
++		        }
++        	}
+         }
+     }
+ 
+@@ -51,23 +70,41 @@
+      * Returns null if no last comments file was found or could not be parsed.
+      */
+     public static HNPostComments getLastHNPostComments(String postID) {
++    	ObjectInputStream obj = null;
+         try {
+-            ObjectInputStream obj = new ObjectInputStream(new FileInputStream(getLastHNPostCommentsPath(postID)));
++            obj = new ObjectInputStream(new FileInputStream(getLastHNPostCommentsPath(postID)));
+             Object rawHNComments = obj.readObject();
+             if (rawHNComments instanceof HNPostComments)
+                 return (HNPostComments) rawHNComments;
+         } catch (Exception e) {
+             Log.e(TAG, ""Could not get last HNPostComments from file :("", e);
++        } finally {
++        	if (obj!=null){
++        		try {
++					obj.close();
++				} catch (IOException e) {
++		            Log.e(TAG, ""Couldn't close last NH comments file :("", e);
++				}
++        	}
+         }
+         return null;
+     }
+ 
+     public static void setLastHNPostComments(HNPostComments comments, String postID) {
++    	ObjectOutputStream os = null;
+         try {
+-            ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(getLastHNPostCommentsPath(postID)));
++            os = new ObjectOutputStream(new FileOutputStream(getLastHNPostCommentsPath(postID)));
+             os.writeObject(comments);
+         } catch (Exception e) {
+             Log.e(TAG, ""Could not save last HNPostComments to file :("", e);
++        } finally {
++        	if (os!=null){
++        		try {
++					os.close();
++				} catch (IOException e) {
++		            Log.e(TAG, ""Couldn't close last NH comments file :("", e);
++		        }
++        	}
+         }
+     }";1
+Case_269_K-9 Mail;K-9 Mail;java.io.OutputStream;AccountSetupCheckSettings.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -478,8 +478,11 @@
+             }
+             Transport transport = Transport.getInstance(K9.app, account);
+             transport.close();
+-            transport.open();
+-            transport.close();
++            try {
++                transport.open();
++            } finally {
++                transport.close();
++            }
+         }
+ 
+         private void checkIncoming() throws MessagingException {";1
+Case_273_Terminal;Terminal;java.io.OutputStream;TermSession.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -75,6 +75,7 @@
+ 
+     private static final int NEW_INPUT = 1;
+     private static final int NEW_OUTPUT = 2;
++    private static final int FINISH = 3;
+ 
+     /**
+      * Callback to be invoked when a {@link TermSession} finishes.
+@@ -149,6 +150,8 @@
+                     public void handleMessage(Message msg) {
+                         if (msg.what == NEW_OUTPUT) {
+                             writeToOutput();
++                        } else if (msg.what == FINISH) {
++                            Looper.myLooper().quit();
+                         }
+                     }
+                 };
+@@ -461,11 +464,22 @@
+ 
+     /**
+      * Finish this terminal session.  Frees resources used by the terminal
+-     * emulator.
++     * emulator and closes the attached <code>InputStream</code> and
++     * <code>OutputStream</code>.
+      */
+     public void finish() {
+         mIsRunning = false;
+         mTranscriptScreen.finish();
++
++        // Stop the reader and writer threads, and close the I/O streams
++        mWriterHandler.sendEmptyMessage(FINISH);
++        try {
++            mTermIn.close();
++            mTermOut.close();
++        } catch (IOException e) {
++            // We don't care if this fails
++        }
++
+         if (mFinishCallback != null) {
+             mFinishCallback.onSessionFinish(this);
+         }";1
+Case_276_VLC;VLC;java.io.OutputStreamWriter;Logcat.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -48,15 +48,18 @@
+         BufferedWriter bw = new BufferedWriter(output);
+         String line;
+ 
+-        while ((line = br.readLine()) != null) {
+-            bw.write(line);
+-            bw.newLine();
++        try {
++            while ((line = br.readLine()) != null) {
++                bw.write(line);
++                bw.newLine();
++            }
++        }catch(Exception e) {}
++        finally {
++            bw.close();
++            output.close();
++            br.close();
++            input.close();
+         }
+-
+-        bw.close();
+-        output.close();
+-        br.close();
+-        input.close();
+     }
+ 
+     /**";1
+Case_277_K-9 Mail;K-9 Mail;java.io.PipedOutputStream;MessageCryptoHelper.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -194,6 +194,12 @@
+                     signatureBodyPart.writeTo(out);
+                 } catch (Exception e) {
+                     Log.e(K9.LOG_TAG, ""Exception while writing message to crypto provider"", e);
++                } finally {
++                    try {
++                        out.close();
++                    } catch (IOException e) {
++                        // don't care
++                    }
+                 }
+             }
+         }).start();
+@@ -215,6 +221,12 @@
+                     encryptionPayloadBody.writeTo(out);
+                 } catch (Exception e) {
+                     Log.e(K9.LOG_TAG, ""Exception while writing message to crypto provider"", e);
++                } finally {
++                    try {
++                        out.close();
++                    } catch (IOException e) {
++                        // don't care
++                    }
+                 }
+             }
+         }).start();";1
+Case_278_K-9 Mail;K-9 Mail;java.io.PipedOutputStream;MessageCryptoHelper.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -194,6 +194,12 @@
+                     signatureBodyPart.writeTo(out);
+                 } catch (Exception e) {
+                     Log.e(K9.LOG_TAG, ""Exception while writing message to crypto provider"", e);
++                } finally {
++                    try {
++                        out.close();
++                    } catch (IOException e) {
++                        // don't care
++                    }
+                 }
+             }
+         }).start();
+@@ -215,6 +221,12 @@
+                     encryptionPayloadBody.writeTo(out);
+                 } catch (Exception e) {
+                     Log.e(K9.LOG_TAG, ""Exception while writing message to crypto provider"", e);
++                } finally {
++                    try {
++                        out.close();
++                    } catch (IOException e) {
++                        // don't care
++                    }
+                 }
+             }
+         }).start();";1
+Case_279_K-9 Mail;K-9 Mail;java.net.Socket;AccountSetupCheckSettings.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -478,8 +478,11 @@
+             }
+             Transport transport = Transport.getInstance(K9.app, account);
+             transport.close();
+-            transport.open();
+-            transport.close();
++            try {
++                transport.open();
++            } finally {
++                transport.close();
++            }
+         }
+ 
+         private void checkIncoming() throws MessagingException {";1
+Case_280_IRCCloud;IRCCloud;java.net.Socket;GingerbreadImageProxy.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -129,6 +129,7 @@
+                 HttpRequest request = readRequest(client);
+                 if (isRunning)
+                     processRequest(request, client);
++                client.close();
+             } catch (SocketTimeoutException e) {
+                 // Do nothing
+             } catch (IOException e) {";1
+Case_281_K-9 Mail;K-9 Mail;java.util.concurrent.Semaphore;MessageProvider.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -840,12 +840,19 @@
+                             String sortOrder) throws Exception {
+             mSemaphore.acquire();
+ 
+-            final Cursor cursor;
+-            cursor = mDelegate.query(uri, projection, selection, selectionArgs, sortOrder);
++            Cursor cursor = null;
++            try {
++                cursor = mDelegate.query(uri, projection, selection, selectionArgs, sortOrder);
++            } finally {
++                if (cursor == null) {
++                    mSemaphore.release();
++                }
++            }
+ 
+             /* Android content resolvers can only process CrossProcessCursor instances */
+             if (!(cursor instanceof CrossProcessCursor)) {
+                 Log.w(K9.LOG_TAG, ""Unsupported cursor, returning null: "" + cursor);
++                mSemaphore.release();
+                 return null;
+             }";1
+Case_282_Bitcoin-wallet;Bitcoin-wallet;java.util.concurrent.Semaphore;DownloadListener.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -40,6 +40,10 @@
+     public void onChainDownloadStarted(Peer peer, int blocksLeft) {
+         startDownload(blocksLeft);
+         originalBlocksLeft = blocksLeft;
++        if (blocksLeft == 0) {
++            doneDownload();
++            done.release();
++        }
+     }
+ 
+     @Override";1
+Case_283_Ushahidi;Ushahidi;java.util.concurrent.Semaphore;OpenGeoSMSSender.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -60,11 +60,15 @@
+ 				mSem.release();
+ 				return;
+ 			}
+-			mPendingIntents.remove(mPendingIntents.size() - 1);
+-			if (mPendingIntents.isEmpty()) {
+-				mRecvRetVal = true;
+-				context.unregisterReceiver(this);
+-				mSem.release();
++
++			// Fix for a potential null object here
++			if (mPendingIntents != null) {
++				mPendingIntents.remove(mPendingIntents.size() - 1);
++				if (mPendingIntents.isEmpty()) {
++					mRecvRetVal = true;
++					context.unregisterReceiver(this);
++					mSem.release();
++				}
+ 			}
+ 		}";1
+Case_284_Bitcoin-wallet;Bitcoin-wallet;java.util.Formatter;ErrorReporter.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -290,11 +290,12 @@
+ 
+ 	private static void appendReport(final StringBuilder report, final File file, final int indent)
+ 	{
+-		final Formatter formatter = new Formatter(report);
+-
+ 		for (int i = 0; i < indent; i++)
+ 			report.append(""  - "");
++
++		final Formatter formatter = new Formatter(report);
+ 		formatter.format(""%tF %tT  %s  [%d]\n"", file.lastModified(), file.lastModified(), file.getName(), file.length());
++		formatter.close();
+ 
+ 		if (file.isDirectory())
+ 			for (final File f : file.listFiles())";1
+Case_285_Osmand;Osmand;java.util.logging.FileHandler;IndexBatchCreator.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -30,6 +30,7 @@
+ import java.util.logging.Handler;
+ import java.util.logging.LogManager;
+ import java.util.logging.Logger;
++import java.util.logging.Level;
+ import java.util.logging.SimpleFormatter;
+ 
+ import javax.xml.parsers.DocumentBuilderFactory;
+@@ -569,6 +570,7 @@
+ 				}
+ 				if(fh != null) {
+ 					LogManager.getLogManager().getLogger("""").removeHandler(fh);
++					fh.close();
+ 				}
+ 			} catch (Exception e) {
+ 				log.error(""Exception generating indexes for "" + f.getName(), e); //$NON-NLS-1$";1
+Case_286_Cgeo;Cgeo;java.util.Scanner;AbstractResourceInstrumentationTestCase.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -36,14 +36,19 @@
+     }
+ 
+     protected String getFileContent(int resourceId) {
+-        final InputStream ins = getResourceStream(resourceId);
+-        final String result = new Scanner(ins).useDelimiter(""\\A"").next();
++        Scanner scanner = null;
+         try {
+-            ins.close();
+-        } catch (IOException e) {
++            final InputStream ins = getResourceStream(resourceId);
++            scanner = new Scanner(ins);
++            return scanner.useDelimiter(""\\A"").next();
++        } catch (Exception e) {
+             e.printStackTrace();
++        } finally {
++            if (scanner != null) {
++                scanner.close();
++            }
+         }
+-        return result;
++        return null;
+     }
+ 
+     protected void copyResourceToFile(int resourceId, File file) throws IOException {";1
+Case_287_Cgeo;Cgeo;java.util.Scanner;AboutActivity.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -1,4 +1,7 @@
+ package cgeo.geocaching;
++
++import butterknife.ButterKnife;
++import butterknife.InjectView;
+ 
+ import cgeo.geocaching.activity.AbstractViewPagerActivity;
+ import cgeo.geocaching.compatibility.Compatibility;
+@@ -31,9 +34,6 @@
+ import java.util.List;
+ import java.util.Scanner;
+ 
+-import butterknife.ButterKnife;
+-import butterknife.InjectView;
+-
+ public class AboutActivity extends AbstractViewPagerActivity<AboutActivity.Page> {
+ 
+     private static final String EXTRA_ABOUT_STARTPAGE = ""cgeo.geocaching.extra.about.startpage"";
+@@ -60,8 +60,11 @@
+                 scanner = new Scanner(ins, CharEncoding.UTF_8);
+                 return scanner.useDelimiter(""\\A"").next();
+             } finally {
+-                IOUtils.closeQuietly(scanner);
+                 IOUtils.closeQuietly(ins);
++                // Scanner does not implement Closeable on Android 4.1, so closeQuietly leads to crash there
++                if (scanner != null) {
++                    scanner.close();
++                }
+             }
+         }";1
+Case_288_Bankdroid;Bankdroid;org.apache.http.impl.client.DefaultHttpClient;AccountActivity.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -144,6 +144,7 @@
+ 				Log.d(TAG, ""Updating ""+bank);
+ 				bank.update();
+ 				bank.updateAllTransactions();
++				bank.closeConnection();
+ 				Log.d(TAG, ""Saving ""+bank);
+ 				bank.save();
+ 				Log.d(TAG, ""Disabled: ""+bank.isDisabled());";1
+Case_289_Bankdroid;Bankdroid;org.apache.http.impl.client.DefaultHttpClient;AutoRefreshService.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -98,6 +98,7 @@
+     					refreshWidgets = true;
+     					bank.updateAllTransactions();
+     				}
++    				bank.closeConnection();
+     				db.updateBank(bank);
+     			} 
+     			catch (BankException e) {";1
+Case_290_Bankdroid;Bankdroid;org.apache.http.impl.client.DefaultHttpClient;BankdroidWidgetProvider.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -233,6 +233,7 @@
+ 				try {
+ 					if (!bank.isDisabled()) {
+ 						bank.update();
++						bank.closeConnection();
+ 						bank.save();
+ 					}
+ 					else {";1
+Case_291_Bankdroid;Bankdroid;org.apache.http.impl.client.DefaultHttpClient;DataRetrieverTask.java;"--- BuggyCode.java (Com Erro)
++++ GroundTruth_Fix.java (Corrigido)
+@@ -56,6 +56,7 @@
+ 			try {
+ 				bank.update();
+ 				bank.updateAllTransactions();
++				bank.closeConnection();
+ 				bank.save();
+ 				i++;
+ 			}";1
