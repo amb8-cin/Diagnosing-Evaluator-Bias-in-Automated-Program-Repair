@@ -65,7 +65,7 @@ def main():
     print("🚀 Iniciando o Torneio das LLMs...")
     
     arquivo_input = './data_bases/holdout_300_bugs_llm.csv'
-    arquivo_output = './data_bases/resultados_torneio_llms.csv'
+    arquivo_output = './data_bases/05_results/resultados_torneio_llms.csv'
     
     if not os.path.exists(arquivo_input):
         print(f"❌ Erro: O arquivo {arquivo_input} não foi encontrado!")

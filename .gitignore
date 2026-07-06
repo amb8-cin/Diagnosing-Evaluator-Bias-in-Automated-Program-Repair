@@ -3,3 +3,4 @@
 /models/*.pkl
 /data/**/*.pkl
 *.env
+/artifacts/images

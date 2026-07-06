@@ -20,7 +20,7 @@ def main():
     
     # 1. CARREGAR OS DADOS
     print("1. A carregar o dataset de treino filtrado...")
-    df_completo = pd.read_csv('./data_bases/treino_validador_final.csv', sep=';')
+    df_completo = pd.read_csv('./data_bases/04_final/treino_validador_final.csv', sep=';')
     print(f"   -> Total de exemplos carregados para treino: {len(df_completo)}")
 
     # 2. LIMPEZA DE DADOS
