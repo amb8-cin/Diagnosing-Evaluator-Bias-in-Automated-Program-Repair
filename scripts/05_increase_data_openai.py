@@ -73,10 +73,10 @@ def gerar_sinteticos_com_chatgpt(codigo_bug, codigo_fix, classe_recurso):
 def main():
     print("🚀 A iniciar o Aumento de Dados com o ChatGPT (MODO BLINDADO)...\n")
     
-    ARQUIVO_SAIDA = './data_bases/04_final/dataset_sintetico_chatgpt.csv'
+    ARQUIVO_SAIDA = './data_bases/04_final/dataset_synthetic_chatgpt.csv'
     
     # 1. Carregar os dados originais
-    df = pd.read_csv('.data_bases/03_processed/dataset_balanceado.csv', sep=';')
+    df = pd.read_csv('.data_bases/03_processed/balanced_dataset.csv', sep=';')
     
     casos_ja_processados = set()
     novos_dados_sinteticos = []

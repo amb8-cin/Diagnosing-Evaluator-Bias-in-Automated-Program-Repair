@@ -3,8 +3,8 @@ import git
 import os
 import shutil
 
-# Dicionário com os links do GitHub das aplicações
-MAPA_URLS_GITHUB = {
+# Dictionary with GitHub links for applications
+GITHUB_URL_MAP = {
     "AnkiDroid": "https://github.com/ankidroid/Anki-Android.git",
     "AnySoftKeyboard": "https://github.com/AnySoftKeyboard/AnySoftKeyboard.git",
     "Osmand": "https://github.com/osmandapp/OsmAnd.git",
@@ -39,77 +39,77 @@ MAPA_URLS_GITHUB = {
     "Hacker News": "https://github.com/manmal/hn-android.git"
 }
 
-def procurar_ficheiro_nas_subpastas(pasta_raiz, nome_ficheiro):
-    """Vasculha todas as subpastas até encontrar o ficheiro desejado"""
-    nome_alvo = os.path.basename(nome_ficheiro)
+def find_file_in_subfolders(root_folder, file_name):
+    """Searches all subfolders until the desired file is found"""
+    target_name = os.path.basename(file_name)
     
-    for root, dirs, files in os.walk(pasta_raiz):
-        if nome_alvo in files:
-            return os.path.join(root, nome_alvo)
+    for root, dirs, files in os.walk(root_folder):
+        if target_name in files:
+            return os.path.join(root, target_name)
             
     return None
 
-def extrair_casos_para_experimento(csv_path, repos_dir, output_dir, log_path):
-    print(f"A iniciar a extração... O relatório de erros será guardado em: {log_path}")
+def extract_experiment_cases(csv_path, repos_dir, output_dir, log_path):
+    print(f"Starting extraction... The error report will be saved to: {log_path}")
     
     os.makedirs(repos_dir, exist_ok=True)
     os.makedirs(output_dir, exist_ok=True)
     
-    # Abrimos o arquivo de log para escrever os erros
+    # Open the log file to write errors
     with open(log_path, 'w', encoding='utf-8') as log_file:
         
-        def registrar_falha(mensagem):
-            # Escreve a falha no arquivo de log
-            log_file.write(mensagem + '\n')
+        def log_failure(message):
+            # Writes the failure to the log file
+            log_file.write(message + '\n')
         
         try:
             df = pd.read_excel(csv_path)
         except Exception as e:
-            msg = f"Erro fatal ao ler o ficheiro Excel: {e}"
+            msg = f"Fatal error reading Excel file: {e}"
             print(msg)
-            registrar_falha(msg)
+            log_failure(msg)
             return
 
-        casos_validos = df[df['Use in experiments?'] == 'yes']
+        valid_cases = df[df['Use in experiments?'] == 'yes']
 
-        for index, row in casos_validos.iterrows():
+        for index, row in valid_cases.iterrows():
             app_name = str(row['App name']).strip()
             bug_hash = str(row['Buggy revision']).strip()
             fix_hash = str(row['Fix revision']).strip()
-            file_path_bruto = str(row['Buggy file']).strip()
+            raw_file_path = str(row['Buggy file']).strip()
             resource_class = str(row['Concerned Class']).strip()
             
-            # Limpeza do nome do ficheiro
-            if '.java' in file_path_bruto:
-                file_path = file_path_bruto.split('.java')[0] + '.java'
+            # Cleaning up file name
+            if '.java' in raw_file_path:
+                file_path = raw_file_path.split('.java')[0] + '.java'
             else:
-                file_path = file_path_bruto
+                file_path = raw_file_path
             
-            if pd.isna(app_name) or pd.isna(bug_hash) or pd.isna(file_path_bruto) or app_name == 'nan':
+            if pd.isna(app_name) or pd.isna(bug_hash) or pd.isna(raw_file_path) or app_name == 'nan':
                 continue
 
-            # Mostra no terminal apenas o progresso
-            print(f"Processando Caso {index}: {app_name}...")
+            # Shows only progress in the terminal
+            print(f"Processing Case {index}: {app_name}...")
             
-            prefixo_erro = f"[Caso {index} - {app_name}]"
+            error_prefix = f"[Case {index} - {app_name}]"
             
-            if app_name not in MAPA_URLS_GITHUB:
-                registrar_falha(f"{prefixo_erro} ⚠️ Aviso: Não tenho o link do GitHub para a aplicação. A saltar.")
+            if app_name not in GITHUB_URL_MAP:
+                log_failure(f"{error_prefix} ⚠️ Warning: GitHub link for application not found. Skipping.")
                 continue
                 
-            repo_url = MAPA_URLS_GITHUB[app_name]
+            repo_url = GITHUB_URL_MAP[app_name]
             repo_path = os.path.join(repos_dir, app_name)
             case_output = os.path.join(output_dir, f"Case_{index:03d}_{app_name}")
             
-            # 1. CLONAR O REPOSITÓRIO
+            # 1. CLONE THE REPOSITORY
             if not os.path.exists(repo_path):
                 try:
                     git.Repo.clone_from(repo_url, repo_path)
                 except Exception as e:
-                    registrar_falha(f"{prefixo_erro} ❌ Erro ao clonar o repositório: {e}")
+                    log_failure(f"{error_prefix} ❌ Error cloning repository: {e}")
                     continue
 
-            # 2. EXTRAIR OS FICHEIROS
+            # 2. EXTRACT FILES
             os.makedirs(case_output, exist_ok=True)
             with open(os.path.join(case_output, "metadata.txt"), "w") as meta:
                 meta.write(f"App: {app_name}\nResource: {resource_class}\nBuggy File: {file_path}\n")
@@ -117,42 +117,42 @@ def extrair_casos_para_experimento(csv_path, repos_dir, output_dir, log_path):
             try:
                 repo = git.Repo(repo_path)
                 
-                # Extrair Buggy
+                # Extract Buggy
                 repo.git.reset('--hard')
                 repo.git.clean('-fd')
                 repo.git.checkout(bug_hash)
                 
-                caminho_real_buggy = procurar_ficheiro_nas_subpastas(repo_path, file_path)
-                if caminho_real_buggy:
-                    shutil.copy2(caminho_real_buggy, os.path.join(case_output, "BuggyCode.java"))
+                actual_buggy_path = find_file_in_subfolders(repo_path, file_path)
+                if actual_buggy_path:
+                    shutil.copy2(actual_buggy_path, os.path.join(case_output, "BuggyCode.java"))
                 else:
-                    registrar_falha(f"{prefixo_erro} ⚠️ Ficheiro Buggy não encontrado em nenhuma subpasta: {file_path}")
+                    log_failure(f"{error_prefix} ⚠️ Buggy file not found in any subfolder: {file_path}")
                 
-                # Extrair Fix
+                # Extract Fix
                 repo.git.reset('--hard')
                 repo.git.clean('-fd')
                 repo.git.checkout(fix_hash)
                 
-                caminho_real_fix = procurar_ficheiro_nas_subpastas(repo_path, file_path)
-                if caminho_real_fix:
-                    shutil.copy2(caminho_real_fix, os.path.join(case_output, "GroundTruth_Fix.java"))
+                actual_fix_path = find_file_in_subfolders(repo_path, file_path)
+                if actual_fix_path:
+                    shutil.copy2(actual_fix_path, os.path.join(case_output, "GroundTruth_Fix.java"))
                 else:
-                    registrar_falha(f"{prefixo_erro} ⚠️ Ficheiro Fix não encontrado em nenhuma subpasta: {file_path}")
+                    log_failure(f"{error_prefix} ⚠️ Fix file not found in any subfolder: {file_path}")
                         
             except git.exc.GitCommandError as e:
-                registrar_falha(f"{prefixo_erro} ❌ Erro do Git (hash possivelmente incorreto): {e}")
+                log_failure(f"{error_prefix} ❌ Git error (possibly incorrect hash): {e}")
             except Exception as e:
-                registrar_falha(f"{prefixo_erro} ❌ Erro inesperado ao processar: {e}")
+                log_failure(f"{error_prefix} ❌ Unexpected error while processing: {e}")
 
 # ==========================================
-# COMO EXECUTAR - DROIDLEAKS
+# HOW TO RUN - DROIDLEAKS
 # ==========================================
 if __name__ == "__main__":
-    ARQUIVO_CSV = 'C:/Dissertacao/data_bases/01_raw/droidleaks.xlsx'
-    PASTA_REPOSITORIOS = 'C:/Dissertacao/data_bases/01_raw/repositorios_droidleaks'
-    PASTA_EXPERIMENTO = 'C:/Dissertacao/data_bases/02_extracted'
+    CSV_FILE = 'C:/Dissertacao/data_bases/01_raw/droidleaks.xlsx'
+    REPOSITORIES_FOLDER = 'C:/Dissertacao/data_bases/01_raw/repositorios_droidleaks/'
+    EXPERIMENT_FOLDER = 'C:/Dissertacao/data_bases/02_extracted'
     
-    # Caminho do novo arquivo de LOG
-    ARQUIVO_LOG = 'C:/Users/andrezza.bonfim/Documents/docs meus/Mestrado/dissertação/repositorios_droidleaks/relatorio_falhas.txt'
+    # Path to the new LOG file
+    LOG_FILE = 'C:/Users/andrezza.bonfim/Documents/docs meus/Mestrado/dissertação/repositorios_droidleaks/relatorio_falhas.txt'
     
-    extrair_casos_para_experimento(ARQUIVO_CSV, PASTA_REPOSITORIOS, PASTA_EXPERIMENTO, ARQUIVO_LOG)
+    extract_experiment_cases(CSV_FILE, REPOSITORIES_FOLDER, EXPERIMENT_FOLDER, LOG_FILE)
