@@ -1,4 +1,4 @@
-﻿ID_Caso;Aplicacao;Classe_Recurso;Codigo_Snippet;Tem_Fuga_de_Recurso
+﻿Case_ID;Application;Classe_Recurso;Codigo_Snippet;Has_Resource_Leak
 Case_003_AnkiDroid_BUG;AnkiDroid;android.database.Cursor;"}
                 revYesRate = cur.getDouble(0);
                 revTime = cur.getDouble(1);

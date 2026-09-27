@@ -1,0 +1,3258 @@
+Case_ID,Application,Classe_Recurso,code_with_bug,Has_Resource_Leak
+Case_006_AnkiDroid_SINTETICO_1_BUG,App de Musica,android.database.Cursor,"public boolean existsTrack(String trackId) {
+    return getReadableDatabase().rawQuery(""SELECT 1 FROM tracks WHERE id = '"" + trackId + ""'"", null).moveToFirst();
+}
+
+public String getTrackTitle(String trackId) {
+    Cursor cursor = getReadableDatabase().rawQuery(""SELECT title FROM tracks WHERE id = '"" + trackId + ""'"", null);
+    if (cursor.moveToFirst()) {
+        return cursor.getString(0);
+    }
+    return null;
+}",1
+Case_006_AnkiDroid_SINTETICO_2_BUG,App de Scanner de Documentos,android.database.Cursor,"public int countPages(String documentId) {
+    Cursor cur = db.rawQuery(""SELECT page_count FROM documents WHERE doc_id = '"" + documentId + ""'"", null);
+    if (cur.moveToFirst()) {
+        return cur.getInt(0);
+    }
+    return 0;
+}
+
+public boolean hasOCRResult(String documentId) {
+    return db.rawQuery(""SELECT 1 FROM ocr_results WHERE doc_id = '"" + documentId + ""'"", null).moveToNext();
+}",1
+Case_006_AnkiDroid_SINTETICO_3_BUG,App de Fitness,android.database.Cursor,"public double getWorkoutCalories(String workoutId) {
+    Cursor c = database.rawQuery(""SELECT calories FROM workouts WHERE id = '"" + workoutId + ""'"", null);
+    if (c.moveToFirst()) {
+        return c.getDouble(0);
+    }
+    throw new IllegalStateException(""Workout not found"");
+}
+
+public boolean isWorkoutCompleted(String workoutId) {
+    return database.rawQuery(""SELECT completed FROM workouts WHERE id = '"" + workoutId + ""'"", null).moveToFirst();
+}",1
+Case_006_AnkiDroid_SINTETICO_4_BUG,App de E-commerce,android.database.Cursor,"public int getStock(String sku) {
+    Cursor cursor = db.rawQuery(""SELECT stock FROM inventory WHERE sku = '"" + sku + ""'"", null);
+    if (cursor.moveToFirst()) {
+        return cursor.getInt(0);
+    }
+    return -1;
+}
+
+public boolean productExists(String sku) {
+    return db.rawQuery(""SELECT 1 FROM inventory WHERE sku = '"" + sku + ""'"", null).moveToNext();
+}",1
+Case_006_AnkiDroid_SINTETICO_5_BUG,App de Navegação,android.database.Cursor,"public double getRouteDistance(String routeId) {
+    Cursor cur = getDatabase().rawQuery(""SELECT distance_km FROM routes WHERE route_id = '"" + routeId + ""'"", null);
+    if (cur.moveToFirst()) {
+        return cur.getDouble(0);
+    }
+    return 0.0;
+}
+
+public boolean routeHasTolls(String routeId) {
+    return getDatabase().rawQuery(""SELECT tolls FROM routes WHERE route_id = '"" + routeId + ""'"", null).moveToNext();
+}",1
+Case_006_AnkiDroid_SINTETICO_6_BUG,App de Chat,android.database.Cursor,"public String getLastMessage(String conversationId) {
+    Cursor c = sqlite.rawQuery(""SELECT message FROM messages WHERE conversation_id = '"" + conversationId + ""' ORDER BY sent_at DESC LIMIT 1"", null);
+    if (c.moveToFirst()) {
+        return c.getString(0);
+    }
+    return """";
+}
+
+public boolean hasUnreadMessages(String conversationId) {
+    return sqlite.rawQuery(""SELECT 1 FROM messages WHERE conversation_id = '"" + conversationId + ""' AND read = 0"", null).moveToNext();
+}",1
+Case_006_AnkiDroid_SINTETICO_7_BUG,App de Receita/Culinária,android.database.Cursor,"public String getRecipeName(String recipeId) {
+    Cursor cursor = db.rawQuery(""SELECT name FROM recipes WHERE id = '"" + recipeId + ""'"", null);
+    if (cursor.moveToFirst()) {
+        return cursor.getString(0);
+    }
+    return null;
+}
+
+public int getRecipeTime(String recipeId) {
+    Cursor cursor = db.rawQuery(""SELECT time_minutes FROM recipes WHERE id = '"" + recipeId + ""'"", null);
+    if (cursor.moveToFirst()) {
+        return cursor.getInt(0);
+    }
+    return 0;
+}",1
+Case_006_AnkiDroid_SINTETICO_8_BUG,App de Fotos,android.database.Cursor,"public boolean photoExists(String photoId) {
+    return database.rawQuery(""SELECT 1 FROM photos WHERE id = '"" + photoId + ""'"", null).moveToFirst();
+}
+
+public long getPhotoTimestamp(String photoId) {
+    Cursor cur = database.rawQuery(""SELECT taken_at FROM photos WHERE id = '"" + photoId + ""'"", null);
+    if (cur.moveToFirst()) {
+        return cur.getLong(0);
+    }
+    return -1L;
+}",1
+Case_006_AnkiDroid_SINTETICO_9_BUG,App de Transporte/Carpool,android.database.Cursor,"public int getAvailableSeats(String rideId) {
+    Cursor c = db.rawQuery(""SELECT seats_left FROM rides WHERE id = '"" + rideId + ""'"", null);
+    if (c.moveToFirst()) {
+        return c.getInt(0);
+    }
+    return 0;
+}
+
+public boolean isRideActive(String rideId) {
+    return db.rawQuery(""SELECT active FROM rides WHERE id = '"" + rideId + ""'"", null).moveToNext();
+}",1
+Case_006_AnkiDroid_SINTETICO_10_BUG,App de Saúde,android.database.Cursor,"public float getAverageHeartRate(String patientId) {
+    Cursor cursor = db.rawQuery(""SELECT avg_hr FROM vitals WHERE patient_id = '"" + patientId + ""'"", null);
+    if (cursor.moveToFirst()) {
+        return cursor.getFloat(0);
+    }
+    return 0f;
+}
+
+public boolean hasRecentAlert(String patientId) {
+    return db.rawQuery(""SELECT 1 FROM alerts WHERE patient_id = '"" + patientId + ""' AND acknowledged = 0"", null).moveToNext();
+}",1
+Case_029_Osmand_SINTETICO_1_BUG,App de Musica,android.database.Cursor,"public List<Song> loadRecentSongs(Context context) {
+    List<Song> songs = new ArrayList<>();
+    Cursor cursor = context.getContentResolver().query(
+            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+            new String[]{MediaStore.Audio.Media._ID, MediaStore.Audio.Media.TITLE},
+            null,
+            null,
+            MediaStore.Audio.Media.DATE_ADDED + "" DESC"");
+    if (cursor != null) {
+        while (cursor.moveToNext()) {
+            songs.add(new Song(cursor.getLong(0), cursor.getString(1)));
+        }
+    }
+    return songs;
+}",1
+Case_029_Osmand_SINTETICO_2_BUG,App de Scanner de Documentos,android.database.Cursor,"public List<PageInfo> getScannedPages(SQLiteDatabase db, long documentId) {
+    List<PageInfo> pages = new ArrayList<>();
+    Cursor cursor = db.rawQuery(
+            ""SELECT page_number, file_path FROM scanned_pages WHERE document_id=? ORDER BY page_number"",
+            new String[]{String.valueOf(documentId)});
+    if (cursor.moveToFirst()) {
+        do {
+            pages.add(new PageInfo(cursor.getInt(0), cursor.getString(1)));
+        } while (cursor.moveToNext());
+    }
+    return pages;
+}",1
+Case_029_Osmand_SINTETICO_3_BUG,App de Fitness,android.database.Cursor,"public int countCompletedWorkouts(SQLiteDatabase db, long userId) {
+    int count = 0;
+    Cursor cursor = db.query(
+            ""workouts"",
+            new String[]{""id""},
+            ""user_id=? AND completed=1"",
+            new String[]{String.valueOf(userId)},
+            null,
+            null,
+            null);
+    if (cursor != null && cursor.moveToFirst()) {
+        do {
+            count++;
+        } while (cursor.moveToNext());
+    }
+    return count;
+}",1
+Case_029_Osmand_SINTETICO_4_BUG,App de E-commerce,android.database.Cursor,"public List<Product> loadWishlist(Context context, long customerId) {
+    List<Product> products = new ArrayList<>();
+    Cursor cursor = context.getContentResolver().query(
+            Uri.parse(""content://com.shop.provider/wishlist""),
+            new String[]{""product_id"", ""name"", ""price""},
+            ""customer_id=?"",
+            new String[]{String.valueOf(customerId)},
+            ""added_at DESC"");
+    if (cursor != null) {
+        while (cursor.moveToNext()) {
+            products.add(new Product(cursor.getLong(0), cursor.getString(1), cursor.getDouble(2)));
+        }
+    }
+    return products;
+}",1
+Case_029_Osmand_SINTETICO_5_BUG,App de Notícias,android.database.Cursor,"public List<Article> getBookmarkedArticles(SQLiteDatabase db) {
+    List<Article> result = new ArrayList<>();
+    Cursor cursor = db.rawQuery(""SELECT id, title, url FROM articles WHERE bookmarked=1 ORDER BY updated_at DESC"", null);
+    while (cursor != null && cursor.moveToNext()) {
+        result.add(new Article(cursor.getLong(0), cursor.getString(1), cursor.getString(2)));
+    }
+    return result;
+}",1
+Case_029_Osmand_SINTETICO_6_BUG,App de Mensagens,android.database.Cursor,"public List<Conversation> getActiveConversations(Context context) {
+    List<Conversation> conversations = new ArrayList<>();
+    Cursor cursor = context.getContentResolver().query(
+            MessagesContract.Conversations.CONTENT_URI,
+            new String[]{""_id"", ""title"", ""last_message""},
+            ""archived=0"",
+            null,
+            ""last_message_time DESC"");
+    if (cursor != null && cursor.moveToFirst()) {
+        do {
+            conversations.add(new Conversation(cursor.getLong(0), cursor.getString(1), cursor.getString(2)));
+        } while (cursor.moveToNext());
+    }
+    return conversations;
+}",1
+Case_029_Osmand_SINTETICO_7_BUG,App de Mapas,android.database.Cursor,"public List<PointOfInterest> findNearbyPlaces(SQLiteDatabase db, double lat, double lng) {
+    List<PointOfInterest> list = new ArrayList<>();
+    Cursor cursor = db.rawQuery(
+            ""SELECT id, name, category FROM places WHERE lat BETWEEN ? AND ? AND lng BETWEEN ? AND ?"",
+            new String[]{String.valueOf(lat - 0.01), String.valueOf(lat + 0.01), String.valueOf(lng - 0.01), String.valueOf(lng + 0.01)});
+    if (cursor != null) {
+        do {
+            if (!cursor.moveToFirst()) break;
+            list.add(new PointOfInterest(cursor.getLong(0), cursor.getString(1), cursor.getString(2)));
+        } while (cursor.moveToNext());
+    }
+    return list;
+}",1
+Case_029_Osmand_SINTETICO_8_BUG,App de Leitura de E-books,android.database.Cursor,"public List<Highlight> loadHighlights(Context context, long bookId) {
+    List<Highlight> highlights = new ArrayList<>();
+    Cursor cursor = context.getContentResolver().query(
+            Uri.parse(""content://com.reader.highlights/highlights""),
+            new String[]{""_id"", ""text"", ""page""},
+            ""book_id=?"",
+            new String[]{String.valueOf(bookId)},
+            ""page ASC"");
+    if (cursor != null) {
+        while (cursor.moveToNext()) {
+            highlights.add(new Highlight(cursor.getLong(0), cursor.getString(1), cursor.getInt(2)));
+        }
+    }
+    return highlights;
+}",1
+Case_029_Osmand_SINTETICO_9_BUG,App de Receitas,android.database.Cursor,"public List<Recipe> searchRecipes(SQLiteDatabase db, String queryText) {
+    List<Recipe> recipes = new ArrayList<>();
+    Cursor cursor = db.rawQuery(
+            ""SELECT id, title, prep_time FROM recipes WHERE title LIKE ?"",
+            new String[]{""%"" + queryText + ""%""});
+    if (cursor.moveToFirst()) {
+        do {
+            recipes.add(new Recipe(cursor.getLong(0), cursor.getString(1), cursor.getInt(2)));
+        } while (cursor.moveToNext());
+    }
+    return recipes;
+}",1
+Case_029_Osmand_SINTETICO_10_BUG,App de Viagens,android.database.Cursor,"public List<Hotel> getSavedHotels(Context context) {
+    List<Hotel> hotels = new ArrayList<>();
+    Cursor cursor = context.getContentResolver().query(
+            Uri.parse(""content://com.travel.provider/hotels""),
+            new String[]{""hotel_id"", ""name"", ""city""},
+            ""saved=1"",
+            null,
+            ""rating DESC"");
+    if (cursor != null && cursor.moveToFirst()) {
+        do {
+            hotels.add(new Hotel(cursor.getLong(0), cursor.getString(1), cursor.getString(2)));
+        } while (cursor.moveToNext());
+    }
+    return hotels;
+}",1
+Case_029_Osmand_SINTETICO_11_BUG,App de Educação,android.database.Cursor,"public List<StudentGrade> loadGrades(SQLiteDatabase db, long classId) {
+    List<StudentGrade> grades = new ArrayList<>();
+    Cursor cursor = db.query(
+            ""grades"",
+            new String[]{""student_id"", ""score"", ""subject""},
+            ""class_id=?"",
+            new String[]{String.valueOf(classId)},
+            null,
+            null,
+            ""subject ASC"");
+    while (cursor != null && cursor.moveToNext()) {
+        grades.add(new StudentGrade(cursor.getLong(0), cursor.getFloat(1), cursor.getString(2)));
+    }
+    return grades;
+}",1
+Case_049_Owncloud_SINTETICO_1_BUG,App de Musica,android.database.Cursor,"Cursor c = null;
+try {
+    c = db.query(TracksTable.TABLE, new String[]{TracksTable.COL_URL}, TracksTable.COL_ID + ""=?"", new String[]{trackId}, null, null, null);
+    if (c != null && c.moveToFirst()) {
+        streamUrl = c.getString(c.getColumnIndex(TracksTable.COL_URL));
+    }
+    player.prepare(streamUrl);
+} finally {
+    // cursor not closed
+}",1
+Case_049_Owncloud_SINTETICO_2_BUG,App de Scanner de Documentos,android.database.Cursor,"Cursor cursor = resolver.query(docUri, projection, null, null, null);
+if (cursor != null && cursor.moveToFirst()) {
+    fileName = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME));
+    pageCount = cursor.getInt(cursor.getColumnIndex(ScanTable.COL_PAGE_COUNT));
+}
+startUpload(fileName, pageCount);",1
+Case_049_Owncloud_SINTETICO_3_BUG,App de Fitness,android.database.Cursor,"Cursor c = workoutDb.rawQuery(""SELECT duration, calories FROM workouts WHERE session_id=?"", new String[]{sessionId});
+if (c != null && c.moveToFirst()) {
+    duration = c.getLong(0);
+    calories = c.getFloat(1);
+}
+updateDashboard(duration, calories);",1
+Case_049_Owncloud_SINTETICO_4_BUG,App de Chat,android.database.Cursor,"Cursor messages = db.query(MessagesTable.TABLE, null, MessagesTable.COL_THREAD_ID + ""=?"", new String[]{threadId}, null, null, MessagesTable.COL_CREATED_AT + "" DESC"");
+if (messages != null && messages.moveToFirst()) {
+    lastMessage = messages.getString(messages.getColumnIndex(MessagesTable.COL_TEXT));
+}
+renderPreview(lastMessage);",1
+Case_049_Owncloud_SINTETICO_5_BUG,App de Finanças,android.database.Cursor,"Cursor c = financeProvider.query(transactionsUri, new String[]{""amount"", ""category""}, ""account_id=?"", new String[]{accountId}, null);
+if (c != null && c.moveToFirst()) {
+    total = c.getDouble(c.getColumnIndex(""amount""));
+    category = c.getString(c.getColumnIndex(""category""));
+}
+calculateSummary(total, category);",1
+Case_049_Owncloud_SINTETICO_6_BUG,App de Mapas,android.database.Cursor,"Cursor cursor = geoDb.query(PlacesTable.TABLE, null, PlacesTable.COL_PLACE_ID + ""=?"", new String[]{placeId}, null, null, null);
+if (cursor != null && cursor.moveToFirst()) {
+    placeName = cursor.getString(cursor.getColumnIndex(PlacesTable.COL_NAME));
+    latitude = cursor.getDouble(cursor.getColumnIndex(PlacesTable.COL_LAT));
+    longitude = cursor.getDouble(cursor.getColumnIndex(PlacesTable.COL_LNG));
+}
+showMarker(placeName, latitude, longitude);",1
+Case_049_Owncloud_SINTETICO_7_BUG,App de Compras,android.database.Cursor,"Cursor c = db.query(ProductsTable.TABLE, new String[]{ProductsTable.COL_PRICE}, ProductsTable.COL_SKU + ""=?"", new String[]{sku}, null, null, null);
+if (c != null && c.moveToFirst()) {
+    price = c.getBigDecimal(c.getColumnIndex(ProductsTable.COL_PRICE));
+}
+cartAdapter.updatePrice(price);",1
+Case_049_Owncloud_SINTETICO_8_BUG,App de Educação,android.database.Cursor,"Cursor c = lessonDb.query(LessonsTable.TABLE, null, LessonsTable.COL_COURSE_ID + ""=?"", new String[]{courseId}, null, null, null);
+if (c != null && c.moveToFirst()) {
+    title = c.getString(c.getColumnIndex(LessonsTable.COL_TITLE));
+    progress = c.getInt(c.getColumnIndex(LessonsTable.COL_PROGRESS));
+}
+refreshLessonUI(title, progress);",1
+Case_049_Owncloud_SINTETICO_9_BUG,App de Notícias,android.database.Cursor,"Cursor c = newsDb.rawQuery(""SELECT headline, source FROM articles WHERE article_id=?"", new String[]{articleId});
+if (c != null && c.moveToFirst()) {
+    headline = c.getString(0);
+    source = c.getString(1);
+}
+bindArticle(headline, source);",1
+Case_049_Owncloud_SINTETICO_10_BUG,App de Receita Culinária,android.database.Cursor,"Cursor cursor = db.query(RecipesTable.TABLE, null, RecipesTable.COL_RECIPE_ID + ""=?"", new String[]{recipeId}, null, null, null);
+if (cursor != null && cursor.moveToFirst()) {
+    servings = cursor.getInt(cursor.getColumnIndex(RecipesTable.COL_SERVINGS));
+    prepTime = cursor.getInt(cursor.getColumnIndex(RecipesTable.COL_PREP_TIME));
+}
+updateRecipeCard(servings, prepTime);",1
+Case_049_Owncloud_SINTETICO_11_BUG,App de Transporte,android.database.Cursor,"Cursor c = routeDb.query(RoutesTable.TABLE, new String[]{RoutesTable.COL_DISTANCE, RoutesTable.COL_DURATION}, RoutesTable.COL_ROUTE_ID + ""=?"", new String[]{routeId}, null, null, null);
+if (c != null && c.moveToFirst()) {
+    distance = c.getFloat(c.getColumnIndex(RoutesTable.COL_DISTANCE));
+    duration = c.getLong(c.getColumnIndex(RoutesTable.COL_DURATION));
+}
+showTripEstimate(distance, duration);",1
+Case_069_OSMTracker_SINTETICO_1_BUG,App de Musica,android.database.Cursor,"Cursor cursor = db.rawQuery(""SELECT _id, title FROM tracks WHERE favorite=1"", null);
+if (cursor.moveToFirst()) {
+    do {
+        long trackId = cursor.getLong(0);
+        playTrack(trackId);
+    } while (cursor.moveToNext());
+}",1
+Case_069_OSMTracker_SINTETICO_2_BUG,App de Scanner,android.database.Cursor,"Cursor cursor = getContentResolver().query(scansUri, new String[]{""_id"", ""path""}, ""type=?"", new String[]{""pdf""}, ""created_at DESC"");
+while (cursor != null && cursor.moveToNext()) {
+    String path = cursor.getString(1);
+    processScannedFile(path);
+}",1
+Case_069_OSMTracker_SINTETICO_3_BUG,App de Fitness,android.database.Cursor,"Cursor cursor = workoutDb.query(""sessions"", new String[]{""duration"", ""calories""}, ""day=?"", new String[]{selectedDay}, null, null, null);
+if (cursor.moveToFirst()) {
+    int durationCol = cursor.getColumnIndex(""duration"");
+    int caloriesCol = cursor.getColumnIndex(""calories"");
+    updateSummary(cursor.getInt(durationCol), cursor.getInt(caloriesCol));
+}",1
+Case_069_OSMTracker_SINTETICO_4_BUG,App de Contactos,android.database.Cursor,"Cursor cursor = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+        new String[]{ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME, ContactsContract.CommonDataKinds.Phone.NUMBER},
+        null, null, null);
+if (cursor != null && cursor.moveToFirst()) {
+    do {
+        String name = cursor.getString(0);
+        String phone = cursor.getString(1);
+        cacheContact(name, phone);
+    } while (cursor.moveToNext());
+}",1
+Case_069_OSMTracker_SINTETICO_5_BUG,App de Mapas,android.database.Cursor,"Cursor cursor = geoDb.rawQuery(""SELECT lat, lng FROM saved_places WHERE category=?"", new String[]{category});
+while (cursor.moveToNext()) {
+    double lat = cursor.getDouble(0);
+    double lng = cursor.getDouble(1);
+    addMarker(lat, lng);
+}",1
+Case_069_OSMTracker_SINTETICO_6_BUG,App de Compras,android.database.Cursor,"Cursor cursor = cartDb.query(""products"", new String[]{""name"", ""price""}, ""in_cart=1"", null, null, null, ""added_at DESC"");
+if (cursor.moveToFirst()) {
+    do {
+        String name = cursor.getString(0);
+        double price = cursor.getDouble(1);
+        showCartItem(name, price);
+    } while (cursor.moveToNext());
+}",1
+Case_069_OSMTracker_SINTETICO_7_BUG,App de Noticias,android.database.Cursor,"Cursor cursor = newsDb.query(""articles"", new String[]{""_id"", ""headline""}, ""bookmarked=1"", null, null, null, null);
+if (cursor != null) {
+    while (cursor.moveToNext()) {
+        long id = cursor.getLong(0);
+        String headline = cursor.getString(1);
+        renderBookmark(id, headline);
+    }
+}",1
+Case_069_OSMTracker_SINTETICO_8_BUG,App de Receita de Cozinha,android.database.Cursor,"Cursor cursor = recipesDb.rawQuery(""SELECT ingredient, amount FROM pantry WHERE expiring_soon=1"", null);
+if (cursor.moveToFirst()) {
+    int ingredientCol = cursor.getColumnIndex(""ingredient"");
+    int amountCol = cursor.getColumnIndex(""amount"");
+    do {
+        notifyUser(cursor.getString(ingredientCol), cursor.getString(amountCol));
+    } while (cursor.moveToNext());
+}",1
+Case_069_OSMTracker_SINTETICO_9_BUG,App de Mensagens,android.database.Cursor,"Cursor cursor = messageDb.query(""threads"", new String[]{""thread_id"", ""last_message""}, ""unread_count > 0"", null, null, null, ""updated_at DESC"");
+if (cursor.moveToFirst()) {
+    do {
+        long threadId = cursor.getLong(0);
+        String lastMessage = cursor.getString(1);
+        bindThread(threadId, lastMessage);
+    } while (cursor.moveToNext());
+}",1
+Case_069_OSMTracker_SINTETICO_10_BUG,App de Educação,android.database.Cursor,"Cursor cursor = schoolDb.rawQuery(""SELECT student_name, score FROM exams WHERE subject=?"", new String[]{subject});
+while (cursor.moveToNext()) {
+    String name = cursor.getString(0);
+    int score = cursor.getInt(1);
+    addResult(name, score);
+}",1
+Case_089_Wordpress_SINTETICO_1_BUG,App de Musica,android.database.Cursor,"public void reloadPlaylist() {
+    swapCursor(mPlaylistQuery.execute());
+}
+
+public Song getSong(int position) {
+    return mCursor.get(position);
+}",1
+Case_089_Wordpress_SINTETICO_2_BUG,App de Scanner de Documentos,android.database.Cursor,"public void refreshScans() {
+    swapCursor(mScanStore.queryAll());
+}
+
+public ScanItem getScan(int position) {
+    return mCursor.get(position);
+}",1
+Case_089_Wordpress_SINTETICO_3_BUG,App de Fitness,android.database.Cursor,"public void reloadWorkouts() {
+    swapCursor(mWorkoutDao.fetchRecent());
+}
+
+public Workout getWorkout(int position) {
+    return mCursor.get(position);
+}",1
+Case_089_Wordpress_SINTETICO_4_BUG,App de Loja Online,android.database.Cursor,"public void refreshOrders() {
+    swapCursor(mOrderRepository.queryOpenOrders());
+}
+
+public Order getOrder(int position) {
+    return mCursor.get(position);
+}",1
+Case_089_Wordpress_SINTETICO_5_BUG,App de Fotos/Galeria,android.database.Cursor,"public void reloadAlbums() {
+    swapCursor(mAlbumProvider.loadAlbums());
+}
+
+public Album getAlbum(int position) {
+    return mCursor.get(position);
+}",1
+Case_089_Wordpress_SINTETICO_6_BUG,App de Mensagens,android.database.Cursor,"public void refreshThreads() {
+    swapCursor(mThreadQuery.getThreads());
+}
+
+public ThreadItem getThread(int position) {
+    return mCursor.get(position);
+}",1
+Case_089_Wordpress_SINTETICO_7_BUG,App de Receitas,android.database.Cursor,"public void reloadRecipes() {
+    swapCursor(mRecipeDao.findAll());
+}
+
+public Recipe getRecipe(int position) {
+    return mCursor.get(position);
+}",1
+Case_089_Wordpress_SINTETICO_8_BUG,App de Leitura de E-books,android.database.Cursor,"public void refreshLibrary() {
+    swapCursor(mBookStore.listAvailableBooks());
+}
+
+public Book getBook(int position) {
+    return mCursor.get(position);
+}",1
+Case_089_Wordpress_SINTETICO_9_BUG,App de Viagens,android.database.Cursor,"public void reloadTrips() {
+    swapCursor(mTripProvider.queryTrips());
+}
+
+public Trip getTrip(int position) {
+    return mCursor.get(position);
+}",1
+Case_089_Wordpress_SINTETICO_10_BUG,App de Finanças Pessoais,android.database.Cursor,"public void refreshTransactions() {
+    swapCursor(mTransactionStore.loadTransactions());
+}
+
+public Transaction getTransaction(int position) {
+    return mCursor.get(position);
+}",1
+Case_097_Wordpress_SINTETICO_1_BUG,App de Musica,android.database.Cursor,"public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+    mUi.showSongList(data);
+    if (mAdapter != null) {
+        mAdapter.swapCursor(data);
+    }
+    updateNowPlayingBar();
+}
+
+@Override
+public void onLoaderReset(Loader<Cursor> loader) {
+    if (mAdapter != null) {
+        mAdapter.swapCursor(null);
+    }
+    updateNowPlayingBar();
+}",1
+Case_097_Wordpress_SINTETICO_2_BUG,App de Scanner de Documentos,android.database.Cursor,"public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+    mResultView.renderScans(data);
+    if (mListAdapter != null) {
+        mListAdapter.swapCursor(data);
+    }
+    refreshToolbarState();
+}
+
+@Override
+public void onLoaderReset(Loader<Cursor> loader) {
+    if (mListAdapter != null) {
+        mListAdapter.swapCursor(null);
+    }
+    refreshToolbarState();
+}",1
+Case_097_Wordpress_SINTETICO_3_BUG,App de Fitness,android.database.Cursor,"public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+    mHistoryAdapter.swapCursor(data);
+    renderWeeklySummary();
+    updateCaloriesPanel();
+}
+
+@Override
+public void onLoaderReset(Loader<Cursor> loader) {
+    if (mHistoryAdapter != null) {
+        mHistoryAdapter.swapCursor(null);
+    }
+    renderWeeklySummary();
+    updateCaloriesPanel();
+}",1
+Case_097_Wordpress_SINTETICO_4_BUG,App de Contatos,android.database.Cursor,"public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+    mContactsView.bindResults(data);
+    if (mCursorAdapter != null) {
+        mCursorAdapter.swapCursor(data);
+    }
+    toggleEmptyState();
+}
+
+@Override
+public void onLoaderReset(Loader<Cursor> loader) {
+    if (mCursorAdapter != null) {
+        mCursorAdapter.swapCursor(null);
+    }
+    toggleEmptyState();
+}",1
+Case_097_Wordpress_SINTETICO_5_BUG,App de Receitas,android.database.Cursor,"public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+    mRecipeList.update(data);
+    if (mAdapter != null) {
+        mAdapter.swapCursor(data);
+    }
+    showFilterChips();
+}
+
+@Override
+public void onLoaderReset(Loader<Cursor> loader) {
+    if (mAdapter != null) {
+        mAdapter.swapCursor(null);
+    }
+    showFilterChips();
+}",1
+Case_097_Wordpress_SINTETICO_6_BUG,App de Viagens,android.database.Cursor,"public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+    mTripAdapter.swapCursor(data);
+    updateMapMarkers();
+    updateItineraryHeader();
+}
+
+@Override
+public void onLoaderReset(Loader<Cursor> loader) {
+    if (mTripAdapter != null) {
+        mTripAdapter.swapCursor(null);
+    }
+    updateMapMarkers();
+    updateItineraryHeader();
+}",1
+Case_097_Wordpress_SINTETICO_7_BUG,App de Livros,android.database.Cursor,"public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+    mBooksAdapter.swapCursor(data);
+    refreshShelfCounters();
+    animateEmptyView();
+}
+
+@Override
+public void onLoaderReset(Loader<Cursor> loader) {
+    if (mBooksAdapter != null) {
+        mBooksAdapter.swapCursor(null);
+    }
+    refreshShelfCounters();
+    animateEmptyView();
+}",1
+Case_097_Wordpress_SINTETICO_8_BUG,App de Fotos,android.database.Cursor,"public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+    mGalleryGrid.swapCursor(data);
+    updateSelectionMode();
+    renderStorageWarning();
+}
+
+@Override
+public void onLoaderReset(Loader<Cursor> loader) {
+    if (mGalleryGrid != null) {
+        mGalleryGrid.swapCursor(null);
+    }
+    updateSelectionMode();
+    renderStorageWarning();
+}",1
+Case_097_Wordpress_SINTETICO_9_BUG,App de Podcasts,android.database.Cursor,"public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+    mEpisodeAdapter.swapCursor(data);
+    updatePlaybackQueue();
+    updateSubscribeState();
+}
+
+@Override
+public void onLoaderReset(Loader<Cursor> loader) {
+    if (mEpisodeAdapter != null) {
+        mEpisodeAdapter.swapCursor(null);
+    }
+    updatePlaybackQueue();
+    updateSubscribeState();
+}",1
+Case_097_Wordpress_SINTETICO_10_BUG,App de Finanças Pessoais,android.database.Cursor,"public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+    mTransactionsAdapter.swapCursor(data);
+    recomputeBalance();
+    showBudgetAlerts();
+}
+
+@Override
+public void onLoaderReset(Loader<Cursor> loader) {
+    if (mTransactionsAdapter != null) {
+        mTransactionsAdapter.swapCursor(null);
+    }
+    recomputeBalance();
+    showBudgetAlerts();
+}",1
+Case_100_Wordpress_SINTETICO_1_BUG,App de Música,android.database.Cursor,"if (mEmptyState.isShown())
+            mEmptyState.setVisibility(View.GONE);
+        mTracksAdapter.swapCursor(cursor);
+    }
+
+    private void loadPlaylistTracks() {
+",1
+Case_100_Wordpress_SINTETICO_2_BUG,App de Scanner de Documentos,android.database.Cursor,"if (mNoDocsLabel.getVisibility() == View.VISIBLE)
+            mNoDocsLabel.setVisibility(View.GONE);
+        mDocumentAdapter.swapCursor(cursor);
+    }
+
+    private void refreshDocuments() {
+",1
+Case_100_Wordpress_SINTETICO_3_BUG,App de Fitness,android.database.Cursor,"if (mNoWorkoutsView.isShown())
+            mNoWorkoutsView.setVisibility(View.INVISIBLE);
+        mWorkoutAdapter.swapCursor(cursor);
+    }
+
+    protected void updateWorkoutHistory() {
+",1
+Case_100_Wordpress_SINTETICO_4_BUG,App de Finanças Pessoais,android.database.Cursor,"if (mBalanceHint.isShown())
+            mBalanceHint.setVisibility(View.GONE);
+        mTransactionsAdapter.swapCursor(cursor);
+    }
+
+    private void loadTransactions() {
+",1
+Case_100_Wordpress_SINTETICO_5_BUG,App de Receitas Culinárias,android.database.Cursor,"if (mNoRecipesText.isShown())
+            mNoRecipesText.setVisibility(View.GONE);
+        mRecipeAdapter.swapCursor(cursor);
+    }
+
+    private void queryRecipesByIngredient() {
+",1
+Case_100_Wordpress_SINTETICO_6_BUG,App de E-commerce,android.database.Cursor,"if (mEmptyCartNotice.isShown())
+            mEmptyCartNotice.setVisibility(View.GONE);
+        mProductsAdapter.swapCursor(cursor);
+    }
+
+    protected void loadRecommendedProducts() {
+",1
+Case_100_Wordpress_SINTETICO_7_BUG,App de Viagens,android.database.Cursor,"if (mNoFlightsView.isShown())
+            mNoFlightsView.setVisibility(View.GONE);
+        mFlightsAdapter.swapCursor(cursor);
+    }
+
+    private void loadAvailableFlights() {
+",1
+Case_100_Wordpress_SINTETICO_8_BUG,App de Biblioteca,android.database.Cursor,"if (mNoBooksLabel.isShown())
+            mNoBooksLabel.setVisibility(View.GONE);
+        mBooksAdapter.swapCursor(cursor);
+    }
+
+    private void refreshLibraryCatalog() {
+",1
+Case_100_Wordpress_SINTETICO_9_BUG,App de Rede Social,android.database.Cursor,"if (mNoPostsView.isShown())
+            mNoPostsView.setVisibility(View.GONE);
+        mFeedAdapter.swapCursor(cursor);
+    }
+
+    protected void loadUserFeed() {
+",1
+Case_100_Wordpress_SINTETICO_10_BUG,App de Gestão de Tarefas,android.database.Cursor,"if (mNoTasksText.isShown())
+            mNoTasksText.setVisibility(View.GONE);
+        mTaskAdapter.swapCursor(cursor);
+    }
+
+    private void loadPendingTasks() {
+",1
+Case_133_Transdroid_SINTETICO_1_BUG,App de Musica,android.database.Cursor,"Cursor cursor = db.query(""songs"", columns, ""artist=?"", new String[]{artistId}, null, null, ""track_number ASC"");
+if (cursor.moveToFirst()) {
+    List<Song> songs = new ArrayList<Song>();
+    do {
+        songs.add(new Song(cursor.getLong(0), cursor.getString(1), cursor.getString(2)));
+    } while (cursor.moveToNext());
+    cursor.close();
+    return songs;
+}
+return null;",1
+Case_133_Transdroid_SINTETICO_2_BUG,App de Scanner de Documentos,android.database.Cursor,"Cursor cursor = resolver.query(documentUri, projection, null, null, null);
+if (cursor != null && cursor.moveToFirst()) {
+    ArrayList<ScanPage> pages = new ArrayList<ScanPage>();
+    do {
+        pages.add(new ScanPage(cursor.getInt(0), cursor.getString(1), cursor.getLong(2)));
+    } while (cursor.moveToNext());
+    cursor.close();
+    return pages;
+}
+return null;",1
+Case_133_Transdroid_SINTETICO_3_BUG,App de Fitness,android.database.Cursor,"Cursor cursor = database.rawQuery(""SELECT workout_id, name, duration FROM workouts WHERE completed=1"", null);
+if (cursor.moveToFirst()) {
+    List<Workout> workouts = new ArrayList<Workout>();
+    do {
+        workouts.add(new Workout(cursor.getString(0), cursor.getString(1), cursor.getInt(2)));
+    } while (cursor.moveToNext());
+    cursor.close();
+    return workouts;
+}
+return null;",1
+Case_133_Transdroid_SINTETICO_4_BUG,App de E-commerce,android.database.Cursor,"Cursor cursor = sqliteDatabase.query(""orders"", null, ""customer_id=?"", new String[]{customerId}, null, null, ""created_at DESC"");
+if (cursor.moveToFirst()) {
+    LinkedList<OrderItem> items = new LinkedList<OrderItem>();
+    do {
+        items.add(new OrderItem(cursor.getString(cursor.getColumnIndex(""order_id"")), cursor.getDouble(cursor.getColumnIndex(""total""))));
+    } while (cursor.moveToNext());
+    cursor.close();
+    return items;
+}
+return null;",1
+Case_133_Transdroid_SINTETICO_5_BUG,App de Mensagens,android.database.Cursor,"Cursor cursor = provider.query(MessagesContract.CONTENT_URI, projection, ""thread_id=?"", new String[]{threadId}, null);
+if (cursor.moveToFirst()) {
+    ArrayList<MessagePreview> previews = new ArrayList<MessagePreview>();
+    do {
+        previews.add(new MessagePreview(cursor.getString(0), cursor.getString(1), cursor.getLong(2)));
+    } while (cursor.moveToNext());
+    cursor.close();
+    return previews;
+}
+return null;",1
+Case_133_Transdroid_SINTETICO_6_BUG,App de Navegação GPS,android.database.Cursor,"Cursor cursor = db.query(""favorite_routes"", new String[]{""route_id"", ""name"", ""distance""}, null, null, null, null, ""name ASC"");
+if (cursor.moveToFirst()) {
+    List<Route> routes = new ArrayList<Route>();
+    do {
+        routes.add(new Route(cursor.getLong(0), cursor.getString(1), cursor.getFloat(2)));
+    } while (cursor.moveToNext());
+    cursor.close();
+    return routes;
+}
+return null;",1
+Case_133_Transdroid_SINTETICO_7_BUG,App de Inventário,android.database.Cursor,"Cursor cursor = inventoryDb.rawQuery(""SELECT sku, quantity, warehouse FROM stock WHERE quantity < 5"", null);
+if (cursor.moveToFirst()) {
+    HashSet<LowStockItem> lowStock = new HashSet<LowStockItem>();
+    do {
+        lowStock.add(new LowStockItem(cursor.getString(0), cursor.getInt(1), cursor.getString(2)));
+    } while (cursor.moveToNext());
+    cursor.close();
+    return lowStock;
+}
+return null;",1
+Case_133_Transdroid_SINTETICO_8_BUG,App de Receitas,android.database.Cursor,"Cursor cursor = contentResolver.query(RecipeContract.RECIPE_URI, projection, ""category=?"", new String[]{category}, null);
+if (cursor.moveToFirst()) {
+    List<Recipe> recipes = new ArrayList<Recipe>();
+    do {
+        recipes.add(new Recipe(cursor.getInt(0), cursor.getString(1), cursor.getInt(2)));
+    } while (cursor.moveToNext());
+    cursor.close();
+    return recipes;
+}
+return null;",1
+Case_133_Transdroid_SINTETICO_9_BUG,App de Clínica/Agendamentos,android.database.Cursor,"Cursor cursor = appDb.query(""appointments"", null, ""doctor_id=?"", new String[]{doctorId}, null, null, ""scheduled_at DESC"");
+if (cursor.moveToFirst()) {
+    ArrayList<Appointment> appointments = new ArrayList<Appointment>();
+    do {
+        appointments.add(new Appointment(cursor.getString(cursor.getColumnIndex(""patient_name"")), cursor.getString(cursor.getColumnIndex(""time""))));
+    } while (cursor.moveToNext());
+    cursor.close();
+    return appointments;
+}
+return null;",1
+Case_133_Transdroid_SINTETICO_10_BUG,App de Notas,android.database.Cursor,"Cursor cursor = notesDb.rawQuery(""SELECT note_id, title, updated_at FROM pinned_notes"", null);
+if (cursor.moveToFirst()) {
+    List<PinnedNote> notes = new ArrayList<PinnedNote>();
+    do {
+        notes.add(new PinnedNote(cursor.getLong(0), cursor.getString(1), cursor.getLong(2)));
+    } while (cursor.moveToNext());
+    cursor.close();
+    return notes;
+}
+return null;",1
+Case_139_APG_SINTETICO_1_BUG,App de Música,android.database.Cursor,"Cursor playlistCursor = context.getContentResolver().query(playlistUri, new String[]{MediaStore.Audio.Playlists._ID}, null, null, null);
+if (playlistCursor != null) {
+    if (playlistCursor.moveToFirst()) {
+        return playlistCursor.getLong(0);
+    }
+    playlistCursor.close();
+}
+return -1;",1
+Case_139_APG_SINTETICO_2_BUG,App de Scanner de Documentos,android.database.Cursor,"Cursor scanCursor = context.getContentResolver().query(scanUri, new String[]{DocumentsContract.Document.COLUMN_DOCUMENT_ID}, null, null, null);
+if (scanCursor != null) {
+    if (scanCursor.moveToNext()) {
+        return scanCursor.getString(0);
+    }
+    scanCursor.close();
+}
+return null;",1
+Case_139_APG_SINTETICO_3_BUG,App de Fitness,android.database.Cursor,"Cursor workoutCursor = context.getContentResolver().query(workoutUri, new String[]{FitnessContract.Workouts.COLUMN_DURATION}, null, null, null);
+if (workoutCursor != null) {
+    if (workoutCursor.moveToFirst()) {
+        return workoutCursor.getInt(0);
+    }
+    workoutCursor.close();
+}
+return 0;",1
+Case_139_APG_SINTETICO_4_BUG,App de Fotografias,android.database.Cursor,"Cursor photoCursor = context.getContentResolver().query(photoUri, new String[]{MediaStore.Images.Media._ID}, null, null, null);
+if (photoCursor != null) {
+    if (photoCursor.moveToNext()) {
+        return ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, photoCursor.getLong(0));
+    }
+    photoCursor.close();
+}
+return null;",1
+Case_139_APG_SINTETICO_5_BUG,App de Contactos,android.database.Cursor,"Cursor contactCursor = context.getContentResolver().query(contactUri, new String[]{ContactsContract.Contacts.DISPLAY_NAME}, null, null, null);
+if (contactCursor != null) {
+    if (contactCursor.moveToFirst()) {
+        return contactCursor.getString(0);
+    }
+    contactCursor.close();
+}
+return """";",1
+Case_139_APG_SINTETICO_6_BUG,App de Navegação,android.database.Cursor,"Cursor routeCursor = context.getContentResolver().query(routeUri, new String[]{""distance_meters""}, null, null, null);
+if (routeCursor != null) {
+    if (routeCursor.moveToNext()) {
+        return routeCursor.getDouble(0);
+    }
+    routeCursor.close();
+}
+return 0.0;",1
+Case_139_APG_SINTETICO_7_BUG,App de Compras,android.database.Cursor,"Cursor productCursor = context.getContentResolver().query(productUri, new String[]{""price_cents""}, null, null, null);
+if (productCursor != null) {
+    if (productCursor.moveToFirst()) {
+        return productCursor.getInt(0);
+    }
+    productCursor.close();
+}
+return -1;",1
+Case_139_APG_SINTETICO_8_BUG,App de Notícias,android.database.Cursor,"Cursor articleCursor = context.getContentResolver().query(articleUri, new String[]{""title""}, null, null, null);
+if (articleCursor != null) {
+    if (articleCursor.moveToNext()) {
+        return articleCursor.getString(0);
+    }
+    articleCursor.close();
+}
+return null;",1
+Case_139_APG_SINTETICO_9_BUG,App de Mensagens,android.database.Cursor,"Cursor threadCursor = context.getContentResolver().query(threadUri, new String[]{""last_message""}, null, null, null);
+if (threadCursor != null) {
+    if (threadCursor.moveToFirst()) {
+        return threadCursor.getString(0);
+    }
+    threadCursor.close();
+}
+return """";",1
+Case_139_APG_SINTETICO_10_BUG,App de Gestão de Inventário,android.database.Cursor,"Cursor stockCursor = context.getContentResolver().query(stockUri, new String[]{""quantity""}, null, null, null);
+if (stockCursor != null) {
+    if (stockCursor.moveToNext()) {
+        return stockCursor.getInt(0);
+    }
+    stockCursor.close();
+}
+return 0;",1
+Case_149_AnySoftKeyboard_SINTETICO_1_BUG,App de Musica,android.database.sqlite.SQLiteDatabase,"@Override
+protected void onStop() {
+    super.onStop();
+}
+
+private void persistPlaylistState() {
+    SQLiteDatabase db = playlistDbHelper.getWritableDatabase();
+    db.beginTransaction();
+    try {
+        // salvar estado
+        db.setTransactionSuccessful();
+    } finally {
+        db.endTransaction();
+    }
+}",1
+Case_149_AnySoftKeyboard_SINTETICO_2_BUG,App de Scanner de Documentos,android.database.sqlite.SQLiteDatabase,"@Override
+protected void onDestroy() {
+    super.onDestroy();
+}
+
+private void saveScanMeta(String path) {
+    SQLiteDatabase db = scanDbHelper.getWritableDatabase();
+    ContentValues values = new ContentValues();
+    values.put(""file_path"", path);
+    db.insert(""scans"", null, values);
+}",1
+Case_149_AnySoftKeyboard_SINTETICO_3_BUG,App de Fitness,android.database.sqlite.SQLiteDatabase,"@Override
+protected void onPause() {
+    super.onPause();
+}
+
+private void updateWorkoutHistory(int duration) {
+    SQLiteDatabase db = fitnessDbHelper.getWritableDatabase();
+    db.execSQL(""UPDATE workouts SET duration = "" + duration + "" WHERE id = 1"");
+}",1
+Case_149_AnySoftKeyboard_SINTETICO_4_BUG,App de E-commerce,android.database.sqlite.SQLiteDatabase,"@Override
+protected void onStop() {
+    super.onStop();
+}
+
+private void saveCartItems() {
+    SQLiteDatabase db = cartDbHelper.getWritableDatabase();
+    Cursor cursor = db.rawQuery(""SELECT * FROM cart"", null);
+    while (cursor.moveToNext()) {
+        // processar itens
+    }
+    cursor.close();
+}",1
+Case_149_AnySoftKeyboard_SINTETICO_5_BUG,App de Viagens,android.database.sqlite.SQLiteDatabase,"@Override
+protected void onDestroy() {
+    super.onDestroy();
+}
+
+private void storeTrip(String destination) {
+    SQLiteDatabase db = tripDbHelper.getWritableDatabase();
+    ContentValues values = new ContentValues();
+    values.put(""destination"", destination);
+    db.update(""trips"", values, ""id=?"", new String[]{""1""});
+}",1
+Case_149_AnySoftKeyboard_SINTETICO_6_BUG,App de Receitas,android.database.sqlite.SQLiteDatabase,"@Override
+protected void onPause() {
+    super.onPause();
+}
+
+private void cacheFavoriteRecipe(String name) {
+    SQLiteDatabase db = recipeDbHelper.getWritableDatabase();
+    db.beginTransaction();
+    try {
+        db.execSQL(""INSERT INTO favorites(name) VALUES('"" + name + ""')"");
+        db.setTransactionSuccessful();
+    } finally {
+        db.endTransaction();
+    }
+}",1
+Case_149_AnySoftKeyboard_SINTETICO_7_BUG,App de Notícias,android.database.sqlite.SQLiteDatabase,"@Override
+protected void onStop() {
+    super.onStop();
+}
+
+private void markArticleRead(long id) {
+    SQLiteDatabase db = newsDbHelper.getWritableDatabase();
+    ContentValues values = new ContentValues();
+    values.put(""read"", 1);
+    db.update(""articles"", values, ""article_id=?"", new String[]{String.valueOf(id)});
+}",1
+Case_149_AnySoftKeyboard_SINTETICO_8_BUG,App de Livros,android.database.sqlite.SQLiteDatabase,"@Override
+protected void onDestroy() {
+    super.onDestroy();
+}
+
+private void saveReadingProgress(int page) {
+    SQLiteDatabase db = booksDbHelper.getWritableDatabase();
+    Cursor cursor = db.rawQuery(""SELECT current_page FROM progress WHERE book_id=1"", null);
+    if (cursor.moveToFirst()) {
+        // atualizar progresso
+    }
+    cursor.close();
+}",1
+Case_149_AnySoftKeyboard_SINTETICO_9_BUG,App de Finanças Pessoais,android.database.sqlite.SQLiteDatabase,"@Override
+protected void onPause() {
+    super.onPause();
+}
+
+private void addExpense(double amount) {
+    SQLiteDatabase db = financeDbHelper.getWritableDatabase();
+    ContentValues values = new ContentValues();
+    values.put(""amount"", amount);
+    db.insert(""expenses"", null, values);
+}",1
+Case_149_AnySoftKeyboard_SINTETICO_10_BUG,App de Mensagens,android.database.sqlite.SQLiteDatabase,"@Override
+protected void onStop() {
+    super.onStop();
+}
+
+private void archiveConversation(String threadId) {
+    SQLiteDatabase db = messagesDbHelper.getWritableDatabase();
+    db.execSQL(""UPDATE threads SET archived=1 WHERE thread_id='"" + threadId + ""'"");
+}",1
+Case_164_Zxing_SINTETICO_1_BUG,App de Musica,android.net.http.AndroidHttpClient,"public void fetchAlbumArt(String albumId) {
+  String url = API_BASE + ""/albums/"" + albumId + ""/art"";
+  try {
+    URI uri = new URI(url);
+    HttpGet get = new HttpGet(uri);
+    AndroidHttpClient client = AndroidHttpClient.newInstance(""MusicApp/1.0"");
+    HttpResponse response = client.execute(get);
+    HttpEntity entity = response.getEntity();
+    Bitmap cover = BitmapFactory.decodeStream(entity.getContent());
+    mAlbumArtView.setImageBitmap(cover);
+  } catch (Exception e) {
+    Log.e(TAG, e.toString());
+  }
+}
+",1
+Case_164_Zxing_SINTETICO_2_BUG,App de Scanner de Documentos,android.net.http.AndroidHttpClient,"public void uploadScan(byte[] pdfData) {
+  try {
+    HttpPost post = new HttpPost(SERVER_URL + ""/upload"");
+    post.setEntity(new ByteArrayEntity(pdfData));
+    AndroidHttpClient client = AndroidHttpClient.newInstance(""DocScanner/2.0"");
+    HttpResponse response = client.execute(post);
+    int code = response.getStatusLine().getStatusCode();
+    if (code == 200) {
+      Log.i(TAG, ""Upload concluído"");
+    }
+  } catch (Exception e) {
+    Log.e(TAG, e.getMessage());
+  }
+}
+",1
+Case_164_Zxing_SINTETICO_3_BUG,App de Fitness,android.net.http.AndroidHttpClient,"public void syncWorkoutSummary(String userId) {
+  try {
+    URI uri = new URI(API_URL + ""/users/"" + userId + ""/workouts/latest"");
+    HttpGet get = new HttpGet(uri);
+    AndroidHttpClient client = AndroidHttpClient.newInstance(""FitTrack/3.1"");
+    HttpResponse response = client.execute(get);
+    String json = EntityUtils.toString(response.getEntity());
+    parseSummary(json);
+  } catch (Exception e) {
+    Log.e(TAG, ""Erro ao sincronizar"", e);
+  }
+}
+",1
+Case_164_Zxing_SINTETICO_4_BUG,App de E-commerce,android.net.http.AndroidHttpClient,"public void loadProductImage(String productId) {
+  try {
+    HttpGet get = new HttpGet(CDN_URL + ""/img/"" + productId);
+    AndroidHttpClient client = AndroidHttpClient.newInstance(""ShopNow/4.0"");
+    HttpResponse response = client.execute(get);
+    InputStream stream = response.getEntity().getContent();
+    Bitmap bmp = BitmapFactory.decodeStream(stream);
+    mProductImage.setImageBitmap(bmp);
+  } catch (IOException e) {
+    Log.w(TAG, e);
+  }
+}
+",1
+Case_164_Zxing_SINTETICO_5_BUG,App de Notícias,android.net.http.AndroidHttpClient,"public void refreshHeadlineFeed() {
+  try {
+    AndroidHttpClient client = AndroidHttpClient.newInstance(""NewsReader/1.2"");
+    HttpGet get = new HttpGet(FEED_URL);
+    HttpResponse response = client.execute(get);
+    String xml = EntityUtils.toString(response.getEntity());
+    updateHeadlines(xml);
+  } catch (Exception ex) {
+    Log.e(TAG, ex.toString());
+  }
+}
+",1
+Case_164_Zxing_SINTETICO_6_BUG,App de Viagens,android.net.http.AndroidHttpClient,"public void downloadCityGuide(String cityCode) {
+  try {
+    URI uri = new URI(TRAVEL_API + ""/guides/"" + cityCode);
+    HttpGet get = new HttpGet(uri);
+    AndroidHttpClient client = AndroidHttpClient.newInstance(""TravelBuddy/5.0"");
+    HttpResponse response = client.execute(get);
+    String guideJson = EntityUtils.toString(response.getEntity());
+    showGuide(guideJson);
+  } catch (URISyntaxException | IOException e) {
+    Log.e(TAG, ""Falha no download"", e);
+  }
+}
+",1
+Case_164_Zxing_SINTETICO_7_BUG,App de Entrega de Comida,android.net.http.AndroidHttpClient,"public void fetchRestaurantMenu(String restaurantId) {
+  try {
+    HttpGet get = new HttpGet(API + ""/restaurants/"" + restaurantId + ""/menu"");
+    AndroidHttpClient client = AndroidHttpClient.newInstance(""FoodDash/6.0"");
+    HttpResponse response = client.execute(get);
+    String menu = EntityUtils.toString(response.getEntity());
+    renderMenu(menu);
+  } catch (Exception e) {
+    Toast.makeText(context, ""Erro"", Toast.LENGTH_SHORT).show();
+  }
+}
+",1
+Case_164_Zxing_SINTETICO_8_BUG,App de Finanças Pessoais,android.net.http.AndroidHttpClient,"public void downloadStatement(String accountId) {
+  try {
+    AndroidHttpClient client = AndroidHttpClient.newInstance(""FinancePro/2.5"");
+    HttpGet get = new HttpGet(BANK_API + ""/accounts/"" + accountId + ""/statement"");
+    HttpResponse response = client.execute(get);
+    String pdfUrl = EntityUtils.toString(response.getEntity());
+    openStatement(pdfUrl);
+  } catch (Exception e) {
+    Log.e(TAG, e.getMessage());
+  }
+}
+",1
+Case_164_Zxing_SINTETICO_9_BUG,App de Clima,android.net.http.AndroidHttpClient,"public void updateWeatherIcon(String city) {
+  try {
+    URI uri = new URI(WEATHER_API + ""/icon?city="" + city);
+    HttpGet get = new HttpGet(uri);
+    AndroidHttpClient client = AndroidHttpClient.newInstance(""WeatherNow/7.0"");
+    HttpResponse response = client.execute(get);
+    Bitmap icon = BitmapFactory.decodeStream(response.getEntity().getContent());
+    mIconView.setImageBitmap(icon);
+  } catch (Exception e) {
+    Log.e(TAG, ""Não foi possível atualizar o ícone"", e);
+  }
+}
+",1
+Case_164_Zxing_SINTETICO_10_BUG,App de Educação,android.net.http.AndroidHttpClient,"public void downloadLessonAssets(String lessonId) {
+  try {
+    HttpGet get = new HttpGet(EDU_API + ""/lessons/"" + lessonId + ""/assets"");
+    AndroidHttpClient client = AndroidHttpClient.newInstance(""LearnPlus/1.0"");
+    HttpResponse response = client.execute(get);
+    String assetsJson = EntityUtils.toString(response.getEntity());
+    cacheAssets(assetsJson);
+  } catch (IOException e) {
+    Log.e(TAG, e.toString());
+  }
+}
+",1
+Case_164_Zxing_SINTETICO_11_BUG,App de Mensagens,android.net.http.AndroidHttpClient,"public void syncConversation(String threadId) {
+  try {
+    AndroidHttpClient client = AndroidHttpClient.newInstance(""ChatWave/8.4"");
+    HttpPost post = new HttpPost(CHAT_API + ""/threads/"" + threadId + ""/sync"");
+    HttpResponse response = client.execute(post);
+    String payload = EntityUtils.toString(response.getEntity());
+    mergeMessages(payload);
+  } catch (Exception e) {
+    Log.e(TAG, ""sync failed"", e);
+  }
+}
+",1
+Case_166_IRCCloud_SINTETICO_1_BUG,App de Música,android.net.wifi.WifiManager.WifiLock,"private WifiManager.WifiLock wifiLock = null;
+private boolean streaming = false;
+private int reconnectAttempts = 0;
+
+public void startPlayback(String streamUrl) {
+    wifiLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, ""MusicStreamLock"");
+    wifiLock.acquire();
+    streaming = true;
+    reconnectAttempts++;
+    player.connect(streamUrl);
+}
+
+public void onPlaybackStopped() {
+    streaming = false;
+    player.stop();
+}
+",1
+Case_166_IRCCloud_SINTETICO_2_BUG,App de Scanner de Documentos,android.net.wifi.WifiManager.WifiLock,"private WifiManager.WifiLock scanWifiLock;
+private boolean scanning = false;
+private int pageCount = 0;
+
+public void startRemoteScan() {
+    scanWifiLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL, ""ScannerUploadLock"");
+    scanWifiLock.acquire();
+    scanning = true;
+    pageCount = 0;
+    uploadService.beginSession();
+}
+
+public void finishScan() {
+    scanning = false;
+    uploadService.endSession();
+}
+",1
+Case_166_IRCCloud_SINTETICO_3_BUG,App de Fitness com Treinos ao Vivo,android.net.wifi.WifiManager.WifiLock,"private WifiManager.WifiLock workoutLock = null;
+private long sessionStart = 0L;
+private int heartRateSamples = 0;
+
+public void startLiveWorkout() {
+    workoutLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, ""WorkoutLiveLock"");
+    workoutLock.acquire();
+    sessionStart = System.currentTimeMillis();
+    heartRateSamples = 0;
+    liveCoach.connect();
+}
+
+public void endLiveWorkout() {
+    liveCoach.disconnect();
+    sessionStart = 0L;
+}
+",1
+Case_166_IRCCloud_SINTETICO_4_BUG,App de Navegação GPS,android.net.wifi.WifiManager.WifiLock,"private WifiManager.WifiLock navigationLock;
+private boolean routeActive = false;
+private int rerouteCount = 0;
+
+public void beginNavigation(String destination) {
+    navigationLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL, ""NavSyncLock"");
+    navigationLock.acquire();
+    routeActive = true;
+    rerouteCount = 0;
+    mapSync.start(destination);
+}
+
+public void stopNavigation() {
+    routeActive = false;
+    mapSync.stop();
+}
+",1
+Case_166_IRCCloud_SINTETICO_5_BUG,App de Backup na Nuvem,android.net.wifi.WifiManager.WifiLock,"private WifiManager.WifiLock backupLock = null;
+private boolean backupRunning = false;
+private long bytesUploaded = 0L;
+
+public void startBackup() {
+    backupLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, ""CloudBackupLock"");
+    backupLock.acquire();
+    backupRunning = true;
+    bytesUploaded = 0L;
+    backupEngine.enqueueAll();
+}
+
+public void cancelBackup() {
+    backupRunning = false;
+    backupEngine.cancelAll();
+}
+",1
+Case_166_IRCCloud_SINTETICO_6_BUG,App de Videochamada,android.net.wifi.WifiManager.WifiLock,"private WifiManager.WifiLock callLock = null;
+private boolean inCall = false;
+private int packetLossEvents = 0;
+
+public void joinCall(String roomId) {
+    callLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, ""VideoCallLock"");
+    callLock.acquire();
+    inCall = true;
+    packetLossEvents = 0;
+    rtcClient.join(roomId);
+}
+
+public void leaveCall() {
+    inCall = false;
+    rtcClient.leave();
+}
+",1
+Case_166_IRCCloud_SINTETICO_7_BUG,App de Upload de Fotos,android.net.wifi.WifiManager.WifiLock,"private WifiManager.WifiLock uploadLock = null;
+private boolean uploading = false;
+private int retryCount = 0;
+
+public void startPhotoUpload() {
+    uploadLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL, ""PhotoUploadLock"");
+    uploadLock.acquire();
+    uploading = true;
+    retryCount = 0;
+    photoSync.uploadPending();
+}
+
+public void onUploadFinished() {
+    uploading = false;
+    photoSync.clearQueue();
+}
+",1
+Case_166_IRCCloud_SINTETICO_8_BUG,App de Streaming de Rádio,android.net.wifi.WifiManager.WifiLock,"private WifiManager.WifiLock radioLock;
+private boolean radioPlaying = false;
+private String currentStation = null;
+
+public void playStation(String stationUrl) {
+    radioLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, ""RadioStreamLock"");
+    radioLock.acquire();
+    radioPlaying = true;
+    currentStation = stationUrl;
+    radioPlayer.tune(stationUrl);
+}
+
+public void stopStation() {
+    radioPlaying = false;
+    radioPlayer.stop();
+    currentStation = null;
+}
+",1
+Case_166_IRCCloud_SINTETICO_9_BUG,App de Monitorização IoT,android.net.wifi.WifiManager.WifiLock,"private WifiManager.WifiLock sensorLock = null;
+private boolean monitoring = false;
+private int deviceCount = 0;
+
+public void startMonitoring() {
+    sensorLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL, ""IoTMonitorLock"");
+    sensorLock.acquire();
+    monitoring = true;
+    deviceCount = 0;
+    mqttClient.connect();
+}
+
+public void stopMonitoring() {
+    monitoring = false;
+    mqttClient.disconnect();
+}
+",1
+Case_166_IRCCloud_SINTETICO_10_BUG,App de E-learning com Aula ao Vivo,android.net.wifi.WifiManager.WifiLock,"private WifiManager.WifiLock classLock = null;
+private boolean classLive = false;
+private int chatMessages = 0;
+
+public void startLiveClass(String roomCode) {
+    classLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, ""EClassLock"");
+    classLock.acquire();
+    classLive = true;
+    chatMessages = 0;
+    classroom.connect(roomCode);
+}
+
+public void endLiveClass() {
+    classLive = false;
+    classroom.disconnect();
+}
+",1
+Case_168_Cgeo_SINTETICO_1_BUG,App de Música,android.os.Parcel,"final Track track2 = Track.CREATOR.createFromParcel(parcel);
+
+        assertThat(track1).isEqualTo(track2);
+    }
+}",1
+Case_168_Cgeo_SINTETICO_2_BUG,App de Scanner de Documentos,android.os.Parcel,"final ScanResult result2 = ScanResult.CREATOR.createFromParcel(parcel);
+
+        assertThat(result1.getPages()).hasSize(result2.getPages().size());
+    }
+}",1
+Case_168_Cgeo_SINTETICO_3_BUG,App de Fitness,android.os.Parcel,"final WorkoutSession session2 = WorkoutSession.CREATOR.createFromParcel(parcel);
+
+        assertThat(session1.getDuration()).isEqualTo(session2.getDuration());
+    }
+}",1
+Case_168_Cgeo_SINTETICO_4_BUG,App de E-commerce,android.os.Parcel,"final Address address2 = Address.CREATOR.createFromParcel(parcel);
+
+        assertThat(address1).isEqualTo(address2);
+    }
+}",1
+Case_168_Cgeo_SINTETICO_5_BUG,App de Mensagens,android.os.Parcel,"final MessageThread thread2 = MessageThread.CREATOR.createFromParcel(parcel);
+
+        assertThat(thread1.getId()).isEqualTo(thread2.getId());
+    }
+}",1
+Case_168_Cgeo_SINTETICO_6_BUG,App de Navegação,android.os.Parcel,"final Route route2 = Route.CREATOR.createFromParcel(parcel);
+
+        assertThat(route1.getDistanceMeters()).isEqualTo(route2.getDistanceMeters());
+    }
+}",1
+Case_168_Cgeo_SINTETICO_7_BUG,App de Finanças,android.os.Parcel,"final Transaction transaction2 = Transaction.CREATOR.createFromParcel(parcel);
+
+        assertThat(transaction1).isEqualTo(transaction2);
+    }
+}",1
+Case_168_Cgeo_SINTETICO_8_BUG,App de Saúde,android.os.Parcel,"final LabResult labResult2 = LabResult.CREATOR.createFromParcel(parcel);
+
+        assertThat(labResult1.getValue()).isEqualTo(labResult2.getValue());
+    }
+}",1
+Case_168_Cgeo_SINTETICO_9_BUG,App de Viagens,android.os.Parcel,"final Booking booking2 = Booking.CREATOR.createFromParcel(parcel);
+
+        assertThat(booking1.getReference()).isEqualTo(booking2.getReference());
+    }
+}",1
+Case_168_Cgeo_SINTETICO_10_BUG,App de Jogos,android.os.Parcel,"final PlayerState state2 = PlayerState.CREATOR.createFromParcel(parcel);
+
+        assertThat(state1.getLevel()).isEqualTo(state2.getLevel());
+    }
+}",1
+Case_170_K-9 Mail_SINTETICO_1_BUG,App de Musica,android.os.PowerManager.WakeLock,"public void startPlayback(final Context context, final Uri trackUri) {
+    PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+    WakeLock wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, ""MusicPlayer:Playback"");
+    wakeLock.setReferenceCounted(false);
+    wakeLock.acquire(10 * 60 * 1000L);
+
+    mediaPlayer.setDataSource(context, trackUri);
+    mediaPlayer.prepareAsync();
+    mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+        @Override
+        public void onPrepared(MediaPlayer mp) {
+            mp.start();
+        }
+    });
+}",1
+Case_170_K-9 Mail_SINTETICO_2_BUG,App de Scanner de Documentos,android.os.PowerManager.WakeLock,"public void scanDocument(final Context context, final File imageFile) {
+    PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+    WakeLock wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, ""Scanner:OCR"");
+    wakeLock.setReferenceCounted(false);
+    wakeLock.acquire(5 * 60 * 1000L);
+
+    executor.execute(new Runnable() {
+        @Override
+        public void run() {
+            ocrEngine.process(imageFile);
+            callback.onScanFinished();
+        }
+    });
+}",1
+Case_170_K-9 Mail_SINTETICO_3_BUG,App de Fitness,android.os.PowerManager.WakeLock,"public void startWorkoutSession(final Context context, final WorkoutPlan plan) {
+    PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+    WakeLock wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, ""Fitness:WorkoutSession"");
+    wakeLock.setReferenceCounted(false);
+    wakeLock.acquire();
+
+    timer.start(plan.getDurationMillis(), new TimerCallback() {
+        @Override
+        public void onTick(long remaining) {
+            workoutListener.onProgress(remaining);
+        }
+
+        @Override
+        public void onFinish() {
+            workoutListener.onWorkoutCompleted();
+        }
+    });
+}",1
+Case_170_K-9 Mail_SINTETICO_4_BUG,App de Navegação GPS,android.os.PowerManager.WakeLock,"public void beginTurnByTurnNavigation(final Context context, final Route route) {
+    PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+    WakeLock wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, ""Navigator:RouteTracking"");
+    wakeLock.setReferenceCounted(false);
+    wakeLock.acquire(20 * 60 * 1000L);
+
+    locationManager.requestLocationUpdates(route.getProvider(), 1000L, 5f, locationListener);
+    routeUpdater.start(route, new Runnable() {
+        @Override
+        public void run() {
+            ui.showNavigationRunning();
+        }
+    });
+}",1
+Case_170_K-9 Mail_SINTETICO_5_BUG,App de Backup na Nuvem,android.os.PowerManager.WakeLock,"public void uploadBackup(final Context context, final File backupFile) {
+    PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+    WakeLock wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, ""Backup:Upload"");
+    wakeLock.setReferenceCounted(false);
+    wakeLock.acquire(15 * 60 * 1000L);
+
+    cloudClient.upload(backupFile, new UploadCallback() {
+        @Override
+        public void onSuccess() {
+            analytics.trackEvent(""backup_uploaded"");
+        }
+
+        @Override
+        public void onError(Exception e) {
+            logger.e(""Upload failed"", e);
+        }
+    });
+}",1
+Case_170_K-9 Mail_SINTETICO_6_BUG,App de Streaming de Vídeo,android.os.PowerManager.WakeLock,"public void bufferAndPlay(final Context context, final String videoId) {
+    PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+    WakeLock wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, ""VideoPlayer:Buffer"");
+    wakeLock.setReferenceCounted(false);
+    wakeLock.acquire(30 * 60 * 1000L);
+
+    networkFetcher.fetch(videoId, new FetchCallback() {
+        @Override
+        public void onResponse(VideoStream stream) {
+            player.setStream(stream);
+            player.play();
+        }
+    });
+}",1
+Case_170_K-9 Mail_SINTETICO_7_BUG,App de Leitura Offline,android.os.PowerManager.WakeLock,"public void syncLibrary(final Context context, final List<Book> books) {
+    PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+    WakeLock wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, ""Reader:LibrarySync"");
+    wakeLock.setReferenceCounted(false);
+    wakeLock.acquire();
+
+    syncService.sync(books, new Runnable() {
+        @Override
+        public void run() {
+            libraryView.refresh();
+        }
+    });
+}",1
+Case_170_K-9 Mail_SINTETICO_8_BUG,App de Mensagens,android.os.PowerManager.WakeLock,"public void sendQueuedMessages(final Context context, final List<Message> queue) {
+    PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+    WakeLock wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, ""Messenger:QueueSend"");
+    wakeLock.setReferenceCounted(false);
+    wakeLock.acquire(60 * 1000L);
+
+    messageSender.send(queue, new SendCallback() {
+        @Override
+        public void onComplete() {
+            ui.showToast(""Messages sent"");
+        }
+    });
+}",1
+Case_170_K-9 Mail_SINTETICO_9_BUG,App de Edição de Fotos,android.os.PowerManager.WakeLock,"public void exportEditedPhoto(final Context context, final Bitmap bitmap) {
+    PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+    WakeLock wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, ""PhotoEditor:Export"");
+    wakeLock.setReferenceCounted(false);
+    wakeLock.acquire(3 * 60 * 1000L);
+
+    imageExporter.export(bitmap, outputFile, new ExportListener() {
+        @Override
+        public void onExported(File file) {
+            galleryIndexer.index(file);
+        }
+    });
+}",1
+Case_170_K-9 Mail_SINTETICO_10_BUG,App de Monitorização IoT,android.os.PowerManager.WakeLock,"public void collectSensorBatch(final Context context, final List<SensorReading> readings) {
+    PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+    WakeLock wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, ""IoT:SensorBatch"");
+    wakeLock.setReferenceCounted(false);
+    wakeLock.acquire(2 * 60 * 1000L);
+
+    deviceClient.sendBatch(readings, new Runnable() {
+        @Override
+        public void run() {
+            logger.i(""Batch sent"");
+        }
+    });
+}",1
+Case_172_ConnectBot_SINTETICO_1_BUG,App de Musica,android.os.PowerManager.WakeLock,"import android.app.Activity;
+import android.os.Bundle;
+import android.os.PowerManager;
+
+public class PlayerActivity extends Activity {
+    private PowerManager.WakeLock wakeLock;
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
+        wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, ""MusicApp:PlaybackLock"");
+        if (wakeLock != null) {
+            wakeLock.acquire();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // BUG: wakelock não é libertado aqui
+    }
+}
+",1
+Case_172_ConnectBot_SINTETICO_2_BUG,App de Scanner de Documentos,android.os.PowerManager.WakeLock,"import android.app.Activity;
+import android.os.Bundle;
+import android.os.PowerManager;
+
+public class ScanActivity extends Activity {
+    private PowerManager.WakeLock cameraWakeLock;
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
+        cameraWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, ""ScannerApp:CameraLock"");
+        cameraWakeLock.acquire();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        // BUG: lock mantido após fechar o ecrã de scan
+    }
+}
+",1
+Case_172_ConnectBot_SINTETICO_3_BUG,App de Fitness,android.os.PowerManager.WakeLock,"import android.app.Service;
+import android.content.Intent;
+import android.os.IBinder;
+import android.os.PowerManager;
+
+public class WorkoutTrackingService extends Service {
+    private PowerManager.WakeLock wakeLock;
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
+        wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, ""FitnessApp:WorkoutLock"");
+        wakeLock.acquire();
+        return START_STICKY;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        // BUG: wakeLock nunca é libertado
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
+}
+",1
+Case_172_ConnectBot_SINTETICO_4_BUG,App de Navegação GPS,android.os.PowerManager.WakeLock,"import android.app.Activity;
+import android.os.Bundle;
+import android.os.PowerManager;
+
+public class NavigationActivity extends Activity {
+    private PowerManager.WakeLock navigationLock;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
+        navigationLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, ""NavApp:NavigationLock"");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        navigationLock.acquire();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // BUG: não liberta o wakelock
+    }
+}
+",1
+Case_172_ConnectBot_SINTETICO_5_BUG,App de Streaming de Vídeo,android.os.PowerManager.WakeLock,"import android.app.Fragment;
+import android.os.Bundle;
+import android.os.PowerManager;
+
+public class VideoPlayerFragment extends Fragment {
+    private PowerManager.WakeLock wakeLock;
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        PowerManager pm = (PowerManager) getActivity().getSystemService(getActivity().POWER_SERVICE);
+        wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, ""VideoApp:StreamLock"");
+        wakeLock.acquire();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        // BUG: wakeLock permanece ativo depois da view ser destruída
+    }
+}
+",1
+Case_172_ConnectBot_SINTETICO_6_BUG,App de Podcast,android.os.PowerManager.WakeLock,"import android.app.Service;
+import android.content.Intent;
+import android.os.IBinder;
+import android.os.PowerManager;
+
+public class DownloadService extends Service {
+    private PowerManager.WakeLock downloadLock;
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
+        downloadLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, ""PodcastApp:DownloadLock"");
+        downloadLock.acquire();
+        return START_REDELIVER_INTENT;
+    }
+
+    @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        super.onTaskRemoved(rootIntent);
+        // BUG: lock não é libertado quando a tarefa é removida
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
+}
+",1
+Case_172_ConnectBot_SINTETICO_7_BUG,App de Leitura de Livros,android.os.PowerManager.WakeLock,"import android.app.Activity;
+import android.os.Bundle;
+import android.os.PowerManager;
+
+public class ReaderActivity extends Activity {
+    private PowerManager.WakeLock screenLock;
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
+        screenLock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK, ""ReaderApp:ScreenLock"");
+        screenLock.acquire();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        // BUG: não liberta wakelock ao sair do leitor
+    }
+}
+",1
+Case_172_ConnectBot_SINTETICO_8_BUG,App de Chat,android.os.PowerManager.WakeLock,"import android.app.Service;
+import android.content.Intent;
+import android.os.IBinder;
+import android.os.PowerManager;
+
+public class MessageSyncService extends Service {
+    private PowerManager.WakeLock syncLock;
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
+        syncLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, ""ChatApp:SyncLock"");
+        syncLock.acquire();
+        return START_NOT_STICKY;
+    }
+
+    @Override
+    public void onTrimMemory(int level) {
+        super.onTrimMemory(level);
+        // BUG: wakelock continua mesmo quando o sistema pede alívio de memória
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
+}
+",1
+Case_172_ConnectBot_SINTETICO_9_BUG,App de Telemetria de Frota,android.os.PowerManager.WakeLock,"import android.app.IntentService;
+import android.content.Intent;
+import android.os.PowerManager;
+
+public class FleetTelemetryService extends IntentService {
+    private PowerManager.WakeLock telemetryLock;
+
+    public FleetTelemetryService() {
+        super(""FleetTelemetryService"");
+    }
+
+    @Override
+    protected void onHandleIntent(Intent intent) {
+        PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
+        telemetryLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, ""FleetApp:TelemetryLock"");
+        telemetryLock.acquire();
+        // processamento de telemetria
+        // BUG: sem release no fim do trabalho
+    }
+}
+",1
+Case_172_ConnectBot_SINTETICO_10_BUG,App de Drone,android.os.PowerManager.WakeLock,"import android.app.Activity;
+import android.os.Bundle;
+import android.os.PowerManager;
+
+public class FlightControlActivity extends Activity {
+    private PowerManager.WakeLock flightLock;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
+        flightLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, ""DroneApp:FlightLock"");
+        flightLock.acquire();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // BUG: atividade em background mantém o wakelock
+    }
+}
+",1
+Case_172_ConnectBot_SINTETICO_11_BUG,App de Pagamento Mobile,android.os.PowerManager.WakeLock,"import android.app.Activity;
+import android.os.Bundle;
+import android.os.PowerManager;
+
+public class PaymentProcessingActivity extends Activity {
+    private PowerManager.WakeLock paymentLock;
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
+        paymentLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, ""PayApp:PaymentLock"");
+        paymentLock.acquire();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        // BUG: lock não é libertado após terminar o checkout
+    }
+}
+",1
+Case_175_CSipSimple_SINTETICO_1_BUG,App de Musica,android.os.PowerManager.WakeLock,"if (playlist != null && !playlist.isEmpty()) {
+    for (Track track : playlist) {
+        if (track.isBuffering()) {
+            Log.w(TAG, ""Outra faixa já está a tocar, ignorando nova reprodução"");
+            player.stopCurrentTrack();
+            return;
+        }
+    }
+}
+",1
+Case_175_CSipSimple_SINTETICO_2_BUG,App de Scanner de Documentos,android.os.PowerManager.WakeLock,"if (pages != null && pages.length > 0) {
+    for (Page page : pages) {
+        if (page.isCorrupted()) {
+            Log.e(TAG, ""Página corrompida encontrada, cancelando scan"");
+            scanner.cancel();
+            return;
+        }
+    }
+}
+",1
+Case_175_CSipSimple_SINTETICO_3_BUG,App de Fitness,android.os.PowerManager.WakeLock,"if (workoutSession != null) {
+    for (WorkoutSession session : workoutSession) {
+        if (session.isOverlapping()) {
+            Log.d(TAG, ""Sessão já em andamento, não iniciar novo treino"");
+            trainer.endSession();
+            return;
+        }
+    }
+}
+",1
+Case_175_CSipSimple_SINTETICO_4_BUG,App de Navegação GPS,android.os.PowerManager.WakeLock,"if (routes != null && routes.size() > 0) {
+    for (Route route : routes) {
+        if (route.hasTrafficJam()) {
+            Log.i(TAG, ""Trânsito intenso detectado, recalculando rota"");
+            navigator.recalculateRoute();
+            return;
+        }
+    }
+}
+",1
+Case_175_CSipSimple_SINTETICO_5_BUG,App de Reprodução de Vídeo,android.os.PowerManager.WakeLock,"if (streams != null && !streams.isEmpty()) {
+    for (Stream stream : streams) {
+        if (!stream.isReady()) {
+            Log.e(TAG, ""Stream indisponível, a encerrar reprodução"");
+            videoPlayer.pause();
+            return;
+        }
+    }
+}
+",1
+Case_175_CSipSimple_SINTETICO_6_BUG,App de Câmera / Fotos,android.os.PowerManager.WakeLock,"if (captures != null && captures.length > 0) {
+    for (CaptureRequest request : captures) {
+        if (request.isInvalid()) {
+            Log.w(TAG, ""Pedido inválido, a abortar captura"");
+            cameraSession.abortCaptures();
+            return;
+        }
+    }
+}
+",1
+Case_175_CSipSimple_SINTETICO_7_BUG,App de Mensagens com Anexo de Voz,android.os.PowerManager.WakeLock,"if (recordings != null && recordings.size() > 0) {
+    for (VoiceRecording recording : recordings) {
+        if (recording.isTooLong()) {
+            Log.e(TAG, ""Gravação excedeu o limite, cancelando upload"");
+            uploader.cancel();
+            return;
+        }
+    }
+}
+",1
+Case_175_CSipSimple_SINTETICO_8_BUG,App de Monitorização de Saúde,android.os.PowerManager.WakeLock,"if (readings != null && readings.length > 0) {
+    for (HeartRateReading reading : readings) {
+        if (reading.isSensorFault()) {
+            Log.e(TAG, ""Falha no sensor detetada, interrompendo aquisição"");
+            sensorManager.stopSampling();
+            return;
+        }
+    }
+}
+",1
+Case_175_CSipSimple_SINTETICO_9_BUG,App de E-book / Leitor Digital,android.os.PowerManager.WakeLock,"if (chapters != null && chapters.size() > 0) {
+    for (Chapter chapter : chapters) {
+        if (chapter.isLocked()) {
+            Log.d(TAG, ""Capítulo bloqueado, a parar carregamento"");
+            bookLoader.stop();
+            return;
+        }
+    }
+}
+",1
+Case_175_CSipSimple_SINTETICO_10_BUG,App de E-commerce com Checkout,android.os.PowerManager.WakeLock,"if (orders != null && orders.length > 0) {
+    for (Order order : orders) {
+        if (order.isPaymentDeclined()) {
+            Log.e(TAG, ""Pagamento recusado, a cancelar checkout"");
+            checkoutManager.abort();
+            return;
+        }
+    }
+}
+",1
+Case_178_Xabber_SINTETICO_1_BUG,App de Musica,android.view.MotionEvent,"private void stopScrubbing() {
+    seekBar.onTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(),
+            SystemClock.uptimeMillis(), MotionEvent.ACTION_CANCEL, 0, 0, 0));
+}
+",1
+Case_178_Xabber_SINTETICO_2_BUG,App de Scanner,android.view.MotionEvent,"private void cancelScanGesture() {
+    previewView.onTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(),
+            SystemClock.uptimeMillis(), MotionEvent.ACTION_CANCEL, 0, 0, 0));
+}
+",1
+Case_178_Xabber_SINTETICO_3_BUG,App de Fitness,android.view.MotionEvent,"private void stopPaceAdjustment() {
+    speedSlider.onTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(),
+            SystemClock.uptimeMillis(), MotionEvent.ACTION_CANCEL, 0, 0, 0));
+}
+",1
+Case_178_Xabber_SINTETICO_4_BUG,App de E-commerce,android.view.MotionEvent,"private void dismissSwipeRefresh() {
+    recyclerView.onTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(),
+            SystemClock.uptimeMillis(), MotionEvent.ACTION_CANCEL, 0, 0, 0));
+}
+",1
+Case_178_Xabber_SINTETICO_5_BUG,App de Navegação,android.view.MotionEvent,"private void abortMapDrag() {
+    mapView.onTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(),
+            SystemClock.uptimeMillis(), MotionEvent.ACTION_CANCEL, 0, 0, 0));
+}
+",1
+Case_178_Xabber_SINTETICO_6_BUG,App de Leitura,android.view.MotionEvent,"private void stopPageFling() {
+    pager.onTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(),
+            SystemClock.uptimeMillis(), MotionEvent.ACTION_CANCEL, 0, 0, 0));
+}
+",1
+Case_178_Xabber_SINTETICO_7_BUG,App de Desenho,android.view.MotionEvent,"private void cancelBrushStroke() {
+    drawingCanvas.onTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(),
+            SystemClock.uptimeMillis(), MotionEvent.ACTION_CANCEL, 0, 0, 0));
+}
+",1
+Case_178_Xabber_SINTETICO_8_BUG,App de Chat,android.view.MotionEvent,"private void releaseAttachmentSwipe() {
+    attachmentList.onTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(),
+            SystemClock.uptimeMillis(), MotionEvent.ACTION_CANCEL, 0, 0, 0));
+}
+",1
+Case_178_Xabber_SINTETICO_9_BUG,App de Fotografias,android.view.MotionEvent,"private void stopZoomGesture() {
+    imageViewer.onTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(),
+            SystemClock.uptimeMillis(), MotionEvent.ACTION_CANCEL, 0, 0, 0));
+}
+",1
+Case_178_Xabber_SINTETICO_10_BUG,App de Jogos,android.view.MotionEvent,"private void interruptJoystickDrag() {
+    virtualJoystick.onTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(),
+            SystemClock.uptimeMillis(), MotionEvent.ACTION_CANCEL, 0, 0, 0));
+}
+",1
+Case_221_ChatSecure_SINTETICO_1_BUG,App de Música,java.io.FilterInputStream,"ByteArrayOutputStream out = new ByteArrayOutputStream();
+SongMetadataOutputStream sos = new SongMetadataOutputStream(out);
+sos.writeTrackId(trackId);
+
+byte[] payload = out.toByteArray();
+
+ByteArrayInputStream bin = new ByteArrayInputStream(payload);
+SongMetadataInputStream sis = new SongMetadataInputStream(bin);
+int result = sis.readTrackId();
+
+assertEquals(trackId, result);",1
+Case_221_ChatSecure_SINTETICO_2_BUG,App de Scanner de Documentos,java.io.FilterInputStream,"ByteArrayOutputStream out = new ByteArrayOutputStream();
+ScanDataOutputStream sdos = new ScanDataOutputStream(out);
+sdos.writePageCount(pageCount);
+
+byte[] bytes = out.toByteArray();
+
+ByteArrayInputStream bin = new ByteArrayInputStream(bytes);
+ScanDataInputStream sdis = new ScanDataInputStream(bin);
+int result = sdis.readPageCount();
+
+assertEquals(pageCount, result);",1
+Case_221_ChatSecure_SINTETICO_3_BUG,App de Fitness,java.io.FilterInputStream,"ByteArrayOutputStream out = new ByteArrayOutputStream();
+WorkoutOutputStream wos = new WorkoutOutputStream(out);
+wos.writeHeartRate(avgHeartRate);
+
+byte[] encoded = out.toByteArray();
+
+ByteArrayInputStream bin = new ByteArrayInputStream(encoded);
+WorkoutInputStream wis = new WorkoutInputStream(bin);
+int result = wis.readHeartRate();
+
+assertEquals(avgHeartRate, result);",1
+Case_221_ChatSecure_SINTETICO_4_BUG,App de Pagamentos,java.io.FilterInputStream,"ByteArrayOutputStream out = new ByteArrayOutputStream();
+TransactionOutputStream tos = new TransactionOutputStream(out);
+tos.writeAmount(amountInCents);
+
+byte[] serialized = out.toByteArray();
+
+ByteArrayInputStream bin = new ByteArrayInputStream(serialized);
+TransactionInputStream tis = new TransactionInputStream(bin);
+long result = tis.readAmount();
+
+assertEquals(amountInCents, result);",1
+Case_221_ChatSecure_SINTETICO_5_BUG,App de Navegação,java.io.FilterInputStream,"ByteArrayOutputStream out = new ByteArrayOutputStream();
+RouteOutputStream ros = new RouteOutputStream(out);
+ros.writeDistance(distanceMeters);
+
+byte[] routeBytes = out.toByteArray();
+
+ByteArrayInputStream bin = new ByteArrayInputStream(routeBytes);
+RouteInputStream ris = new RouteInputStream(bin);
+double result = ris.readDistance();
+
+assertEquals(distanceMeters, result, 0.0001);",1
+Case_221_ChatSecure_SINTETICO_6_BUG,App de Chat,java.io.FilterInputStream,"ByteArrayOutputStream out = new ByteArrayOutputStream();
+MessageOutputStream mos = new MessageOutputStream(out);
+mos.writeMessageLength(messageLength);
+
+byte[] data = out.toByteArray();
+
+ByteArrayInputStream bin = new ByteArrayInputStream(data);
+MessageInputStream mis = new MessageInputStream(bin);
+int result = mis.readMessageLength();
+
+assertEquals(messageLength, result);",1
+Case_221_ChatSecure_SINTETICO_7_BUG,App de Saúde,java.io.FilterInputStream,"ByteArrayOutputStream out = new ByteArrayOutputStream();
+VitalsOutputStream vos = new VitalsOutputStream(out);
+vos.writeOxygenSaturation(spo2);
+
+byte[] buffer = out.toByteArray();
+
+ByteArrayInputStream bin = new ByteArrayInputStream(buffer);
+VitalsInputStream vis = new VitalsInputStream(bin);
+int result = vis.readOxygenSaturation();
+
+assertEquals(spo2, result);",1
+Case_221_ChatSecure_SINTETICO_8_BUG,App de E-commerce,java.io.FilterInputStream,"ByteArrayOutputStream out = new ByteArrayOutputStream();
+CartOutputStream cos = new CartOutputStream(out);
+cos.writeItemCount(itemCount);
+
+byte[] snapshot = out.toByteArray();
+
+ByteArrayInputStream bin = new ByteArrayInputStream(snapshot);
+CartInputStream cis = new CartInputStream(bin);
+int result = cis.readItemCount();
+
+assertEquals(itemCount, result);",1
+Case_221_ChatSecure_SINTETICO_9_BUG,App de Educação,java.io.FilterInputStream,"ByteArrayOutputStream out = new ByteArrayOutputStream();
+QuizOutputStream qos = new QuizOutputStream(out);
+qos.writeScore(score);
+
+byte[] quizBytes = out.toByteArray();
+
+ByteArrayInputStream bin = new ByteArrayInputStream(quizBytes);
+QuizInputStream qis = new QuizInputStream(bin);
+int result = qis.readScore();
+
+assertEquals(score, result);",1
+Case_221_ChatSecure_SINTETICO_10_BUG,App de Meteorologia,java.io.FilterInputStream,"ByteArrayOutputStream out = new ByteArrayOutputStream();
+WeatherOutputStream wos = new WeatherOutputStream(out);
+wos.writeHumidity(humidity);
+
+byte[] weatherData = out.toByteArray();
+
+ByteArrayInputStream bin = new ByteArrayInputStream(weatherData);
+WeatherInputStream wis = new WeatherInputStream(bin);
+int result = wis.readHumidity();
+
+assertEquals(humidity, result);",1
+Case_222_ChatSecure_SINTETICO_1_BUG,App de Música,java.io.FilterInputStream,"ByteArrayOutputStream out = new ByteArrayOutputStream();
+AudioMetadataOutputStream aos = new AudioMetadataOutputStream(out);
+aos.writeTrackInfo(track);
+
+byte[] converted = out.toByteArray();
+
+ByteArrayInputStream bin = new ByteArrayInputStream(converted);
+AudioMetadataInputStream ais = new AudioMetadataInputStream(bin);
+TrackInfo result = ais.readTrackInfo();
+
+assertEquals(track.getId(), result.getId());",1
+Case_222_ChatSecure_SINTETICO_2_BUG,App de Scanner de Documentos,java.io.FilterInputStream,"ByteArrayOutputStream out = new ByteArrayOutputStream();
+ScanResultOutputStream sos = new ScanResultOutputStream(out);
+sos.writePageSummary(summary);
+
+byte[] converted = out.toByteArray();
+
+ByteArrayInputStream bin = new ByteArrayInputStream(converted);
+ScanResultInputStream sis = new ScanResultInputStream(bin);
+PageSummary result = sis.readPageSummary();
+
+assertTrue(summary.getChecksum() == result.getChecksum());",1
+Case_222_ChatSecure_SINTETICO_3_BUG,App de Fitness,java.io.FilterInputStream,"ByteArrayOutputStream out = new ByteArrayOutputStream();
+WorkoutOutputStream wos = new WorkoutOutputStream(out);
+wos.writeWorkoutPlan(plan);
+
+byte[] converted = out.toByteArray();
+
+ByteArrayInputStream bin = new ByteArrayInputStream(converted);
+WorkoutInputStream wis = new WorkoutInputStream(bin);
+WorkoutPlan result = wis.readWorkoutPlan();
+
+assertEquals(plan.getCaloriesTarget(), result.getCaloriesTarget());",1
+Case_222_ChatSecure_SINTETICO_4_BUG,App de Pagamentos,java.io.FilterInputStream,"ByteArrayOutputStream out = new ByteArrayOutputStream();
+TransactionOutputStream tos = new TransactionOutputStream(out);
+tos.writeReceipt(receipt);
+
+byte[] converted = out.toByteArray();
+
+ByteArrayInputStream bin = new ByteArrayInputStream(converted);
+TransactionInputStream tis = new TransactionInputStream(bin);
+Receipt result = tis.readReceipt();
+
+assertTrue(receipt.getTransactionId().equals(result.getTransactionId()));",1
+Case_222_ChatSecure_SINTETICO_5_BUG,App de Chat,java.io.FilterInputStream,"ByteArrayOutputStream out = new ByteArrayOutputStream();
+MessageOutputStream mos = new MessageOutputStream(out);
+mos.writeEncryptedMessage(message);
+
+byte[] converted = out.toByteArray();
+
+ByteArrayInputStream bin = new ByteArrayInputStream(converted);
+MessageInputStream mis = new MessageInputStream(bin);
+ChatMessage result = mis.readEncryptedMessage();
+
+assertEquals(message.getTimestamp(), result.getTimestamp());",1
+Case_222_ChatSecure_SINTETICO_6_BUG,App de Mapas e Navegação,java.io.FilterInputStream,"ByteArrayOutputStream out = new ByteArrayOutputStream();
+RouteOutputStream ros = new RouteOutputStream(out);
+ros.writeRoute(route);
+
+byte[] converted = out.toByteArray();
+
+ByteArrayInputStream bin = new ByteArrayInputStream(converted);
+RouteInputStream ris = new RouteInputStream(bin);
+Route result = ris.readRoute();
+
+assertEquals(route.getDistanceMeters(), result.getDistanceMeters());",1
+Case_222_ChatSecure_SINTETICO_7_BUG,App de Câmera,java.io.FilterInputStream,"ByteArrayOutputStream out = new ByteArrayOutputStream();
+ImageSettingsOutputStream ios = new ImageSettingsOutputStream(out);
+ios.writeCameraSettings(settings);
+
+byte[] converted = out.toByteArray();
+
+ByteArrayInputStream bin = new ByteArrayInputStream(converted);
+ImageSettingsInputStream iis = new ImageSettingsInputStream(bin);
+CameraSettings result = iis.readCameraSettings();
+
+assertEquals(settings.getIso(), result.getIso());",1
+Case_222_ChatSecure_SINTETICO_8_BUG,App de E-commerce,java.io.FilterInputStream,"ByteArrayOutputStream out = new ByteArrayOutputStream();
+CartOutputStream cos = new CartOutputStream(out);
+cos.writeCart(cart);
+
+byte[] converted = out.toByteArray();
+
+ByteArrayInputStream bin = new ByteArrayInputStream(converted);
+CartInputStream cis = new CartInputStream(bin);
+ShoppingCart result = cis.readCart();
+
+assertEquals(cart.getItemCount(), result.getItemCount());",1
+Case_222_ChatSecure_SINTETICO_9_BUG,App de Educação,java.io.FilterInputStream,"ByteArrayOutputStream out = new ByteArrayOutputStream();
+LessonOutputStream los = new LessonOutputStream(out);
+los.writeLessonProgress(progress);
+
+byte[] converted = out.toByteArray();
+
+ByteArrayInputStream bin = new ByteArrayInputStream(converted);
+LessonInputStream lis = new LessonInputStream(bin);
+LessonProgress result = lis.readLessonProgress();
+
+assertTrue(progress.getCompletedUnits() == result.getCompletedUnits());",1
+Case_222_ChatSecure_SINTETICO_10_BUG,App de Saúde,java.io.FilterInputStream,"ByteArrayOutputStream out = new ByteArrayOutputStream();
+HealthReportOutputStream hros = new HealthReportOutputStream(out);
+hros.writeHealthReport(report);
+
+byte[] converted = out.toByteArray();
+
+ByteArrayInputStream bin = new ByteArrayInputStream(converted);
+HealthReportInputStream hris = new HealthReportInputStream(bin);
+HealthReport result = hris.readHealthReport();
+
+assertEquals(report.getHeartRate(), result.getHeartRate());",1
+Case_227_ChatSecure_SINTETICO_1_BUG,App de Musica,java.io.FilterOutputStream,"try {
+    audioOut.write(buffer);
+    audioOut.flush();
+} catch (IOException e) {
+    throw new RuntimeException(""Falha ao exportar faixa"", e);
+}",1
+Case_227_ChatSecure_SINTETICO_2_BUG,App de Scanner de Documentos,java.io.FilterOutputStream,"try {
+    pdfStream.write(pageBytes);
+    pdfStream.write(metadataBytes);
+} catch (IOException e) {
+    throw new IllegalStateException(""Erro ao gerar PDF"", e);
+}",1
+Case_227_ChatSecure_SINTETICO_3_BUG,App de Fitness,java.io.FilterOutputStream,"try {
+    statsStream.writeInt(workoutCount);
+    statsStream.writeLong(totalCalories);
+} catch (IOException e) {
+    throw new RuntimeException(""Erro ao gravar estatísticas"", e);
+}",1
+Case_227_ChatSecure_SINTETICO_4_BUG,App de Chat,java.io.FilterOutputStream,"try {
+    messageStream.write(payload);
+    messageStream.flush();
+} catch (IOException e) {
+    Log.e(""Chat"", ""Erro ao enviar mensagem"", e);
+}",1
+Case_227_ChatSecure_SINTETICO_5_BUG,App de E-commerce,java.io.FilterOutputStream,"try {
+    receiptStream.write(orderHeader);
+    receiptStream.write(orderItems);
+} catch (IOException e) {
+    throw new PaymentException(""Falha ao gerar recibo"", e);
+}",1
+Case_227_ChatSecure_SINTETICO_6_BUG,App de Navegação,java.io.FilterOutputStream,"try {
+    routeStream.write(routeBytes);
+    routeStream.write(checksumBytes);
+} catch (IOException e) {
+    throw new NavigationException(""Erro ao salvar rota"", e);
+}",1
+Case_227_ChatSecure_SINTETICO_7_BUG,App de Jogos,java.io.FilterOutputStream,"try {
+    saveStream.writeInt(level);
+    saveStream.write(saveData);
+} catch (IOException e) {
+    throw new RuntimeException(""Falha ao salvar progresso"", e);
+}",1
+Case_227_ChatSecure_SINTETICO_8_BUG,App de Fotos,java.io.FilterOutputStream,"try {
+    imageStream.write(compressedImage);
+    imageStream.write(exifData);
+} catch (IOException e) {
+    throw new RuntimeException(""Erro ao exportar imagem"", e);
+}",1
+Case_227_ChatSecure_SINTETICO_9_BUG,App de Educação,java.io.FilterOutputStream,"try {
+    lessonStream.write(lessonBytes);
+    lessonStream.write(quizBytes);
+} catch (IOException e) {
+    throw new IllegalArgumentException(""Erro ao guardar lição"", e);
+}",1
+Case_227_ChatSecure_SINTETICO_10_BUG,App de Saúde,java.io.FilterOutputStream,"try {
+    reportStream.write(reportHeader);
+    reportStream.write(reportBody);
+} catch (IOException e) {
+    throw new RuntimeException(""Falha ao exportar relatório"", e);
+}",1
+Case_230_ChatSecure_SINTETICO_1_BUG,App de Musica,java.io.FilterOutputStream,"ByteArrayOutputStream out = new ByteArrayOutputStream();
+        FilterOutputStream fos = new FilterOutputStream(out);
+        fos.write(trackHeader);
+
+        byte[] encoded = out.toByteArray();
+
+        ByteArrayInputStream bin = new ByteArrayInputStream(encoded);
+        FilterInputStream fis = new FilterInputStream(bin);
+        int version = fis.read();
+
+        assertEquals(trackHeader, version);",1
+Case_230_ChatSecure_SINTETICO_2_BUG,App de Scanner de Documentos,java.io.FilterOutputStream,"ByteArrayOutputStream out = new ByteArrayOutputStream();
+        FilterOutputStream stream = new FilterOutputStream(out);
+        stream.write(pageBytes);
+
+        byte[] snapshot = out.toByteArray();
+
+        ByteArrayInputStream bin = new ByteArrayInputStream(snapshot);
+        FilterInputStream in = new FilterInputStream(bin);
+        int firstByte = in.read();
+
+        assertTrue(firstByte >= 0);",1
+Case_230_ChatSecure_SINTETICO_3_BUG,App de Fitness,java.io.FilterOutputStream,"ByteArrayOutputStream out = new ByteArrayOutputStream();
+        FilterOutputStream fos = new FilterOutputStream(out);
+        fos.write(activityPayload);
+
+        byte[] serialized = out.toByteArray();
+
+        ByteArrayInputStream bin = new ByteArrayInputStream(serialized);
+        FilterInputStream fis = new FilterInputStream(bin);
+        int checksum = fis.read();
+
+        assertEquals(expectedChecksum, checksum);",1
+Case_230_ChatSecure_SINTETICO_4_BUG,App de Compras,java.io.FilterOutputStream,"ByteArrayOutputStream out = new ByteArrayOutputStream();
+        FilterOutputStream orderStream = new FilterOutputStream(out);
+        orderStream.write(orderBytes);
+
+        byte[] packedOrder = out.toByteArray();
+
+        ByteArrayInputStream bin = new ByteArrayInputStream(packedOrder);
+        FilterInputStream input = new FilterInputStream(bin);
+        int flag = input.read();
+
+        assertEquals(1, flag);",1
+Case_230_ChatSecure_SINTETICO_5_BUG,App de Mensagens,java.io.FilterOutputStream,"ByteArrayOutputStream out = new ByteArrayOutputStream();
+        FilterOutputStream writer = new FilterOutputStream(out);
+        writer.write(messageBody);
+
+        byte[] payload = out.toByteArray();
+
+        ByteArrayInputStream bin = new ByteArrayInputStream(payload);
+        FilterInputStream reader = new FilterInputStream(bin);
+        int size = reader.read();
+
+        assertTrue(size > 0);",1
+Case_230_ChatSecure_SINTETICO_6_BUG,App de Mapas,java.io.FilterOutputStream,"ByteArrayOutputStream out = new ByteArrayOutputStream();
+        FilterOutputStream stream = new FilterOutputStream(out);
+        stream.write(routeBlob);
+
+        byte[] routeData = out.toByteArray();
+
+        ByteArrayInputStream bin = new ByteArrayInputStream(routeData);
+        FilterInputStream fis = new FilterInputStream(bin);
+        int marker = fis.read();
+
+        assertEquals(routeType, marker);",1
+Case_230_ChatSecure_SINTETICO_7_BUG,App de E-commerce,java.io.FilterOutputStream,"ByteArrayOutputStream out = new ByteArrayOutputStream();
+        FilterOutputStream cartStream = new FilterOutputStream(out);
+        cartStream.write(cartState);
+
+        byte[] bytes = out.toByteArray();
+
+        ByteArrayInputStream bin = new ByteArrayInputStream(bytes);
+        FilterInputStream in = new FilterInputStream(bin);
+        int status = in.read();
+
+        assertEquals(0, status);",1
+Case_230_ChatSecure_SINTETICO_8_BUG,App de Noticias,java.io.FilterOutputStream,"ByteArrayOutputStream out = new ByteArrayOutputStream();
+        FilterOutputStream articleStream = new FilterOutputStream(out);
+        articleStream.write(articlePayload);
+
+        byte[] articleBytes = out.toByteArray();
+
+        ByteArrayInputStream bin = new ByteArrayInputStream(articleBytes);
+        FilterInputStream input = new FilterInputStream(bin);
+        int head = input.read();
+
+        assertTrue(head != -1);",1
+Case_230_ChatSecure_SINTETICO_9_BUG,App de Viagens,java.io.FilterOutputStream,"ByteArrayOutputStream out = new ByteArrayOutputStream();
+        FilterOutputStream itineraryStream = new FilterOutputStream(out);
+        itineraryStream.write(planBytes);
+
+        byte[] itinerary = out.toByteArray();
+
+        ByteArrayInputStream bin = new ByteArrayInputStream(itinerary);
+        FilterInputStream fis = new FilterInputStream(bin);
+        int indicator = fis.read();
+
+        assertEquals(expectedIndicator, indicator);",1
+Case_230_ChatSecure_SINTETICO_10_BUG,App de Desenho/Design,java.io.FilterOutputStream,"ByteArrayOutputStream out = new ByteArrayOutputStream();
+        FilterOutputStream graphicStream = new FilterOutputStream(out);
+        graphicStream.write(layerData);
+
+        byte[] buffer = out.toByteArray();
+
+        ByteArrayInputStream bin = new ByteArrayInputStream(buffer);
+        FilterInputStream fis = new FilterInputStream(bin);
+        int format = fis.read();
+
+        assertEquals(imageFormat, format);",1
+Case_232_K-9 Mail_SINTETICO_1_BUG,App de Música,java.io.InputStream,"public void loadTrackMetadata(InputStream inputStream) throws IOException {
+    MetadataParser parser = new MetadataParser();
+    inputStream.close();
+    parser.parse(inputStream);
+    inputStream.close();
+}",1
+Case_232_K-9 Mail_SINTETICO_2_BUG,App de Scanner,java.io.InputStream,"public String scanDocument(InputStream imageStream) throws IOException {
+    PdfCreator creator = new PdfCreator();
+    imageStream.close();
+    String result = creator.createPdf(imageStream);
+    imageStream.close();
+    return result;
+}",1
+Case_232_K-9 Mail_SINTETICO_3_BUG,App de Fitness,java.io.InputStream,"public WorkoutPlan parsePlan(InputStream planStream) throws IOException {
+    PlanParser parser = new PlanParser();
+    planStream.close();
+    WorkoutPlan plan = parser.parse(planStream);
+    planStream.close();
+    return plan;
+}",1
+Case_232_K-9 Mail_SINTETICO_4_BUG,App de Notícias,java.io.InputStream,"public Article loadArticle(InputStream articleStream) throws IOException {
+    ArticleReader reader = new ArticleReader();
+    articleStream.close();
+    Article article = reader.read(articleStream);
+    articleStream.close();
+    return article;
+}",1
+Case_232_K-9 Mail_SINTETICO_5_BUG,App de Jogos,java.io.InputStream,"public LevelConfig loadLevel(InputStream levelStream) throws IOException {
+    LevelConfigParser parser = new LevelConfigParser();
+    levelStream.close();
+    LevelConfig config = parser.parse(levelStream);
+    levelStream.close();
+    return config;
+}",1
+Case_232_K-9 Mail_SINTETICO_6_BUG,App de Compras,java.io.InputStream,"public ProductCatalog loadCatalog(InputStream catalogStream) throws IOException {
+    CatalogDeserializer deserializer = new CatalogDeserializer();
+    catalogStream.close();
+    ProductCatalog catalog = deserializer.deserialize(catalogStream);
+    catalogStream.close();
+    return catalog;
+}",1
+Case_232_K-9 Mail_SINTETICO_7_BUG,App de Educação,java.io.InputStream,"public Lesson loadLesson(InputStream lessonStream) throws IOException {
+    LessonParser parser = new LessonParser();
+    lessonStream.close();
+    Lesson lesson = parser.parse(lessonStream);
+    lessonStream.close();
+    return lesson;
+}",1
+Case_232_K-9 Mail_SINTETICO_8_BUG,App de Viagens,java.io.InputStream,"public MapData loadMap(InputStream mapStream) throws IOException {
+    MapDecoder decoder = new MapDecoder();
+    mapStream.close();
+    MapData data = decoder.decode(mapStream);
+    mapStream.close();
+    return data;
+}",1
+Case_232_K-9 Mail_SINTETICO_9_BUG,App de Fotos,java.io.InputStream,"public Bitmap decodePhoto(InputStream photoStream) throws IOException {
+    BitmapFactory factory = new BitmapFactory();
+    photoStream.close();
+    Bitmap bitmap = factory.decode(photoStream);
+    photoStream.close();
+    return bitmap;
+}",1
+Case_232_K-9 Mail_SINTETICO_10_BUG,App de Finanças,java.io.InputStream,"public TransactionBatch loadTransactions(InputStream transactionStream) throws IOException {
+    TransactionParser parser = new TransactionParser();
+    transactionStream.close();
+    TransactionBatch batch = parser.parse(transactionStream);
+    transactionStream.close();
+    return batch;
+}",1
+Case_264_FBReaderJ_SINTETICO_1_BUG,App de Música,java.io.InputStreamReader,"while (true) {
+    int count = streamReader.read(buffer);
+    if (count <= 0) {
+        return;
+    }
+    if (count < buffer.length) {
+        break;
+    }
+}
+",1
+Case_264_FBReaderJ_SINTETICO_2_BUG,Scanner de Documentos,java.io.InputStreamReader,"while (true) {
+    int count = streamReader.read(lineBuffer);
+    if (count <= 0) {
+        return null;
+    }
+    if (count < lineBuffer.length) {
+        parsed = true;
+        break;
+    }
+}
+",1
+Case_264_FBReaderJ_SINTETICO_3_BUG,App de Fitness,java.io.InputStreamReader,"while (true) {
+    int count = streamReader.read(chunk);
+    if (count <= 0) {
+        return false;
+    }
+    if (count < chunk.length) {
+        completed = true;
+        break;
+    }
+}
+",1
+Case_264_FBReaderJ_SINTETICO_4_BUG,App de Mensagens,java.io.InputStreamReader,"while (true) {
+    int count = streamReader.read(chars);
+    if (count <= 0) {
+        return;
+    }
+    if (count < chars.length) {
+        messageReady = true;
+        break;
+    }
+}
+",1
+Case_264_FBReaderJ_SINTETICO_5_BUG,Leitor de RSS/Notícias,java.io.InputStreamReader,"while (true) {
+    int count = streamReader.read(pageBuffer);
+    if (count <= 0) {
+        return Collections.emptyList();
+    }
+    if (count < pageBuffer.length) {
+        done = true;
+        break;
+    }
+}
+",1
+Case_264_FBReaderJ_SINTETICO_6_BUG,App de E-learning,java.io.InputStreamReader,"while (true) {
+    int count = streamReader.read(data);
+    if (count <= 0) {
+        return;
+    }
+    if (count < data.length) {
+        quizLoaded = true;
+        break;
+    }
+}
+",1
+Case_264_FBReaderJ_SINTETICO_7_BUG,App de Navegação,java.io.InputStreamReader,"while (true) {
+    int count = streamReader.read(routeBuffer);
+    if (count <= 0) {
+        return;
+    }
+    if (count < routeBuffer.length) {
+        routeParsed = true;
+        break;
+    }
+}
+",1
+Case_264_FBReaderJ_SINTETICO_8_BUG,App de Compras,java.io.InputStreamReader,"while (true) {
+    int count = streamReader.read(jsonBuffer);
+    if (count <= 0) {
+        return null;
+    }
+    if (count < jsonBuffer.length) {
+        inventoryReady = true;
+        break;
+    }
+}
+",1
+Case_264_FBReaderJ_SINTETICO_9_BUG,App de Clima,java.io.InputStreamReader,"while (true) {
+    int count = streamReader.read(bytes);
+    if (count <= 0) {
+        return;
+    }
+    if (count < bytes.length) {
+        weatherUpdated = true;
+        break;
+    }
+}
+",1
+Case_264_FBReaderJ_SINTETICO_10_BUG,App de Fotografia,java.io.InputStreamReader,"while (true) {
+    int count = streamReader.read(headerBuffer);
+    if (count <= 0) {
+        return false;
+    }
+    if (count < headerBuffer.length) {
+        metadataFound = true;
+        break;
+    }
+}
+",1
+Case_267_Hacker News_SINTETICO_1_BUG,App de Musica,java.io.ObjectOutputStream,"import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
+public class PlaylistStore {
+
+    public static Playlist loadLastPlaylist(String path) {
+        try {
+            ObjectInputStream obj = new ObjectInputStream(new FileInputStream(path));
+            Object raw = obj.readObject();
+            if (raw instanceof Playlist) {
+                return (Playlist) raw;
+            }
+        } catch (Exception e) {
+            Log.e(TAG, ""Could not load playlist"", e);
+        }
+        return null;
+    }
+
+    public static void saveLastPlaylist(Playlist playlist, String path) {
+        try {
+            ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(path));
+            os.writeObject(playlist);
+        } catch (Exception e) {
+            Log.e(TAG, ""Could not save playlist"", e);
+        }
+    }
+}",1
+Case_267_Hacker News_SINTETICO_2_BUG,App de Scanner de Documentos,java.io.ObjectOutputStream,"import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
+public class ScanCache {
+
+    public static ScannedDoc readLastScan(String filePath) {
+        try {
+            ObjectInputStream obj = new ObjectInputStream(new FileInputStream(filePath));
+            Object data = obj.readObject();
+            if (data instanceof ScannedDoc) {
+                return (ScannedDoc) data;
+            }
+        } catch (Exception e) {
+            Log.w(TAG, ""Unable to read scan cache"", e);
+        }
+        return null;
+    }
+
+    public static void writeLastScan(ScannedDoc doc, String filePath) {
+        try {
+            ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(filePath));
+            os.writeObject(doc);
+        } catch (Exception e) {
+            Log.w(TAG, ""Unable to write scan cache"", e);
+        }
+    }
+}",1
+Case_267_Hacker News_SINTETICO_3_BUG,App de Fitness,java.io.ObjectOutputStream,"import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
+public class WorkoutHistoryStore {
+
+    public static WorkoutSession loadSession(String path) {
+        try {
+            ObjectInputStream input = new ObjectInputStream(new FileInputStream(path));
+            Object session = input.readObject();
+            if (session instanceof WorkoutSession) {
+                return (WorkoutSession) session;
+            }
+        } catch (Exception e) {
+            Log.e(TAG, ""Failed to load workout session"", e);
+        }
+        return null;
+    }
+
+    public static void saveSession(WorkoutSession session, String path) {
+        try {
+            ObjectOutputStream output = new ObjectOutputStream(new FileOutputStream(path));
+            output.writeObject(session);
+        } catch (Exception e) {
+            Log.e(TAG, ""Failed to save workout session"", e);
+        }
+    }
+}",1
+Case_267_Hacker News_SINTETICO_4_BUG,App de Notas,java.io.ObjectOutputStream,"import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
+public class NoteBackupManager {
+
+    public static Note loadBackup(String backupPath) {
+        try {
+            ObjectInputStream in = new ObjectInputStream(new FileInputStream(backupPath));
+            Object obj = in.readObject();
+            if (obj instanceof Note) {
+                return (Note) obj;
+            }
+        } catch (Exception e) {
+            Log.e(TAG, ""Backup load failed"", e);
+        }
+        return null;
+    }
+
+    public static void saveBackup(Note note, String backupPath) {
+        try {
+            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(backupPath));
+            out.writeObject(note);
+        } catch (Exception e) {
+            Log.e(TAG, ""Backup save failed"", e);
+        }
+    }
+}",1
+Case_267_Hacker News_SINTETICO_5_BUG,App de E-commerce,java.io.ObjectOutputStream,"import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
+public class CartPersistence {
+
+    public static ShoppingCart loadCart(String file) {
+        try {
+            ObjectInputStream stream = new ObjectInputStream(new FileInputStream(file));
+            Object cart = stream.readObject();
+            if (cart instanceof ShoppingCart) {
+                return (ShoppingCart) cart;
+            }
+        } catch (Exception e) {
+            Log.e(TAG, ""Could not load cart"", e);
+        }
+        return null;
+    }
+
+    public static void saveCart(ShoppingCart cart, String file) {
+        try {
+            ObjectOutputStream stream = new ObjectOutputStream(new FileOutputStream(file));
+            stream.writeObject(cart);
+        } catch (Exception e) {
+            Log.e(TAG, ""Could not save cart"", e);
+        }
+    }
+}",1
+Case_267_Hacker News_SINTETICO_6_BUG,App de Mensagens,java.io.ObjectOutputStream,"import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
+public class DraftStore {
+
+    public static MessageDraft readDraft(String path) {
+        try {
+            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(path));
+            Object draft = ois.readObject();
+            if (draft instanceof MessageDraft) {
+                return (MessageDraft) draft;
+            }
+        } catch (Exception e) {
+            Log.e(TAG, ""Unable to read draft"", e);
+        }
+        return null;
+    }
+
+    public static void writeDraft(MessageDraft draft, String path) {
+        try {
+            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(path));
+            oos.writeObject(draft);
+        } catch (Exception e) {
+            Log.e(TAG, ""Unable to write draft"", e);
+        }
+    }
+}",1
+Case_267_Hacker News_SINTETICO_7_BUG,App de Fotos,java.io.ObjectOutputStream,"import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
+public class AlbumSerializer {
+
+    public static PhotoAlbum loadAlbum(String albumFile) {
+        try {
+            ObjectInputStream input = new ObjectInputStream(new FileInputStream(albumFile));
+            Object value = input.readObject();
+            if (value instanceof PhotoAlbum) {
+                return (PhotoAlbum) value;
+            }
+        } catch (Exception e) {
+            Log.e(TAG, ""Failed to load album"", e);
+        }
+        return null;
+    }
+
+    public static void saveAlbum(PhotoAlbum album, String albumFile) {
+        try {
+            ObjectOutputStream output = new ObjectOutputStream(new FileOutputStream(albumFile));
+            output.writeObject(album);
+        } catch (Exception e) {
+            Log.e(TAG, ""Failed to save album"", e);
+        }
+    }
+}",1
+Case_267_Hacker News_SINTETICO_8_BUG,App de Navegação,java.io.ObjectOutputStream,"import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
+public class RouteCache {
+
+    public static Route loadRoute(String filePath) {
+        try {
+            ObjectInputStream in = new ObjectInputStream(new FileInputStream(filePath));
+            Object route = in.readObject();
+            if (route instanceof Route) {
+                return (Route) route;
+            }
+        } catch (Exception e) {
+            Log.e(TAG, ""Route load error"", e);
+        }
+        return null;
+    }
+
+    public static void saveRoute(Route route, String filePath) {
+        try {
+            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(filePath));
+            out.writeObject(route);
+        } catch (Exception e) {
+            Log.e(TAG, ""Route save error"", e);
+        }
+    }
+}",1
+Case_267_Hacker News_SINTETICO_9_BUG,App de Receitas,java.io.ObjectOutputStream,"import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
+public class RecipeFavoritesStore {
+
+    public static Recipe loadFavorite(String path) {
+        try {
+            ObjectInputStream input = new ObjectInputStream(new FileInputStream(path));
+            Object favorite = input.readObject();
+            if (favorite instanceof Recipe) {
+                return (Recipe) favorite;
+            }
+        } catch (Exception e) {
+            Log.e(TAG, ""Could not load favorite recipe"", e);
+        }
+        return null;
+    }
+
+    public static void saveFavorite(Recipe recipe, String path) {
+        try {
+            ObjectOutputStream output = new ObjectOutputStream(new FileOutputStream(path));
+            output.writeObject(recipe);
+        } catch (Exception e) {
+            Log.e(TAG, ""Could not save favorite recipe"", e);
+        }
+    }
+}",1
+Case_267_Hacker News_SINTETICO_10_BUG,App de Calendarização,java.io.ObjectOutputStream,"import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
+public class EventStateStore {
+
+    public static CalendarEvent loadEvent(String file) {
+        try {
+            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
+            Object event = ois.readObject();
+            if (event instanceof CalendarEvent) {
+                return (CalendarEvent) event;
+            }
+        } catch (Exception e) {
+            Log.e(TAG, ""Load event failed"", e);
+        }
+        return null;
+    }
+
+    public static void saveEvent(CalendarEvent event, String file) {
+        try {
+            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file));
+            oos.writeObject(event);
+        } catch (Exception e) {
+            Log.e(TAG, ""Save event failed"", e);
+        }
+    }
+}",1
+Case_267_Hacker News_SINTETICO_11_BUG,App de Podcasts,java.io.ObjectOutputStream,"import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
+public class EpisodeQueueStore {
+
+    public static EpisodeQueue loadQueue(String path) {
+        try {
+            ObjectInputStream input = new ObjectInputStream(new FileInputStream(path));
+            Object queue = input.readObject();
+            if (queue instanceof EpisodeQueue) {
+                return (EpisodeQueue) queue;
+            }
+        } catch (Exception e) {
+            Log.e(TAG, ""Could not load episode queue"", e);
+        }
+        return null;
+    }
+
+    public static void saveQueue(EpisodeQueue queue, String path) {
+        try {
+            ObjectOutputStream output = new ObjectOutputStream(new FileOutputStream(path));
+            output.writeObject(queue);
+        } catch (Exception e) {
+            Log.e(TAG, ""Could not save episode queue"", e);
+        }
+    }
+}",1
+Case_269_K-9 Mail_SINTETICO_1_BUG,App de Musica,java.io.OutputStream,"public void exportPlaylist(File file) throws IOException {
+    OutputStream out = new FileOutputStream(file);
+    out.write(playlistData);
+    out.close();
+    out.write(metadataBytes);
+    out.close();
+}",1
+Case_269_K-9 Mail_SINTETICO_2_BUG,App de Scanner,java.io.OutputStream,"public void saveScan(File file, byte[] imageBytes) throws IOException {
+    OutputStream stream = new FileOutputStream(file);
+    stream.close();
+    stream.write(imageBytes);
+    stream.close();
+}",1
+Case_269_K-9 Mail_SINTETICO_3_BUG,App de Fitness,java.io.OutputStream,"public void backupWorkout(File file, String json) throws IOException {
+    OutputStream outputStream = new FileOutputStream(file);
+    outputStream.close();
+    outputStream.write(json.getBytes(StandardCharsets.UTF_8));
+    outputStream.close();
+}",1
+Case_269_K-9 Mail_SINTETICO_4_BUG,App de Fotografia,java.io.OutputStream,"public void saveEditedPhoto(File file, Bitmap bitmap) throws IOException {
+    OutputStream os = new FileOutputStream(file);
+    os.close();
+    bitmap.compress(Bitmap.CompressFormat.JPEG, 90, os);
+    os.close();
+}",1
+Case_269_K-9 Mail_SINTETICO_5_BUG,App de Mensagens,java.io.OutputStream,"public void writeAttachment(File file, byte[] data) throws IOException {
+    OutputStream out = new FileOutputStream(file);
+    out.close();
+    out.write(data);
+    out.close();
+}",1
+Case_269_K-9 Mail_SINTETICO_6_BUG,App de Notas,java.io.OutputStream,"public void persistNote(File file, String note) throws IOException {
+    OutputStream output = new FileOutputStream(file);
+    output.close();
+    output.write(note.getBytes());
+    output.close();
+}",1
+Case_269_K-9 Mail_SINTETICO_7_BUG,App de Navegação,java.io.OutputStream,"public void saveRouteCache(File file, String routeJson) throws IOException {
+    OutputStream cacheStream = new FileOutputStream(file);
+    cacheStream.close();
+    cacheStream.write(routeJson.getBytes(StandardCharsets.UTF_8));
+    cacheStream.close();
+}",1
+Case_269_K-9 Mail_SINTETICO_8_BUG,App de Leitura,java.io.OutputStream,"public void exportHighlights(File file, String highlights) throws IOException {
+    OutputStream stream = new FileOutputStream(file);
+    stream.close();
+    stream.write(highlights.getBytes());
+    stream.close();
+}",1
+Case_269_K-9 Mail_SINTETICO_9_BUG,App de Finanças,java.io.OutputStream,"public void saveReport(File file, byte[] reportBytes) throws IOException {
+    OutputStream os = new FileOutputStream(file);
+    os.close();
+    os.write(reportBytes);
+    os.close();
+}",1
+Case_269_K-9 Mail_SINTETICO_10_BUG,App de Jogos,java.io.OutputStream,"public void saveGameState(File file, String state) throws IOException {
+    OutputStream outputStream = new FileOutputStream(file);
+    outputStream.close();
+    outputStream.write(state.getBytes(StandardCharsets.UTF_8));
+    outputStream.close();
+}",1
+Case_273_Terminal_SINTETICO_1_BUG,App de Musica,java.io.OutputStream,"public void exportarPlaylist(File destino) throws IOException {
+    FileOutputStream out = new FileOutputStream(destino);
+    out.write(conteudoPlaylist.getBytes(StandardCharsets.UTF_8));
+    out.flush();
+}",1
+Case_273_Terminal_SINTETICO_2_BUG,App de Scanner de Documentos,java.io.OutputStream,"public void salvarImagemEscaneada(Bitmap bitmap, File arquivo) throws IOException {
+    OutputStream out = new FileOutputStream(arquivo);
+    bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+}",1
+Case_273_Terminal_SINTETICO_3_BUG,App de Fitness,java.io.OutputStream,"public void exportarTreinoCsv(File file, String csv) throws IOException {
+    OutputStream stream = new FileOutputStream(file);
+    stream.write(csv.getBytes());
+    stream.flush();
+}",1
+Case_273_Terminal_SINTETICO_4_BUG,App de Chat,java.io.OutputStream,"public void guardarAnexo(File destino, byte[] dados) throws IOException {
+    OutputStream out = new FileOutputStream(destino);
+    out.write(dados);
+}",1
+Case_273_Terminal_SINTETICO_5_BUG,App de Navegação,java.io.OutputStream,"public void exportarRota(File outputFile, String gpx) throws IOException {
+    FileOutputStream fos = new FileOutputStream(outputFile);
+    fos.write(gpx.getBytes(StandardCharsets.UTF_8));
+}",1
+Case_273_Terminal_SINTETICO_6_BUG,App de Câmera,java.io.OutputStream,"public void salvarMiniatura(File file, Bitmap thumb) throws IOException {
+    OutputStream os = new FileOutputStream(file);
+    thumb.compress(Bitmap.CompressFormat.PNG, 100, os);
+}",1
+Case_273_Terminal_SINTETICO_7_BUG,App de Backup,java.io.OutputStream,"public void fazerBackup(String json, File backupFile) throws IOException {
+    OutputStream out = new FileOutputStream(backupFile);
+    out.write(json.getBytes(StandardCharsets.UTF_8));
+}",1
+Case_273_Terminal_SINTETICO_8_BUG,App de Leitura de Ebooks,java.io.OutputStream,"public void exportarMarcacoes(File file, String data) throws IOException {
+    OutputStream outputStream = new FileOutputStream(file);
+    outputStream.write(data.getBytes());
+    outputStream.flush();
+}",1
+Case_273_Terminal_SINTETICO_9_BUG,App de Meteorologia,java.io.OutputStream,"public void salvarCachePrevisao(File cacheFile, byte[] bytes) throws IOException {
+    OutputStream stream = new FileOutputStream(cacheFile);
+    stream.write(bytes);
+}",1
+Case_273_Terminal_SINTETICO_10_BUG,App de Jogos,java.io.OutputStream,"public void guardarReplay(File replayFile, byte[] replayData) throws IOException {
+    OutputStream out = new FileOutputStream(replayFile);
+    out.write(replayData);
+    out.flush();
+}",1
+Case_276_VLC_SINTETICO_1_BUG,App de Musica,java.io.OutputStreamWriter,"OutputStreamWriter writer = new OutputStreamWriter(socket.getOutputStream());
+String track;
+while ((track = playlistReader.readLine()) != null) {
+    writer.write(track);
+    writer.write(""\n"");
+}
+writer.flush();
+socket.close();
+playlistReader.close();",1
+Case_276_VLC_SINTETICO_2_BUG,App de Scanner de Documentos,java.io.OutputStreamWriter,"OutputStreamWriter writer = new OutputStreamWriter(fileOutputStream);
+String pageText;
+while ((pageText = ocrReader.readLine()) != null) {
+    writer.write(pageText);
+    writer.append('\n');
+}
+writer.close();
+fileOutputStream.close();
+ocrReader.close();",1
+Case_276_VLC_SINTETICO_3_BUG,App de Fitness,java.io.OutputStreamWriter,"OutputStreamWriter writer = new OutputStreamWriter(networkSocket.getOutputStream());
+String metric;
+while ((metric = sensorLog.readLine()) != null) {
+    writer.write(metric);
+    writer.write(""\n"");
+}
+networkSocket.close();
+sensorLog.close();",1
+Case_276_VLC_SINTETICO_4_BUG,App de Chat,java.io.OutputStreamWriter,"OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+String message;
+while ((message = messageReader.readLine()) != null) {
+    writer.write(message);
+    writer.write('\n');
+}
+writer.flush();
+connection.close();
+messageReader.close();",1
+Case_276_VLC_SINTETICO_5_BUG,App de Receitas,java.io.OutputStreamWriter,"OutputStreamWriter writer = new OutputStreamWriter(cacheStream);
+String ingredient;
+while ((ingredient = recipeReader.readLine()) != null) {
+    writer.write(ingredient);
+    writer.write(""\n"");
+}
+cacheStream.close();
+recipeReader.close();",1
+Case_276_VLC_SINTETICO_6_BUG,App de Navegação,java.io.OutputStreamWriter,"OutputStreamWriter writer = new OutputStreamWriter(routeSocket.getOutputStream());
+String step;
+while ((step = routeReader.readLine()) != null) {
+    writer.write(step);
+    writer.write(""\n"");
+}
+routeSocket.close();
+routeReader.close();",1
+Case_276_VLC_SINTETICO_7_BUG,App de Podcast,java.io.OutputStreamWriter,"OutputStreamWriter writer = new OutputStreamWriter(downloadOutput);
+String chapter;
+while ((chapter = chapterReader.readLine()) != null) {
+    writer.write(chapter);
+    writer.write(""\n"");
+}
+downloadOutput.close();
+chapterReader.close();",1
+Case_276_VLC_SINTETICO_8_BUG,App de Educação,java.io.OutputStreamWriter,"OutputStreamWriter writer = new OutputStreamWriter(submissionStream);
+String answer;
+while ((answer = answerReader.readLine()) != null) {
+    writer.write(answer);
+    writer.write(""\n"");
+}
+writer.close();
+submissionStream.close();
+answerReader.close();",1
+Case_276_VLC_SINTETICO_9_BUG,App de Compras,java.io.OutputStreamWriter,"OutputStreamWriter writer = new OutputStreamWriter(syncSocket.getOutputStream());
+String item;
+while ((item = cartReader.readLine()) != null) {
+    writer.write(item);
+    writer.write(""\n"");
+}
+syncSocket.close();
+cartReader.close();",1
+Case_276_VLC_SINTETICO_10_BUG,App de Meteorologia,java.io.OutputStreamWriter,"OutputStreamWriter writer = new OutputStreamWriter(reportOutput);
+String row;
+while ((row = csvReader.readLine()) != null) {
+    writer.write(row);
+    writer.write(""\n"");
+}
+reportOutput.close();
+csvReader.close();",1
+Case_283_Ushahidi_SINTETICO_1_BUG,App de Musica,java.util.concurrent.Semaphore,"if (downloadQueue.isEmpty()) {
+    semaphore.release();
+    return;
+}
+currentTrack = downloadQueue.remove(0);
+if (currentTrack.isReady()) {
+    player.play(currentTrack);
+    if (downloadQueue.isEmpty()) {
+        semaphore.release();
+    }
+}
+",1
+Case_283_Ushahidi_SINTETICO_2_BUG,App de Scanner,java.util.concurrent.Semaphore,"if (pages == null) {
+    semaphore.release();
+    return;
+}
+pages.remove(pages.size() - 1);
+if (pages.size() == 0) {
+    scanner.stop();
+    semaphore.release();
+}
+",1
+Case_283_Ushahidi_SINTETICO_3_BUG,App de Fitness,java.util.concurrent.Semaphore,"if (workoutSteps.isEmpty()) {
+    semaphore.release();
+    return;
+}
+workoutSteps.remove(workoutSteps.size() - 1);
+if (workoutSteps.isEmpty()) {
+    timer.cancel();
+    semaphore.release();
+}
+",1
+Case_283_Ushahidi_SINTETICO_4_BUG,App de Mensagens,java.util.concurrent.Semaphore,"if (pendingMessages == null) {
+    semaphore.release();
+    return;
+}
+pendingMessages.remove(pendingMessages.size() - 1);
+if (pendingMessages.isEmpty()) {
+    messageReceiver.unregister();
+    semaphore.release();
+}
+",1
+Case_283_Ushahidi_SINTETICO_5_BUG,App de Navegação,java.util.concurrent.Semaphore,"if (routeSegments == null) {
+    semaphore.release();
+    return;
+}
+routeSegments.remove(routeSegments.size() - 1);
+if (routeSegments.isEmpty()) {
+    locationUpdates.stop();
+    semaphore.release();
+}
+",1
+Case_283_Ushahidi_SINTETICO_6_BUG,App de E-commerce,java.util.concurrent.Semaphore,"if (cartItems.isEmpty()) {
+    semaphore.release();
+    return;
+}
+cartItems.remove(cartItems.size() - 1);
+if (cartItems.isEmpty()) {
+    checkoutSession.finish();
+    semaphore.release();
+}
+",1
+Case_283_Ushahidi_SINTETICO_7_BUG,App de Fotografia,java.util.concurrent.Semaphore,"if (imageBuffer == null) {
+    semaphore.release();
+    return;
+}
+imageBuffer.remove(imageBuffer.size() - 1);
+if (imageBuffer.isEmpty()) {
+    camera.close();
+    semaphore.release();
+}
+",1
+Case_283_Ushahidi_SINTETICO_8_BUG,App de Banco,java.util.concurrent.Semaphore,"if (authTasks.isEmpty()) {
+    semaphore.release();
+    return;
+}
+authTasks.remove(authTasks.size() - 1);
+if (authTasks.isEmpty()) {
+    authManager.shutdown();
+    semaphore.release();
+}
+",1
+Case_283_Ushahidi_SINTETICO_9_BUG,App de Viagens,java.util.concurrent.Semaphore,"if (offlineBookings == null) {
+    semaphore.release();
+    return;
+}
+offlineBookings.remove(offlineBookings.size() - 1);
+if (offlineBookings.isEmpty()) {
+    syncService.stopSync();
+    semaphore.release();
+}
+",1
+Case_283_Ushahidi_SINTETICO_10_BUG,App de Streaming de Video,java.util.concurrent.Semaphore,"if (bufferChunks.isEmpty()) {
+    semaphore.release();
+    return;
+}
+bufferChunks.remove(bufferChunks.size() - 1);
+if (bufferChunks.isEmpty()) {
+    decoder.release();
+    semaphore.release();
+}
+",1
+Case_284_Bitcoin-wallet_SINTETICO_1_BUG,App de Musica,java.util.Formatter,"private void logNowPlaying(final Song song, final StringBuilder sb) {
+    final Formatter formatter = new Formatter(sb);
+    formatter.format(""Now playing: %s - %s (%d sec)\n"", song.getArtist(), song.getTitle(), song.getDurationSeconds());
+    if (song.isFavorite()) {
+        sb.append(""[favorite]\n"");
+    }
+}",1
+Case_284_Bitcoin-wallet_SINTETICO_2_BUG,App de Scanner,java.util.Formatter,"private void appendScanResult(final StringBuilder report, final Document doc) {
+    final Formatter formatter = new Formatter(report);
+    formatter.format(""Page %d: %s\n"", doc.getPageCount(), doc.getFileName());
+    formatter.format(""Resolution: %dx%d\n"", doc.getWidth(), doc.getHeight());
+    if (doc.isEncrypted()) {
+        report.append(""Encrypted document\n"");
+    }
+}",1
+Case_284_Bitcoin-wallet_SINTETICO_3_BUG,App de Fitness,java.util.Formatter,"private void buildWorkoutSummary(final StringBuilder summary, final Workout workout) {
+    final Formatter formatter = new Formatter(summary);
+    formatter.format(""Workout: %s\n"", workout.getName());
+    formatter.format(""Calories: %.1f\n"", workout.getCaloriesBurned());
+    formatter.format(""Duration: %d min\n"", workout.getDurationMinutes());
+    if (workout.isPersonalRecord()) {
+        summary.append(""New PR!\n"");
+    }
+}",1
+Case_284_Bitcoin-wallet_SINTETICO_4_BUG,App de E-commerce,java.util.Formatter,"private void appendOrderReceipt(final StringBuilder receipt, final Order order) {
+    final Formatter formatter = new Formatter(receipt);
+    formatter.format(""Order #%s\n"", order.getId());
+    formatter.format(""Items: %d\n"", order.getItemCount());
+    formatter.format(""Total: $%.2f\n"", order.getTotal());
+    if (order.isExpressShipping()) {
+        receipt.append(""Express shipping applied\n"");
+    }
+}",1
+Case_284_Bitcoin-wallet_SINTETICO_5_BUG,App de Navegação,java.util.Formatter,"private void appendRouteInfo(final StringBuilder sb, final Route route) {
+    final Formatter formatter = new Formatter(sb);
+    formatter.format(""Route: %s\n"", route.getName());
+    formatter.format(""Distance: %.1f km\n"", route.getDistanceKm());
+    formatter.format(""ETA: %d min\n"", route.getEstimatedMinutes());
+    if (route.hasTolls()) {
+        sb.append(""Tolls included\n"");
+    }
+}",1
+Case_284_Bitcoin-wallet_SINTETICO_6_BUG,App de Chat,java.util.Formatter,"private void appendMessagePreview(final StringBuilder preview, final ChatMessage message) {
+    final Formatter formatter = new Formatter(preview);
+    formatter.format(""%s: %s\n"", message.getSenderName(), message.getText());
+    if (message.isEdited()) {
+        preview.append(""(edited)\n"");
+    }
+    formatter.format(""Sent at %tT\n"", message.getTimestamp());
+}",1
+Case_284_Bitcoin-wallet_SINTETICO_7_BUG,App de Fotos,java.util.Formatter,"private void appendPhotoMetadata(final StringBuilder details, final Photo photo) {
+    final Formatter formatter = new Formatter(details);
+    formatter.format(""File: %s\n"", photo.getFileName());
+    formatter.format(""Dimensions: %dx%d\n"", photo.getWidth(), photo.getHeight());
+    formatter.format(""Taken: %tF %tT\n"", photo.getTakenAt(), photo.getTakenAt());
+    if (photo.hasGps()) {
+        details.append(""GPS available\n"");
+    }
+}",1
+Case_284_Bitcoin-wallet_SINTETICO_8_BUG,App de Finanças,java.util.Formatter,"private void appendTransactionLine(final StringBuilder ledger, final Transaction tx) {
+    final Formatter formatter = new Formatter(ledger);
+    formatter.format(""%s | %s | $%.2f\n"", tx.getDate(), tx.getDescription(), tx.getAmount());
+    if (tx.isPending()) {
+        ledger.append(""PENDING\n"");
+    }
+    formatter.format(""Balance impact: $%.2f\n"", tx.getBalanceImpact());
+}",1
+Case_284_Bitcoin-wallet_SINTETICO_9_BUG,App de Meteorologia,java.util.Formatter,"private void appendForecast(final StringBuilder sb, final Forecast forecast) {
+    final Formatter formatter = new Formatter(sb);
+    formatter.format(""Location: %s\n"", forecast.getCity());
+    formatter.format(""Temp: %.1f C\n"", forecast.getTemperatureCelsius());
+    formatter.format(""Humidity: %d%%\n"", forecast.getHumidity());
+    if (forecast.isStormWarning()) {
+        sb.append(""Storm warning active\n"");
+    }
+}",1
+Case_284_Bitcoin-wallet_SINTETICO_10_BUG,App de Delivery,java.util.Formatter,"private void appendDeliveryStatus(final StringBuilder status, final DeliveryOrder order) {
+    final Formatter formatter = new Formatter(status);
+    formatter.format(""Order: %s\n"", order.getOrderCode());
+    formatter.format(""Driver: %s\n"", order.getDriverName());
+    formatter.format(""ETA: %d minutes\n"", order.getEtaMinutes());
+    if (order.isContactless()) {
+        status.append(""Contactless delivery\n"");
+    }
+}",1
+Case_289_Bankdroid_SINTETICO_1_BUG,App de Musica,org.apache.http.impl.client.DefaultHttpClient,"try {
+    DefaultHttpClient client = new DefaultHttpClient();
+    HttpResponse response = client.execute(request);
+    playlist.syncFromServer(response.getEntity().getContent());
+    db.savePlaylist(playlist);
+} catch (IOException e) {
+    logError(e);
+}",1
+Case_289_Bankdroid_SINTETICO_2_BUG,App de Scanner de Documentos,org.apache.http.impl.client.DefaultHttpClient,"try {
+    DefaultHttpClient httpClient = new DefaultHttpClient();
+    HttpResponse response = httpClient.execute(uploadRequest);
+    serverStatus.parse(response.getEntity().getContent());
+    cache.markUploaded(documentId);
+} catch (Exception e) {
+    reportFailure(e);
+}",1
+Case_289_Bankdroid_SINTETICO_3_BUG,App de Fitness,org.apache.http.impl.client.DefaultHttpClient,"try {
+    DefaultHttpClient client = new DefaultHttpClient();
+    HttpResponse response = client.execute(syncRequest);
+    workoutRemoteState.update(response.getEntity().getContent());
+    localStore.saveWorkout(workoutSession);
+} catch (IOException e) {
+    handleSyncError(e);
+}",1
+Case_289_Bankdroid_SINTETICO_4_BUG,App de Compras,org.apache.http.impl.client.DefaultHttpClient,"try {
+    DefaultHttpClient client = new DefaultHttpClient();
+    HttpResponse response = client.execute(cartRequest);
+    cartParser.parse(response.getEntity().getContent());
+    cartRepository.update(cart);
+} catch (JSONException e) {
+    showCartError();
+}",1
+Case_289_Bankdroid_SINTETICO_5_BUG,App de Noticias,org.apache.http.impl.client.DefaultHttpClient,"try {
+    DefaultHttpClient client = new DefaultHttpClient();
+    HttpResponse response = client.execute(feedRequest);
+    newsFeed.load(response.getEntity().getContent());
+    preferences.storeLastSync(time);
+} catch (IOException e) {
+    retryLater();
+}",1
+Case_289_Bankdroid_SINTETICO_6_BUG,App de Viagens,org.apache.http.impl.client.DefaultHttpClient,"try {
+    DefaultHttpClient client = new DefaultHttpClient();
+    HttpResponse response = client.execute(routeRequest);
+    routeInfo.parse(response.getEntity().getContent());
+    itineraryDao.save(itinerary);
+} catch (Exception e) {
+    sendTelemetry(e);
+}",1
+Case_289_Bankdroid_SINTETICO_7_BUG,App de Educação,org.apache.http.impl.client.DefaultHttpClient,"try {
+    DefaultHttpClient client = new DefaultHttpClient();
+    HttpResponse response = client.execute(lessonRequest);
+    lessonManager.applyUpdate(response.getEntity().getContent());
+    progressDb.save(progress);
+} catch (IOException e) {
+    notifyUser();
+}",1
+Case_289_Bankdroid_SINTETICO_8_BUG,App de Saúde,org.apache.http.impl.client.DefaultHttpClient,"try {
+    DefaultHttpClient client = new DefaultHttpClient();
+    HttpResponse response = client.execute(measurementRequest);
+    healthSync.parse(response.getEntity().getContent());
+    metricsStore.persist(metrics);
+} catch (IOException e) {
+    logSyncIssue(e);
+}",1
+Case_289_Bankdroid_SINTETICO_9_BUG,App de Mensagens,org.apache.http.impl.client.DefaultHttpClient,"try {
+    DefaultHttpClient client = new DefaultHttpClient();
+    HttpResponse response = client.execute(messageRequest);
+    inboxSync.read(response.getEntity().getContent());
+    messageDao.saveThreads(threads);
+} catch (IOException e) {
+    scheduleResend();
+}",1
+Case_289_Bankdroid_SINTETICO_10_BUG,App de Clima,org.apache.http.impl.client.DefaultHttpClient,"try {
+    DefaultHttpClient client = new DefaultHttpClient();
+    HttpResponse response = client.execute(weatherRequest);
+    weatherModel.updateFrom(response.getEntity().getContent());
+    forecastCache.store(location, forecast);
+} catch (IOException e) {
+    fallbackToLocalForecast();
+}",1

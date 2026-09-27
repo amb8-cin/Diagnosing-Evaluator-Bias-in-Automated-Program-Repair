@@ -1,0 +1,30 @@
+Case_006_AnkiDroid
+Case_029_Osmand
+Case_049_Owncloud
+Case_069_OSMTracker
+Case_089_Wordpress
+Case_097_Wordpress
+Case_100_Wordpress
+Case_133_Transdroid
+Case_139_APG
+Case_149_AnySoftKeyboard
+Case_164_Zxing
+Case_166_IRCCloud
+Case_168_Cgeo
+Case_170_K-9 Mail
+Case_172_ConnectBot
+Case_175_CSipSimple
+Case_178_Xabber
+Case_221_ChatSecure
+Case_222_ChatSecure
+Case_227_ChatSecure
+Case_230_ChatSecure
+Case_232_K-9 Mail
+Case_264_FBReaderJ
+Case_267_Hacker News
+Case_269_K-9 Mail
+Case_273_Terminal
+Case_276_VLC
+Case_283_Ushahidi
+Case_284_Bitcoin-wallet
+Case_289_Bankdroid

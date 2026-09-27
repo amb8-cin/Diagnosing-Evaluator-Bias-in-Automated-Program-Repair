@@ -1,4 +1,4 @@
-﻿ID_Caso;Aplicacao;Classe_Recurso;Caminho_Ficheiro;Codigo_Diff;Tem_Fuga_de_Recurso
+﻿Case_ID;Application;Classe_Recurso;Caminho_Ficheiro;Diff_Code;Has_Resource_Leak
 Case_003_AnkiDroid;AnkiDroid;android.database.Cursor;Sched.java;"--- BuggyCode.java (Com Erro)
 +++ GroundTruth_Fix.java (Corrigido)
 @@ -2582,6 +2582,11 @@

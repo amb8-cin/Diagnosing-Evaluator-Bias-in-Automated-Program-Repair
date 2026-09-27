@@ -28,17 +28,17 @@ def merge_full_ast_results():
     
     # Perform a Left Join with the raw dataset
     df_base_context = pd.merge(
-        df_ast[['ID_Caso']], 
-        df_raw[['ID_Caso', 'Application', 'Resource_Class', 'buggy_code']], 
-        on='ID_Caso', 
+        df_ast[['Case_ID']], 
+        df_raw[['Case_ID', 'Application', 'Resource_Class', 'buggy_code']], 
+        on='Case_ID', 
         how='left'
     )
 
     # 4. STEP B: Bring LLM responses for those already processed
     df_final = pd.merge(
         df_base_context, 
-        df_llms[['ID_Caso', 'fix_gpt', 'fix_claude', 'fix_gemini']], 
-        on='ID_Caso', 
+        df_llms[['Case_ID', 'fix_gpt', 'fix_claude', 'fix_gemini']], 
+        on='Case_ID', 
         how='left',
         indicator=True # Adds the _merge column to know where each entry came from
     )
@@ -53,7 +53,7 @@ def merge_full_ast_results():
     
     # Reorganize columns in a logical order
     ordered_columns = [
-        'ID_Caso', 'Execution_Status', 'Application', 'Resource_Class', 'buggy_code', 
+        'Case_ID', 'Execution_Status', 'Application', 'Resource_Class', 'buggy_code', 
         'fix_gpt', 'fix_claude', 'fix_gemini'
     ]
     df_final = df_final[ordered_columns]

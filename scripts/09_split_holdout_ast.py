@@ -36,7 +36,7 @@ def align_ast_split(full_ast_path, real_train_path, llm_holdout_path, output_fol
     print(f"📈 Train AST: {len(df_ast_train)} rows | 🎯 Test/Holdout AST: {len(df_ast_holdout_bugs)} bugs.")
 
 if __name__ == "__main__":
-    FULL_AST = "C:/Dissertacao/data_bases/04_final/dataset_ast_full.csv"
+    FULL_AST = "C:/Dissertacao/data_bases/04_final/dataset_ast_complete.csv"
     REAL_TRAIN = "C:/Dissertacao/data_bases/04_final/train_validator_final.csv"
     LLM_HOLDOUT = "C:/Dissertacao/data_bases/04_final/holdout_300_bugs_llm.csv"
     DESTINATION_FOLDER = "C:/Dissertacao/data_bases/04_final/"

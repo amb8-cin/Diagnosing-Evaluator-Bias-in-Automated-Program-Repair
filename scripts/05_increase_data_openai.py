@@ -88,7 +88,7 @@ def main():
         novos_dados_sinteticos = df_existente.to_dict('records')
         
         for idx, row in df_existente.iterrows():
-            id_base = str(row['ID_Caso']).split('_SINTETICO')[0]
+            id_base = str(row['Case_ID']).split('_SINTETICO')[0]
             casos_ja_processados.add(id_base)
             
         print(f"✅ Já temos {len(casos_ja_processados)} casos processados e guardados.\n")
@@ -96,14 +96,14 @@ def main():
     # 3. Agrupar os pares de BUG e FIX
     casos_reais = {}
     for index, row in df.iterrows():
-        id_base = str(row['ID_Caso']).replace('_BUG', '').replace('_FIX', '')
+        id_base = str(row['Case_ID']).replace('_BUG', '').replace('_FIX', '')
         
         if id_base not in casos_reais:
             casos_reais[id_base] = {'recurso': row['Classe_Recurso']}
             
-        if '_BUG' in str(row['ID_Caso']):
+        if '_BUG' in str(row['Case_ID']):
             casos_reais[id_base]['bug'] = row['Codigo_Snippet']
-        elif '_FIX' in str(row['ID_Caso']):
+        elif '_FIX' in str(row['Case_ID']):
             casos_reais[id_base]['fix'] = row['Codigo_Snippet']
 
     # 4. Processar todos os casos que faltam
@@ -128,19 +128,19 @@ def main():
                 id_sintetico_base = f"{id_base}_SINTETICO_{i+1}"
                 
                 novos_dados_sinteticos.append({
-                    "ID_Caso": f"{id_sintetico_base}_BUG",
-                    "Aplicacao": sint.get('contexto', 'Sintetico'),
+                    "Case_ID": f"{id_sintetico_base}_BUG",
+                    "Application": sint.get('contexto', 'Sintetico'),
                     "Classe_Recurso": dados['recurso'],
                     "Codigo_Snippet": sint.get('buggy_code', ''),
-                    "Tem_Fuga_de_Recurso": 1
+                    "Has_Resource_Leak": 1
                 })
                 
                 novos_dados_sinteticos.append({
-                    "ID_Caso": f"{id_sintetico_base}_FIX",
-                    "Aplicacao": sint.get('contexto', 'Sintetico'),
+                    "Case_ID": f"{id_sintetico_base}_FIX",
+                    "Application": sint.get('contexto', 'Sintetico'),
                     "Classe_Recurso": dados['recurso'],
                     "Codigo_Snippet": sint.get('fix_code', ''),
-                    "Tem_Fuga_de_Recurso": 0
+                    "Has_Resource_Leak": 0
                 })
                 
             # AUTO-SAVE: Grava o ficheiro imediatamente a cada caso terminado!

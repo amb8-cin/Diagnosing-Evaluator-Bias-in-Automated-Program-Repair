@@ -1,4 +1,4 @@
-ID_Caso,Aplicacao,Classe_Recurso,codigo_com_bug,Tem_Fuga_de_Recurso,fix_gpt,fix_claude,fix_gemini
+Case_ID,Application,Classe_Recurso,code_with_bug,Has_Resource_Leak,fix_gpt,fix_claude,fix_gemini
 Case_003_AnkiDroid_SINTETICO_3_BUG,App de Fitness,android.database.Cursor,"Cursor c = null;
 try {
     c = fitnessDb.query(""workouts"", new String[]{""duration"", ""calories""}, ""user_id=?"", new String[]{String.valueOf(userId)}, null, null, ""date DESC"");

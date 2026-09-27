@@ -1,142 +1,227 @@
-import pandas as pd
-import time
+import argparse
 import os
+import re
+import time
+
+import pandas as pd
 from dotenv import load_dotenv
 
 # Official library imports
 from openai import OpenAI
 from anthropic import Anthropic
-import google.generativeai as genai
+from google import genai
+from google.genai import types as genai_types
 
 # 1. LOAD ENVIRONMENT VARIABLES
-load_dotenv() 
+# Looks for .env next to this script and one level up (the project root), instead of relying
+# on whatever the current working directory happens to be when you run "python 13_...py".
+_HERE = os.path.dirname(os.path.abspath(__file__))
+_ENV_CANDIDATES = [
+    os.path.join(_HERE, '.env'),
+    os.path.join(_HERE, '..', '.env'),
+    'C:/Dissertacao/api_keys',          # in case this is the keys file itself (no extension)
+    'C:/Dissertacao/api_keys/.env',     # in case this is a folder containing a .env file
+    'C:/Dissertacao/api_keys.env',
+]
+_ENV_LOADED_FROM = None
+for _candidate in _ENV_CANDIDATES:
+    if os.path.isfile(_candidate):
+        load_dotenv(dotenv_path=_candidate)
+        _ENV_LOADED_FROM = _candidate
+        break
+else:
+    load_dotenv()  # last resort: default python-dotenv search
+
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
+_missing = [name for name, value in [
+    ("OPENAI_API_KEY", OPENAI_API_KEY),
+    ("ANTHROPIC_API_KEY", ANTHROPIC_API_KEY),
+    ("GEMINI_API_KEY", GEMINI_API_KEY),
+] if not value]
+if _missing:
+    print(f"Looked for .env at: {_ENV_CANDIDATES} (found: {_ENV_LOADED_FROM})")
+    raise SystemExit(
+        f"ERROR: missing environment variable(s) {_missing}. "
+        f"Create a .env file (next to this script or one folder above) with lines like "
+        f"OPENAI_API_KEY=sk-..., no quotes, no spaces around '='."
+    )
+
 # 2. CLIENT INITIALIZATION
 openai_client = OpenAI(api_key=OPENAI_API_KEY)
 anthropic_client = Anthropic(api_key=ANTHROPIC_API_KEY)
-genai.configure(api_key=GEMINI_API_KEY)
+gemini_client = genai.Client(api_key=GEMINI_API_KEY)
+
+# ==========================================================
+# CONFIGURATION
+# ==========================================================
+# NOTE: this input is the NEW holdout (script 8, case-level split). It has ~305 bugs, not 300.
+DEFAULT_INPUT = 'C:/Dissertacao/data_bases/04_final/holdout_305_bugs_llm.csv'
+# NOTE: deliberately a NEW file name, different from any previous run, so this never "resumes"
+# from results that were computed on the OLD (leaked) holdout.
+DEFAULT_OUTPUT = 'C:/Dissertacao/data_bases/05_results/tournament_results_holdout_v2_pt.csv'
+
+# Double-check these against each provider's current docs before running: exact API model
+# identifiers change over time and an outdated one fails immediately for every call.
+GPT_MODEL = "gpt-5.4"
+CLAUDE_MODEL = "claude-opus-4-6"
+GEMINI_MODEL = "gemini-3.1-pro-preview"
+
+PROMPT_TEMPLATES = {
+    'en': """You are a software engineer specialized in Java.
+Fix the Resource Leak in the code below.
+RULE: Return ONLY the corrected code.
+No explanations, no markdown (```java), no greetings.
+
+Code:
+{code}
+""",
+    'pt': """Você é um engenheiro de software especialista em Java.
+Corrija o Resource Leak no código abaixo.
+REGRA: Retorne APENAS o código corrigido.
+Sem explicações, sem markdown (```java), sem saudações.
+
+Código:
+{code}
+""",
+}
+
+CODE_FENCE_RE = re.compile(r'^\s*```(?:java)?\s*\n?|\n?\s*```\s*$', re.MULTILINE)
+
+
+def strip_code_fences(text):
+    """Defensive cleanup: some models wrap the answer in ```java ... ``` despite instructions."""
+    if not isinstance(text, str):
+        return text
+    return CODE_FENCE_RE.sub('', text).strip()
+
+
+def is_ok(value):
+    """True only for a real, non-empty, non-error response."""
+    return (pd.notna(value) and str(value).strip() != ""
+            and not str(value).strip().startswith("ERROR"))
+
 
 # ==========================================
 # 3. CALL FUNCTIONS FOR EACH MODEL
+# (all error paths return a string starting with "ERROR" so is_ok() can detect them)
 # ==========================================
 
 def request_gpt_fix(prompt):
     try:
         response = openai_client.chat.completions.create(
-            model="gpt-5.4", # Update to the exact model you will use
+            model=GPT_MODEL,
             messages=[{"role": "user", "content": prompt}],
             temperature=0.1
         )
-        return response.choices[0].message.content
+        return strip_code_fences(response.choices[0].message.content)
     except Exception as e:
-        return f"GPT ERROR: {e}"
+        return f"ERROR (GPT): {e}"
+
 
 def request_claude_fix(prompt):
     try:
         response = anthropic_client.messages.create(
-            model="claude-opus-4-6", # Exact and stable model name
+            model=CLAUDE_MODEL,
             max_tokens=2000,
             temperature=0.1,
             messages=[{"role": "user", "content": prompt}]
         )
-        return response.content[0].text
+        return strip_code_fences(response.content[0].text)
     except Exception as e:
-        return f"CLAUDE ERROR: {e}"
+        return f"ERROR (Claude): {e}"
+
 
 def request_gemini_fix(prompt):
     try:
-        # Added '-latest' suffix, recognized by the API as default
-        model = genai.GenerativeModel('gemini-3.1-pro-preview') 
-        response = model.generate_content(
-            prompt,
-            generation_config=genai.types.GenerationConfig(temperature=0.1)
+        # thinking_level="low": Gemini 3.1 Pro cannot fully disable its internal reasoning
+        # ("thinking tokens"), which are billed as output tokens and can dwarf the visible
+        # answer for a simple task like this one. "low" is the cheapest setting available and
+        # is enough for a mechanical resource-leak fix (no complex reasoning needed).
+        response = gemini_client.models.generate_content(
+            model=GEMINI_MODEL,
+            contents=prompt,
+            config=genai_types.GenerateContentConfig(
+                temperature=0.1,
+                max_output_tokens=4096,
+                thinking_config=genai_types.ThinkingConfig(thinking_level="low"),
+            ),
         )
-        return response.text
+        return strip_code_fences(response.text)
     except Exception as e:
-        return f"GEMINI ERROR: {e}"
+        return f"ERROR (Gemini): {e}"
+
 
 # ==========================================
 # 4. MAIN PIPELINE (The Tournament)
 # ==========================================
 def main():
-    print("🚀 Starting the LLM Tournament...")
-    
-    input_file = './data_sets/holdout_300_bugs_llm.csv'
-    output_file = './data_sets/05_results/llm_tournament_results.csv'
-    
-    if not os.path.exists(input_file):
-        print(f"❌ Error: The file {input_file} was not found!")
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--input', default=DEFAULT_INPUT)
+    parser.add_argument('--output', default=DEFAULT_OUTPUT)
+    parser.add_argument('--lang', choices=['en', 'pt'], default='pt',
+                        help='language of the prompt sent to the LLMs')
+    args = parser.parse_args()
+
+    print("Starting the LLM Tournament...")
+
+    if not os.path.exists(args.input):
+        print(f"ERROR: The file {args.input} was not found!")
         return
 
     # ========================================================
     # RESUME LOGIC (CHECKPOINT)
     # ========================================================
-    if os.path.exists(output_file):
-        df = pd.read_csv(output_file)
-        print("📁 Partial file found. Evaluating what has already been processed...")
+    if os.path.exists(args.output):
+        df = pd.read_csv(args.output)
+        print(f"Partial file found at {args.output}. Resuming what is missing...")
     else:
-        df = pd.read_csv(input_file)
-        print("🚀 Starting processing from scratch...")
-        # Creates columns if they don't exist
+        df = pd.read_csv(args.input)
+        print("Starting processing from scratch...")
         for col in ['fix_gpt', 'fix_claude', 'fix_gemini']:
             if col not in df.columns:
                 df[col] = ""
 
-    # Gets the 300 cases
-    df = df.head(300) 
+    print(f"   -> {len(df)} bugs to process (the full holdout, no row is dropped).")
 
-    skipped_cases = 0
+    os.makedirs(os.path.dirname(args.output), exist_ok=True)
+    template = PROMPT_TEMPLATES[args.lang]
 
-    # Iterate over each bug
+    skipped = 0
     for index, row in df.iterrows():
-        
-        # Security check: verifies if all 3 responses exist and are not errors
-        gpt_ok = pd.notna(row.get('fix_gpt')) and str(row.get('fix_gpt')).strip() != "" and not str(row.get('fix_gpt')).startswith("ERROR")
-        claude_ok = pd.notna(row.get('fix_claude')) and str(row.get('fix_claude')).strip() != "" and not str(row.get('fix_claude')).startswith("ERROR")
-        gemini_ok = pd.notna(row.get('fix_gemini')) and str(row.get('fix_gemini')).strip() != "" and not str(row.get('fix_gemini')).startswith("ERROR")
+        gpt_ok = is_ok(row.get('fix_gpt'))
+        claude_ok = is_ok(row.get('fix_claude'))
+        gemini_ok = is_ok(row.get('fix_gemini'))
 
         if gpt_ok and claude_ok and gemini_ok:
-            skipped_cases += 1
-            continue # Skips to the next iteration silently
-            
-        # If reached here, it means there's missing processing (e.g., will start from 46)
-        if skipped_cases > 0 and skipped_cases == index:
-            print(f"⏩ Skipping {skipped_cases} successfully processed cases...")
-            
-        print(f"🔄 Processing bug {index + 1}/{len(df)}...")
-        
-        buggy_code = row['code_with_bug'] # Confirm if this is indeed the column name
-        
-        full_prompt = f"""
-        Você é um engenheiro de software especialista em Java. 
-        Corrija o Resource Leak no código abaixo.
-        REGRA: Retorne APENAS o código corrigido. 
-        Sem explicações, sem markdown (```java), sem saudações.
-        
-        Código:
-        {buggy_code}
-        """
-        
-        # Executing calls (Checking if empty or if an ERROR occurred before calling)
+            skipped += 1
+            continue
+
+        print(f"Processing bug {index + 1}/{len(df)}...")
+
+        buggy_code = row['code_with_bug']
+        full_prompt = template.format(code=buggy_code)
+
         if not gpt_ok:
             df.at[index, 'fix_gpt'] = request_gpt_fix(full_prompt)
-            time.sleep(1) 
-        
+            time.sleep(1)
+
         if not claude_ok:
             df.at[index, 'fix_claude'] = request_claude_fix(full_prompt)
             time.sleep(2)
-        
+
         if not gemini_ok:
             df.at[index, 'fix_gemini'] = request_gemini_fix(full_prompt)
             time.sleep(3)
-        
-        # Saves partial progress after each completed row
-        df.to_csv(output_file, index=False)
 
-    print(f"\n✅ Tournament finished! Results successfully saved to '{output_file}'.")
+        # Saves partial progress after each completed row
+        df.to_csv(args.output, index=False)
+
+    print(f"\nTournament finished! {skipped} bugs were already complete and were skipped.")
+    print(f"Results saved to '{args.output}'.")
+
 
 if __name__ == "__main__":
     main()

@@ -46,15 +46,15 @@ def generate_balanced_dataset(input_csv_path, output_csv_path):
     cases_processed = 0
     
     for index, row in df.iterrows():
-        diff = row['Codigo_Diff']
+        diff = row['Diff_Code']
         buggy_code, fix_code = extract_versions_from_diff(diff)
         
         # Only add if extraction worked
         if buggy_code and fix_code:
             # 1. Add the BUGGY version (Label = 1)
             new_data.append({
-                "Case_ID": f"{row['ID_Caso']}_BUG",
-                "Application": row['Aplicacao'],
+                "Case_ID": f"{row['Case_ID']}_BUG",
+                "Application": row['Application'],
                 "Resource_Class": row['Classe_Recurso'],
                 "Code_Snippet": buggy_code,
                 "Has_Resource_Leak": 1  # 🔴 SICK
@@ -62,8 +62,8 @@ def generate_balanced_dataset(input_csv_path, output_csv_path):
             
             # 2. Add the FIXED version (Label = 0)
             new_data.append({
-                "Case_ID": f"{row['ID_Caso']}_FIX",
-                "Application": row['Aplicacao'],
+                "Case_ID": f"{row['Case_ID']}_FIX",
+                "Application": row['Application'],
                 "Resource_Class": row['Classe_Recurso'],
                 "Code_Snippet": fix_code,
                 "Has_Resource_Leak": 0  # 🟢 HEALTHY

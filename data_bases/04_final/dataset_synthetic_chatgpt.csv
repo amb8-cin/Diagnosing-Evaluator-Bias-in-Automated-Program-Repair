@@ -1,4 +1,4 @@
-﻿ID_Caso;Aplicacao;Classe_Recurso;Codigo_Snippet;Tem_Fuga_de_Recurso
+﻿Case_ID;Application;Classe_Recurso;Codigo_Snippet;Has_Resource_Leak
 Case_003_AnkiDroid_SINTETICO_1_BUG;App de Música;android.database.Cursor;"Cursor cur = null;
 try {
     cur = db.rawQuery(""SELECT title, artist FROM songs WHERE favorite=1"", null);
